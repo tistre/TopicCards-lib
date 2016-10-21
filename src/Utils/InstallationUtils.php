@@ -86,50 +86,45 @@ class InstallationUtils
         self::initDbConstraints($topicmap);
         self::initDbTopics($topicmap);
 
-        $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_00_datatypes.xtm');
-        $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_01_schema_org.xtm');
-        $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_02_files.xtm');
+        // $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_00_datatypes.xtm');
     }
 
 
     protected static function initDbTopics(iTopicMap $topicmap)
     {
-        $topic_id_name = 'a8ddd773-7ad2-4b44-908c-e0dc7d9d9802';
-        $topic_id_concept = '722ac838-4534-4a46-82d1-a60365e37985';
-
-        // schema.org/name
-
-        $topic = $topicmap->newTopic();
-
-        $topic->setId($topic_id_name);
-        $topic->setTypeIds([ $topic_id_concept ]);
-        $topic->setSubjectIdentifiers([ 'http://schema.org/name', 'https://schema.org/name' ]);
-
-        $name = $topic->newName();
-        $name->setTypeId($topic_id_name);
-        $name->setValue('Name');
-
-        $ok = $topic->save();
-
-        if ($ok < 0)
+        $subjects =
+            [
+                iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE,
+                iTopicMap::SUBJECT_ASSOCIATION_TYPE,
+                iTopicMap::SUBJECT_DATATYPE,
+                iTopicMap::SUBJECT_OCCURRENCE_TYPE,
+                iTopicMap::SUBJECT_SCOPE,
+                iTopicMap::SUBJECT_TOPIC_NAME_TYPE,
+                iTopicMap::SUBJECT_TOPIC_TYPE,
+                iTopicMap::SUBJECT_DEFAULT_NAME_TYPE
+            ];
+        
+        foreach ($subjects as $subject)
         {
-            return $ok;
+            $topic = $topicmap->newTopic();
+
+            $topic->setSubjectIdentifiers([ $subject ]);
+
+            $ok = $topic->save();
+
+            if (($ok >= 0) && ($subject === iTopicMap::SUBJECT_DEFAULT_NAME_TYPE))
+            {
+                $topic_id = $topic->getId();
+                
+                $name = $topic->newName();
+                $name->setTypeId($topic_id);
+                $name->setValue('Name');
+                
+                $topic->save();
+            }
         }
-        
-        // www.w3.org/2004/02/skos/core#Concept
 
-        $topic = $topicmap->newTopic();
-
-        $topic->setId($topic_id_concept);
-        $topic->setSubjectIdentifiers([ 'http://www.w3.org/2004/02/skos/core#Concept' ]);
-
-        $name = $topic->newName();
-        $name->setTypeId($topic_id_name);
-        $name->setValue('Concept');
-
-        $ok = $topic->save();
-        
-        return $ok;
+        return 1;
     }
 
 
