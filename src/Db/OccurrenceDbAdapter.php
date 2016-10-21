@@ -248,6 +248,13 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
             iTopicMap::SUBJECT_SCOPE
         ));
 
+        $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
+        (
+            $this->topicmap,
+            [ $data[ 'datatype' ] ],
+            iTopicMap::SUBJECT_DATATYPE
+        ));
+
         foreach ($type_queries as $type_query)
         {
             $logger->info($type_query['query'], $type_query['bind']);
