@@ -15,6 +15,9 @@ interface iTopic extends iPersistent
     const EVENT_DELETING = 'topic_deleting';
     const EVENT_INDEXING = 'topic_indexing';
 
+    const ERR_SUBJECT_IDENTIFIER_EXISTS = -11;
+    
+    
     /**
      * @return iTopicDbAdapter
      */

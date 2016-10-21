@@ -460,7 +460,7 @@ class Topic extends Core implements iTopic
             {
                 if (strlen($this->topicmap->getTopicIdBySubject($subject_identifier)) > 0)
                 {
-                    $result = -11;
+                    $result = iTopic::ERR_SUBJECT_IDENTIFIER_EXISTS;
                     $msg_html .= 'Subject identifier already exists.';
                 }
             }
