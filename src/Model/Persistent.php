@@ -3,6 +3,8 @@
 namespace TopicCards\Model;
 
 use TopicCards\Interfaces\iPersistentDbAdapter;
+use TopicCards\Interfaces\iPersistentSearchAdapter;
+use TopicCards\Interfaces\iTopicMap;
 
 
 trait Persistent
@@ -128,27 +130,44 @@ trait Persistent
 
     public function save()
     {
+        /** @var iTopicMap $topicmap */
+        $topicmap = $this->getTopicMap();
+        
+        /** @var iPersistentSearchAdapter $search_adapter */
+        $search_adapter = $this->getSearchAdapter();
+        
         $ok = $this->validate($dummy);
         
         if ($ok < 0)
         {
+            $topicmap->getLogger()->error(sprintf('Topic <%s> save cancelled because the validation failed (%s).', $this->getId(), $ok));
             return $ok;
         }
 
-        $this->getSearchAdapter()->resetIndexRelated();
+        $search_adapter->resetIndexRelated();
         
         if ($this->getVersion() === 0)
         {
             if (strlen($this->getId()) === 0)
             {
-                $this->setId($this->getTopicMap()->createId());
+                $this->setId($topicmap->createId());
             }
                 
             $ok = $this->getPersistentDbAdapter()->insertAll($this->getAll());
+            
+            if ($ok < 0)
+            {
+                $topicmap->getLogger()->error(sprintf('Topic <%s> save failed (%s).', $this->getId(), $ok));
+            }
         }
         else
         {
             $ok = $this->getPersistentDbAdapter()->updateAll($this->getAll());
+
+            if ($ok < 0)
+            {
+                $topicmap->getLogger()->error(sprintf('Topic <%s> save failed (%s).', $this->getId(), $ok));
+            }
         }
 
         if ($ok >= 0)
@@ -156,8 +175,8 @@ trait Persistent
             $this->setVersion($this->getVersion() + 1);
             $this->previous_data = $this->getAll();
             
-            $this->getSearchAdapter()->index();
-            $this->getSearchAdapter()->indexRelated();
+            $search_adapter->index();
+            $search_adapter->indexRelated();
             
             $this->addHistoryItem(($this->getVersion() <= 1 ? 'i' : 'u'));
         }
