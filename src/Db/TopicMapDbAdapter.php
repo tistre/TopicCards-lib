@@ -69,7 +69,7 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
             $query .= ' LIMIT ' . $filters[ 'limit' ];
         }
 
-        $logger->addInfo($query, $bind);
+        $logger->info($query, $bind);
 
         try
         {
@@ -77,14 +77,14 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         }
         catch (Neo4jException $exception)
         {
-            $logger->addError($exception->getMessage());
+            $logger->error($exception->getMessage());
             // TODO: Error handling
             return -1;
         }
 
         $result = [ ];
 
-        foreach ($qresult->getRecords() as $record)
+        foreach ($qresult->records() as $record)
         {
             $result[ ] = $record->get('t.id');
         }
@@ -113,7 +113,7 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         $query = 'MATCH (n:Topic) WHERE {uri} in n.subject_identifiers RETURN n.id';
         $bind = [ 'uri' => $uri ];
 
-        $logger->addInfo($query, $bind);
+        $logger->info($query, $bind);
 
         try
         {
@@ -121,12 +121,12 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         }
         catch (Neo4jException $exception)
         {
-            $logger->addError($exception->getMessage());
+            $logger->error($exception->getMessage());
             // TODO: Error handling
             return -1;
         }
 
-        foreach ($qresult->getRecords() as $record)
+        foreach ($qresult->records() as $record)
         {
             return $record->get('n.id');
         }
@@ -167,7 +167,7 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         $query = 'MATCH (topic { id: {id} }) RETURN topic.' . $what;
         $bind = [ 'id' => $topic_id ];
 
-        $logger->addInfo($query, $bind);
+        $logger->info($query, $bind);
         
         try
         {
@@ -175,13 +175,13 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         }
         catch (Neo4jException $exception)
         {
-            $logger->addError($exception->getMessage());
+            $logger->error($exception->getMessage());
             return false;
         }
 
         // TODO add error handling
 
-        $record = $qresult->getRecord();
+        $record = $qresult->firstRecord();
         
         if (empty($record))
         {
@@ -202,20 +202,21 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
     public function selectAssociations(array $filters)
     {
         $logger = $this->topicmap->getLogger();
+        $db = $this->topicmap->getDb();
 
         if (isset($filters[ 'type' ]))
         {
-            $filters[ 'type_id' ] = $this->getTopicIdBySubject($filters[ 'type' ]);
+            $filters[ 'type_id' ] = $this->topicmap->getTopicIdBySubject($filters[ 'type' ]);
         }
 
         if (isset($filters[ 'role_player' ]))
         {
-            $filters[ 'role_player_id' ] = $this->getTopicIdBySubject($filters[ 'role_player' ]);
+            $filters[ 'role_player_id' ] = $this->topicmap->getTopicIdBySubject($filters[ 'role_player' ]);
         }
         
         if (isset($filters[ 'role_type' ]))
         {
-            $filters[ 'role_type_id' ] = $this->getTopicIdBySubject($filters[ 'role_type' ]);
+            $filters[ 'role_type_id' ] = $this->topicmap->getTopicIdBySubject($filters[ 'role_type' ]);
         }
         
         if (! isset($filters[ 'limit' ]))
@@ -276,7 +277,7 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
             $query .= ' LIMIT ' . $filters[ 'limit' ];
         }
 
-        $logger->addInfo($query, $bind);
+        $logger->info($query, $bind);
 
         try
         {
@@ -284,14 +285,14 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         }
         catch (Neo4jException $exception)
         {
-            $logger->addError($exception->getMessage());
+            $logger->error($exception->getMessage());
             // TODO: Error handling
             return -1;
         }
 
         $result = [ ];
 
-        foreach ($qresult->getRecords() as $record)
+        foreach ($qresult->records() as $record)
         {
             $result[ ] = $record->get('a.id');
         }
@@ -401,7 +402,7 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
             DbUtils::labelsString([ 'Topic', $what_id ])
         );
 
-        $logger->addInfo($query);
+        $logger->info($query);
 
         try
         {
@@ -409,14 +410,14 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
         }
         catch (Neo4jException $exception)
         {
-            $logger->addError($exception->getMessage());
+            $logger->error($exception->getMessage());
             // TODO: Error handling
             return -1;
         }
 
         $result = [ ];
 
-        foreach ($qresult->getRecords() as $record)
+        foreach ($qresult->records() as $record)
         {
             $result[ ] = $record->get('t.id');
         }

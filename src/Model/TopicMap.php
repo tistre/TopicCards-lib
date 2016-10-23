@@ -395,6 +395,6 @@ class TopicMap implements iTopicMap
     public function getPreferredLabelScopes()
     {
         // TODO to be implemented
-        return [ ];
+        return [ [ ], '*' ];
     }
 }

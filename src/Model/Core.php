@@ -6,7 +6,7 @@ use TopicCards\Interfaces\iCore;
 use TopicCards\Interfaces\iTopicMap;
 
 
-class Core implements iCore
+abstract class Core implements iCore
 {
     /** @var iTopicMap */
     protected $topicmap;
@@ -94,4 +94,10 @@ class Core implements iCore
 
         return 1;
     }
+
+
+    /**
+     * @return array
+     */
+    abstract public function getAll();
 }

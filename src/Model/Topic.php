@@ -270,10 +270,9 @@ class Topic extends Core implements iTopic
 
         foreach ($this->getNames([ ]) as $name)
         {
-            // XXX make http://schema.org/name a constant (DEFAULT_NAME_SUBJECT)
             $type_key = 
             (
-                ($name->getType() === 'http://schema.org/name')
+                ($name->getType() === iTopicMap::SUBJECT_DEFAULT_NAME_TYPE)
                 ? 'default'
                 : 'other'
             );
@@ -281,12 +280,16 @@ class Topic extends Core implements iTopic
             foreach ($preferred_scopes as $scope_key => $scope)
             {
                 if (($scope !== '*') && (! $name->matchesScope($scope)))
+                {
                     continue;
+                }
                 
                 $value = $name->getValue();
                 
                 if (strlen($value) === 0)
+                {
                     continue;
+                }
                     
                 $by_scope[ $scope_key ][ $type_key ][ ] = $value;
             }
@@ -297,7 +300,9 @@ class Topic extends Core implements iTopic
             foreach ($by_type as $values)
             {
                 if (isset($values[ 0 ]))
+                {
                     return $values[ 0 ];
+                }
             }
         }
 

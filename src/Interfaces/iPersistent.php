@@ -11,5 +11,11 @@ interface iPersistent extends iCore
     public function getCreated();
     public function getUpdated();
     public function getVersion();
+    
+    /**
+     * @return bool
+     */
+    public function isLoaded();
+    
     public function getPreviousData();
 }
