@@ -103,6 +103,12 @@ class Search implements iSearch
         
         return $result;
     }
+
+
+    public function getIndexName()
+    {
+        return $this->params[ 'index' ];
+    }
     
     
     public function getIndexParams(iTopicMap $topicmap, $index)
@@ -234,7 +240,7 @@ class Search implements iSearch
     }
 
 
-    public function recreateIndex($index, array $params)
+    public function recreateIndex(iTopicMap $topicmap, $index, array $params)
     {
         $connection = $this->getConnection();
 

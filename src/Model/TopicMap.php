@@ -260,7 +260,7 @@ class TopicMap implements iTopicMap
     
     public function newAssociation()
     {
-        $association = new Association($this->services, $this);
+        $association = new Association($this);
         
         return $association;
     }

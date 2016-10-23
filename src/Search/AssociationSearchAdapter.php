@@ -15,7 +15,7 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
     public function __construct(iAssociation $association)
     {
         $this->association = $association;
-        $this->topicmap = $topic->getTopicMap();
+        $this->topicmap = $association->getTopicMap();
     }
 
 

@@ -128,6 +128,7 @@ class RoleDbAdapter implements iRoleDbAdapter
             // If the ID is not in $previous_data, it's a new role
 
             $found = false;
+            $previous_role_data = [ ];
 
             foreach ($previous_data as $previous_role_data)
             {
@@ -169,6 +170,8 @@ class RoleDbAdapter implements iRoleDbAdapter
     
     protected function insertRole($association_id, array $data, Transaction $transaction)
     {
+        $logger = $this->topicmap->getLogger();
+        
         if ((! isset($data[ 'player' ])) || (strlen($data[ 'player' ]) === 0))
         {
             return 0;
@@ -195,7 +198,7 @@ class RoleDbAdapter implements iRoleDbAdapter
                 'topic_id' => $data[ 'player' ]
             ];
 
-        $property_query = $this->services->db_utils->propertiesString($property_data, $bind);
+        $property_query = DbUtils::propertiesString($property_data, $bind);
 
         $classes = [ $data[ 'type' ] ];
 
@@ -204,17 +207,17 @@ class RoleDbAdapter implements iRoleDbAdapter
             'MATCH (a:Association), (t:Topic)'
             . ' WHERE a.id = {association_id} AND t.id = {topic_id}'
             . ' CREATE (a)-[r%s { %s }]->(t)',
-            $this->services->db_utils->labelsString($classes),
+            DbUtils::labelsString($classes),
             $property_query
         );
 
-        $this->logger->addInfo($query, $bind);
+        $logger->info($query, $bind);
 
         $transaction->push($query, $bind);
 
         // Mark type topics
 
-        $type_queries = $this->services->db_utils->tmConstructLabelQueries
+        $type_queries = DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
             [ $data[ 'type' ] ],
@@ -223,7 +226,7 @@ class RoleDbAdapter implements iRoleDbAdapter
 
         foreach ($type_queries as $type_query)
         {
-            $this->logger->addInfo($type_query['query'], $type_query['bind']);
+            $logger->info($type_query['query'], $type_query['bind']);
             $transaction->push($type_query['query'], $type_query['bind']);
         }
         
@@ -234,6 +237,8 @@ class RoleDbAdapter implements iRoleDbAdapter
 
     protected function updateRole($association_id, array $data, array $previous_data, Transaction $transaction)
     {
+        $logger = $this->topicmap->getLogger();
+        
         $do_delete = $do_insert = false;
         $ok = 0;
         
@@ -257,7 +262,7 @@ class RoleDbAdapter implements iRoleDbAdapter
             
             $query = 'MATCH (a:Association { id: {association_id} })-[r { id: {id} }]-(t:Topic { id: {player_id} }) DELETE r';
 
-            $this->logger->addInfo($query, $bind);
+            $logger->info($query, $bind);
             
             $transaction->push($query, $bind);
 

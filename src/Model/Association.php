@@ -5,8 +5,10 @@ namespace TopicCards\Model;
 use TopicCards\Db\AssociationDbAdapter;
 use TopicCards\Interfaces\iAssociation;
 use TopicCards\Interfaces\iAssociationDbAdapter;
+use TopicCards\Interfaces\iPersistentSearchAdapter;
 use TopicCards\Interfaces\iRole;
 use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Search\AssociationSearchAdapter;
 
 
 class Association extends Core implements iAssociation
@@ -20,7 +22,10 @@ class Association extends Core implements iAssociation
     /** @var iAssociationDbAdapter */
     protected $db_adapter;
 
+    /** @var iPersistentSearchAdapter */
+    protected $search_adapter;
 
+    
     /**
      * Association constructor.
      *
@@ -31,6 +36,7 @@ class Association extends Core implements iAssociation
         parent::__construct($topicmap);
 
         $this->db_adapter = new AssociationDbAdapter($this);
+        $this->search_adapter = new AssociationSearchAdapter($this);
     }
 
 
@@ -40,6 +46,15 @@ class Association extends Core implements iAssociation
     public function getDbAdapter()
     {
         return $this->db_adapter;
+    }
+
+
+    /**
+     * @return iPersistentSearchAdapter
+     */
+    public function getSearchAdapter()
+    {
+        return $this->search_adapter;
     }
 
 

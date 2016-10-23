@@ -10,11 +10,15 @@ interface iSearch
     public function __construct(array $params);
     
     
+    // TODO add setLogger(), getLogger()
+    
+    
     /**
      * @return array
      */
     public function getParams();
 
+    
     /**
      * @return Client
      */
@@ -36,10 +40,16 @@ interface iSearch
     public function run($method, array $params);
 
 
+    /**
+     * @return string
+     */
+    public function getIndexName();
+
+
     public function getIndexParams(iTopicMap $topicmap, $index);
 
 
-    public function recreateIndex($index, array $params);
+    public function recreateIndex(iTopicMap $topicmap, $index, array $params);
 
 
     public function reindexAllTopics(iTopicMap $topicmap);

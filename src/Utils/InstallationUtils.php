@@ -165,19 +165,20 @@ class InstallationUtils
     }
 
 
-    public function initSearch()
+    public function initSearch(iTopicMap $topicmap)
     {
-        $index = $this->topicmap->getSearchIndex();
+        $search = $topicmap->getSearch();
+        $index = $search->getIndexName();
 
-        $this->services->search->recreateIndex
+        $search->recreateIndex
         (
-            $this->topicmap,
+            $topicmap,
             $index,
-            $this->services->search->getIndexParams($this->topicmap, $index)
+            $search->getIndexParams($topicmap, $index)
         );
 
-        $this->services->search->reindexAllTopics($this->topicmap);
-        $this->services->search->reindexAllAssociations($this->topicmap);
+        $search->reindexAllTopics($topicmap);
+        $search->reindexAllAssociations($topicmap);
 
         return 1;
     }
