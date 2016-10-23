@@ -30,6 +30,12 @@ class Db implements iDb
     }
 
 
+    public function getParams()
+    {
+        return $this->params;
+    }
+    
+    
     /**
      * @return ClientInterface
      */

@@ -7,6 +7,14 @@ use Elasticsearch\Client;
 
 interface iSearch
 {
+    public function __construct(array $params);
+    
+    
+    /**
+     * @return array
+     */
+    public function getParams();
+
     /**
      * @return Client
      */

@@ -12,6 +12,9 @@ class Search implements iSearch
 {
     const EVENT_INDEX_PARAMS = 'search_index_params';
 
+    /** @var array */
+    protected $params = [ ];
+    
     /** @var Client */
     protected $connection;
 
@@ -22,6 +25,12 @@ class Search implements iSearch
     }
 
 
+    public function getParams()
+    {
+        return $this->params;
+    }
+    
+    
     /**
      * @return Client
      */

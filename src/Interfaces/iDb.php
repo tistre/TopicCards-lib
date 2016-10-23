@@ -12,6 +12,12 @@ interface iDb
 
 
     /**
+     * @return array
+     */
+    public function getParams();
+
+
+    /**
      * @return ClientInterface
      */
     public function getConnection();
