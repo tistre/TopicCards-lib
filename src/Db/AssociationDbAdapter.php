@@ -154,7 +154,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
         $logger->info($query, $bind);
 
         $transaction->push($query, $bind);
-
+        
         // Mark type topics
 
         $type_queries = DbUtils::tmConstructLabelQueries
@@ -189,6 +189,8 @@ class AssociationDbAdapter implements iPersistentDbAdapter
         catch (Neo4jException $exception)
         {
             $logger->error($exception->getMessage());
+            $db->rollBack($transaction);
+            
             // TODO: Error handling
             $ok = -1;
         }
@@ -206,7 +208,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             if (isset($callback_result[ 'index_related' ]))
             {
-                $this->addIndexRelated($callback_result[ 'index_related' ]);
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
             }
         }
 
@@ -359,7 +361,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             if (isset($callback_result[ 'index_related' ]))
             {
-                $this->addIndexRelated($callback_result[ 'index_related' ]);
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
             }
         }
 
@@ -418,7 +420,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             if (isset($callback_result[ 'index_related' ]))
             {
-                $this->addIndexRelated($callback_result[ 'index_related' ]);
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
             }
         }
             

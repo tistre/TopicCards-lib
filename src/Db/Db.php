@@ -116,10 +116,15 @@ class Db implements iDb
             return -1;
         }
 
-        // TODO: To be implemented
-        // $this->connection->rollBack();
-        // $this->transaction_level = 0;
-
+        $transaction->rollback();
+        $this->transaction_level = 0;
+        
+        // Running into "RuntimeException: A transaction is already bound to this session",
+        // trying to work around it by reconnecting
+        
+        $this->connection = false;
+        $this->getConnection();
+        
         return -1;
     }
 }
