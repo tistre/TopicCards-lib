@@ -73,5 +73,9 @@ class OccurrenceTest extends TestCase
             $datatype_topic->getTypes(),
             'New datatype has not been marked as datatype.'
         );
+
+        $topic->delete();
+        $datatype_topic->delete();
+        $occurrence_type_topic->delete();
     }
 }
