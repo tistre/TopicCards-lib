@@ -117,6 +117,11 @@ class DbUtils
 
         foreach ($topic_ids as $topic_id)
         {
+            if (strlen($topic_id) === 0)
+            {
+                continue;
+            }
+            
             // TODO: Skip the ones which the cache knows are already labelled
             
             $result[ ] = 
