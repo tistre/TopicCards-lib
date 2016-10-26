@@ -94,36 +94,35 @@ class InstallationUtils
     {
         $subjects =
             [
-                iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE,
-                iTopicMap::SUBJECT_ASSOCIATION_TYPE,
-                iTopicMap::SUBJECT_DATATYPE,
-                iTopicMap::SUBJECT_OCCURRENCE_TYPE,
-                iTopicMap::SUBJECT_SCOPE,
-                iTopicMap::SUBJECT_TOPIC_NAME_TYPE,
-                iTopicMap::SUBJECT_TOPIC_TYPE,
-                iTopicMap::SUBJECT_DEFAULT_NAME_TYPE
+                // Name must come first!
+                iTopicMap::SUBJECT_DEFAULT_NAME_TYPE => 'Name',
+                iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE => 'Association role type',
+                iTopicMap::SUBJECT_ASSOCIATION_TYPE => 'Association type',
+                iTopicMap::SUBJECT_DATATYPE => 'Datatype',
+                iTopicMap::SUBJECT_OCCURRENCE_TYPE => 'Property type',
+                iTopicMap::SUBJECT_SCOPE => 'Scope',
+                iTopicMap::SUBJECT_TOPIC_NAME_TYPE => 'Name type',
+                iTopicMap::SUBJECT_TOPIC_TYPE => 'Topic type'
             ];
-        
-        foreach ($subjects as $subject)
+
+        foreach ($subjects as $subject => $name_str)
         {
             $topic = $topicmap->newTopic();
 
             $topic->setSubjectIdentifiers([ $subject ]);
 
-            $ok = $topic->save();
-
-            if (($ok >= 0) && ($subject === iTopicMap::SUBJECT_DEFAULT_NAME_TYPE))
+            if ($subject !== iTopicMap::SUBJECT_DEFAULT_NAME_TYPE)
             {
-                $topic_id = $topic->getId();
-                
                 $name = $topic->newName();
-                $name->setTypeId($topic_id);
-                $name->setValue('Name');
-                
-                $topic->save();
+                $name->setType(iTopicMap::SUBJECT_DEFAULT_NAME_TYPE);
+                $name->setValue($name_str);
             }
+            
+            $topic->save();
         }
 
+        // TODO: Set name of name to Name :)
+        
         return 1;
     }
 
