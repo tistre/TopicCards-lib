@@ -10,7 +10,6 @@ use TopicCards\Interfaces\iTopicMap;
 
 class Name extends Core implements iName
 {
-    // TODO use NameDbAdapter
     use Reified, Scoped, Typed;
     
     protected $value = false;
