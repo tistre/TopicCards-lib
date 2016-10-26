@@ -6,6 +6,7 @@ use TopicCards\Db\RoleDbAdapter;
 use TopicCards\Interfaces\iRole;
 use TopicCards\Interfaces\iRoleDbAdapter;
 use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\iTyped;
 
 
 class Role extends Core implements iRole 
@@ -119,5 +120,19 @@ class Role extends Core implements iRole
     public function remove()
     {
         $this->setPlayerId('');
+    }
+    
+    
+    public function validate(&$msg_html)
+    {
+        $result = 1;
+
+        if (strlen($this->getTypeId()) === 0)
+        {
+            $result = iTyped::ERR_TYPE_MISSING;
+            $msg_html .= 'Missing role type.';
+        }
+
+        return $result;
     }
 }

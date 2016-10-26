@@ -5,6 +5,8 @@ namespace TopicCards\Interfaces;
 
 interface iTyped
 {
+    const ERR_TYPE_MISSING = -21;
+    
     public function getTypeId();
     public function setTypeId($topic_id);
     public function getType();

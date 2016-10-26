@@ -8,12 +8,12 @@ use TopicCards\Interfaces\iAssociationDbAdapter;
 use TopicCards\Interfaces\iPersistentSearchAdapter;
 use TopicCards\Interfaces\iRole;
 use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\iTyped;
 use TopicCards\Search\AssociationSearchAdapter;
 
 
 class Association extends Core implements iAssociation
 {
-    // TODO use AssociationSearchAdapter, Searchable
     use Persistent, Reified, Scoped, Typed;
     
     /** @var iRole[] */
@@ -159,6 +159,12 @@ class Association extends Core implements iAssociation
     {
         $result = 1;
         $msg_html = '';
+        
+        if (strlen($this->getTypeId()) === 0)
+        {
+            $result = iTyped::ERR_TYPE_MISSING;
+            $msg_html .= 'Missing assocation type.';
+        }
         
         foreach ($this->getRoles([ ]) as $role)
         {
