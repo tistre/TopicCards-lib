@@ -2,9 +2,14 @@
 
 namespace TopicCards\Utils;
 
+use TopicCards\Interfaces\iAssociation;
+use TopicCards\Interfaces\iTopic;
+use TopicCards\Interfaces\iTopicMap;
+
 
 class XtmExport
 {
+    /** @var iTopicMap */
     protected $topicmap;
     
     
@@ -16,11 +21,11 @@ class XtmExport
         
         foreach ($objects as $object)
         {
-            if ($object instanceOf \TopicCards\iTopic)
+            if ($object instanceOf iTopic)
             {
                 $result .= $this->exportTopic($object, 1);
             }
-            elseif ($object instanceOf \TopicCards\iAssociation)
+            elseif ($object instanceOf iAssociation)
             {
                 $result .= $this->exportAssociation($object, 1);
             }
@@ -32,7 +37,7 @@ class XtmExport
     }
     
     
-    protected function exportTopic(\TopicCards\iTopic $topic, $indent)
+    protected function exportTopic(iTopic $topic, $indent)
     {
         $this->topicmap = $topic->getTopicMap();
         
@@ -59,7 +64,7 @@ class XtmExport
     }
 
 
-    protected function exportAssociation(\TopicCards\iAssociation $association, $indent)
+    protected function exportAssociation(iAssociation $association, $indent)
     {
         $this->topicmap = $association->getTopicMap();
 
@@ -236,7 +241,7 @@ class XtmExport
                 '%s<resourceData datatype="%s">%s</resourceData>' . "\n", 
                 str_repeat('  ', ($indent + 1)),
                 htmlspecialchars($datatype),
-                \TopicCards\Utils\DatatypeUtils::valueToXml($occurrence->getValue(), $datatype)
+                DatatypeUtils::valueToXml($occurrence->getValue(), $datatype)
             );
             
             $result .= sprintf
