@@ -36,8 +36,9 @@ interface iReified
      *
      * Creates a new topic and sets it as the reifier. Note that the topic is
      * not saved yet: You have to set its property and then call save().
+     * Also make sure to save this topic as well!
      *
-     * @return \TopicCards\iTopic New topic
+     * @return iTopic New topic
      */
      
     public function newReifierTopic();
