@@ -140,7 +140,7 @@ trait Persistent
         
         if ($ok < 0)
         {
-            $topicmap->getLogger()->error(sprintf('Topic <%s> save cancelled because the validation failed (%s).', $this->getId(), $ok));
+            $topicmap->getLogger()->error(sprintf('%s <%s> save cancelled because the validation failed (%s).', get_class($this), $this->getId(), $ok));
             return $ok;
         }
 
@@ -157,7 +157,7 @@ trait Persistent
             
             if ($ok < 0)
             {
-                $topicmap->getLogger()->error(sprintf('Topic <%s> save failed (%s).', $this->getId(), $ok));
+                $topicmap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(), $ok));
             }
         }
         else
@@ -166,7 +166,7 @@ trait Persistent
 
             if ($ok < 0)
             {
-                $topicmap->getLogger()->error(sprintf('Topic <%s> save failed (%s).', $this->getId(), $ok));
+                $topicmap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(), $ok));
             }
         }
 
@@ -223,13 +223,19 @@ trait Persistent
     
     protected function addHistoryItem($dml_type)
     {
-        $this->topicmap->getSearch()->index
+        /** @var iTopicMap $topicmap */
+        $topicmap = $this->getTopicMap();
+        
+        /** @var iPersistentSearchAdapter $search_adapter */
+        $search_adapter = $this->getSearchAdapter();
+        
+        $topicmap->getSearch()->index
         (
             [
                 'type' => 'history',
                 'body' => 
                     [
-                        'type' => $this->getSearchAdapter()->getSearchType(),
+                        'type' => $search_adapter->getSearchType(),
                         'id' => $this->getId(),
                         'when' => date('c'),
                         'dml' => $dml_type
@@ -243,6 +249,9 @@ trait Persistent
 
     public function getHistoryItems()
     {
+        /** @var iTopicMap $topicmap */
+        $topicmap = $this->getTopicMap();
+
         $result = [ ];
         
         $query =
@@ -252,7 +261,7 @@ trait Persistent
                 'from' => 0
             ];
         
-        $response = $this->topicmap->getSearch()->search
+        $response = $topicmap->getSearch()->search
         (
             [
                 'type' => 'history',
