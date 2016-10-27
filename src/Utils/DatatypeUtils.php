@@ -5,6 +5,15 @@ namespace TopicCards\Utils;
 
 class DatatypeUtils
 {
+    const DATATYPE_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean';
+    const DATATYPE_HTML = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML';
+    const DATATYPE_NON_NEGATIVE_INTEGER = 'http://www.w3.org/2001/XMLSchema#nonNegativeInteger';
+    const DATATYPE_STRING = 'http://www.w3.org/2001/XMLSchema#string';
+    const DATATYPE_URI = 'http://www.w3.org/2001/XMLSchema#anyURI';
+    const DATATYPE_XHTML = 'http://www.w3.org/1999/xhtml';
+    const DATATYPE_XML = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral';
+    
+    
     public static function validate(&$value, $datatype, &$error_msg)
     {
         $error_msg = '';
