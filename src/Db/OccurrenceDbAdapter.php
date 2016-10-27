@@ -75,7 +75,8 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
                     'id' => ($node->hasValue('id') ? $node->value('id') : false),
                     'value' => ($node->hasValue('value') ? $node->value('value') : false),
                     'datatype' => ($node->hasValue('datatype') ? $node->value('datatype') : false),
-                    'scope' => [ ]
+                    'scope' => [ ],
+                    'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false)
                 ];
 
             // Type
@@ -206,12 +207,18 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
             $data[ 'scope' ] = [ $data[ 'scope' ] ];
         }
 
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $property_data =
             [
                 'id' => $data[ 'id' ],
                 'value' => $data[ 'value' ],
                 'datatype' => $data[ 'datatype' ],
-                'scope' => $data[ 'scope' ]
+                'scope' => $data[ 'scope' ],
+                'reifier' => $data[ 'reifier' ]
             ];
 
         $bind = [ 'topic_id' => $topic_id ];
@@ -292,9 +299,14 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
             $data[ 'scope' ] = [ $data[ 'scope' ] ];
         }
 
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $property_data = [ ];
 
-        foreach ([ 'value', 'datatype', 'scope' ] as $key)
+        foreach ([ 'value', 'datatype', 'scope', 'reifier' ] as $key)
         {
             // Skip unmodified values
 

@@ -444,9 +444,9 @@ class Topic extends Core implements iTopic
     }
     
 
-    public function getReifiedObject($reifies_what)
+    public function getReifiedObject()
     {
-        return $this->db_adapter->selectReifiedObject($reifies_what);
+        return $this->db_adapter->selectReifiedObject();
     }
     
     

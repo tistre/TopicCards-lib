@@ -74,7 +74,8 @@ class NameDbAdapter implements iNameDbAdapter
                 [
                     'id' => ($node->hasValue('id') ? $node->value('id') : false),
                     'value' => ($node->hasValue('value') ? $node->value('value') : false),
-                    'scope' => [ ]
+                    'scope' => [ ],
+                    'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false),
                 ];
             
             // Type
@@ -210,11 +211,17 @@ class NameDbAdapter implements iNameDbAdapter
             $data[ 'scope' ] = [ $data[ 'scope' ] ];
         }
 
+        if (empty($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $property_data =
             [
                 'id' => $data[ 'id' ],
                 'value' => $data[ 'value' ],
-                'scope' => $data[ 'scope' ]
+                'scope' => $data[ 'scope' ],
+                'reifier' => $data[ 'reifier' ]
             ];
 
         $bind = [ 'topic_id' => $topic_id ];
@@ -288,9 +295,14 @@ class NameDbAdapter implements iNameDbAdapter
             $data[ 'scope' ] = [ $data[ 'scope' ] ];
         }
 
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $property_data = [ ];
 
-        foreach ([ 'value', 'scope' ] as $key)
+        foreach ([ 'value', 'scope', 'reifier' ] as $key)
         {
             // Skip unmodified values
 

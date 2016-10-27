@@ -103,6 +103,12 @@ interface iTopic extends iPersistent
     public function getFirstOccurrence(array $filters = [ ]);
     
     public function setOccurrences(array $occurrences);
+
+    
+    public function getReifiesWhat();
+    public function setReifiesWhat($reifies_what);
+    public function getReifiesId();
+    public function setReifiesId($reifies_id);
     public function isReifier(&$reifies_what, &$reifies_id);
-    public function getReifiedObject($reifies_what);
+    public function getReifiedObject();
 }

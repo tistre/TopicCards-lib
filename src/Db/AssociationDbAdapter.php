@@ -37,8 +37,24 @@ class AssociationDbAdapter implements iPersistentDbAdapter
             return -1;
         }
 
-        $query = 'MATCH (node:Association { id: {id} }) RETURN node';
-        $bind = [ 'id' => $filters[ 'id' ] ];
+        $property_data = [ ];
+
+        foreach ([ 'id', 'reifier', 'scope' ] as $key)
+        {
+            if (isset($filters[ $key ]))
+            {
+                $property_data[ $key ] = $filters[ $key ];
+            }
+        }
+
+        $bind = [ ];
+        $property_query = DbUtils::propertiesString($property_data, $bind);
+
+        $query = sprintf
+        (
+            'MATCH (node:Association { %s }) RETURN node',
+            $property_query
+        );
 
         $logger->info($query, $bind);
 
@@ -70,6 +86,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
                     'updated' => $node->value('updated'),
                     'version' => $node->value('version'),
                     'scope' => [ ],
+                    'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false)
                 ];
 
             // Type
@@ -132,7 +149,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
         $property_data = [ ];
 
-        foreach ([ 'created', 'id', 'updated', 'version', 'scope' ] as $key)
+        foreach ([ 'created', 'id', 'updated', 'version', 'scope', 'reifier' ] as $key)
         {
             $property_data[ $key ] = $data[ $key ];
         }
@@ -154,6 +171,8 @@ class AssociationDbAdapter implements iPersistentDbAdapter
         $logger->info($query, $bind);
 
         $transaction->push($query, $bind);
+        
+        // TODO: Add a relation to the reifier topic!
         
         // Mark type topics
 
@@ -240,12 +259,17 @@ class AssociationDbAdapter implements iPersistentDbAdapter
             $data[ 'scope' ] = [ $data[ 'scope' ] ];
         }
 
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $transaction = $db->beginTransaction();
         
         $property_data = [ ];
         $previous_data = $this->association->getPreviousData();
 
-        foreach ([ 'created', 'id', 'updated', 'version', 'scope' ] as $key)
+        foreach ([ 'created', 'id', 'updated', 'version', 'scope', 'reifier' ] as $key)
         {
             // Skip unmodified values
 
@@ -253,7 +277,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
             {
                 continue;
             }
-
+            
             $property_data[ $key ] = $data[ $key ];
             
             if ($key === 'scope')

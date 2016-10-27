@@ -117,8 +117,10 @@ class TopicDbAdapter implements iTopicDbAdapter
     }
     
 
-    public function selectReifiedObject($reifies_what)
+    public function selectReifiedObject()
     {
+        $reifies_what = $this->topic->getReifiesWhat();
+        
         $map =
         [
             iTopic::REIFIES_NAME => 'Name',
@@ -138,35 +140,52 @@ class TopicDbAdapter implements iTopicDbAdapter
     
     protected function selectReifiedObject_Name()
     {
-        $name = new Name($this->topicmap);
+        $logger = $this->topicmap->getLogger();
+        $db = $this->topicmap->getDb();
 
-        $rows = $name->getDbAdapter()->selectAll([ 'reifier' => $this->topic->getId() ]);
-    
-        if (count($rows) === 0)
+        $db_conn = $db->getConnection();
+
+        if ($db_conn === NULL)
         {
             return false;
         }
 
-        $topic = new Topic($this->topicmap);
-        $ok = $topic->load($rows[ 0 ][ 'topic' ]);
+        $query = 
+            'MATCH (t:Topic)-[:hasName]->(n:Name { reifier: {reifier_id} })' 
+            . ' RETURN t.id AS topic_id, n.id AS name_id';
         
-        if ($ok < 0)
+        $bind = [ 'reifier_id' => $this->topic->getId() ];
+
+        $logger->info($query, $bind);
+
+        try
         {
+            $qresult = $db_conn->run($query, $bind);
+        }
+        catch (Neo4jException $exception)
+        {
+            $logger->error($exception->getMessage());
             return false;
         }
 
-        foreach ($topic->getNames([ 'reifier' => $this->topic->getId() ]) as $name)
+        foreach ($qresult->records() as $record)
         {
-            if ($name->getId() !== $rows[ 0 ][ 'id' ])
+            $topic = new Topic($this->topicmap);
+            $ok = $topic->load($record->get('topic_id'));
+
+            if ($ok < 0)
             {
-                continue;
+                return false;
             }
-                
-            return
-            [
-                'topic' => $topic,
-                'name' => $name
-            ];
+
+            foreach ($topic->getNames([ 'id' => $record->get('name_id') ]) as $name)
+            {
+                return
+                    [
+                        'topic' => $topic,
+                        'name' => $name
+                    ];
+            }
         }
         
         return false;
@@ -175,35 +194,52 @@ class TopicDbAdapter implements iTopicDbAdapter
     
     protected function selectReifiedObject_Occurrence()
     {
-        $occurrence = new Occurrence($this->topicmap);
+        $logger = $this->topicmap->getLogger();
+        $db = $this->topicmap->getDb();
 
-        $rows = $occurrence->getDbAdapter()->selectAll([ 'reifier' => $this->topic->getId() ]);
-    
-        if (count($rows) === 0)
+        $db_conn = $db->getConnection();
+
+        if ($db_conn === NULL)
         {
             return false;
         }
 
-        $topic = new Topic($this->topicmap);
-        $ok = $topic->load($rows[ 0 ][ 'topic' ]);
+        $query = 
+            'MATCH (t:Topic)-[:hasOccurrence]->(o:Occurrence { reifier: {reifier_id} })'
+            . ' RETURN t.id AS topic_id, o.id AS occurrence_id';
         
-        if ($ok < 0)
+        $bind = [ 'reifier_id' => $this->topic->getId() ];
+
+        $logger->info($query, $bind);
+
+        try
         {
+            $qresult = $db_conn->run($query, $bind);
+        }
+        catch (Neo4jException $exception)
+        {
+            $logger->error($exception->getMessage());
             return false;
         }
 
-        foreach ($topic->getOccurrences([ ]) as $occurrence)
+        foreach ($qresult->records() as $record)
         {
-            if ($occurrence->getId() !== $rows[ 0 ][ 'id' ])
+            $topic = new Topic($this->topicmap);
+            $ok = $topic->load($record->get('topic_id'));
+
+            if ($ok < 0)
             {
-                continue;
+                return false;
             }
-                
-            return
-            [
-                'topic' => $topic,
-                'occurrence' => $occurrence
-            ];
+
+            foreach ($topic->getOccurrences([ 'id' => $record->get('occurrence_id') ]) as $occurrence)
+            {
+                return
+                    [
+                        'topic' => $topic,
+                        'occurrence' => $occurrence
+                    ];
+            }
         }
         
         return false;
@@ -212,62 +248,99 @@ class TopicDbAdapter implements iTopicDbAdapter
     
     protected function selectReifiedObject_Association()
     {
-        $association = new Association($this->topicmap);
+        $logger = $this->topicmap->getLogger();
+        $db = $this->topicmap->getDb();
 
-        $rows = $association->getDbAdapter()->selectAll([ 'reifier' => $this->topic->getId() ]);
-    
-        if (count($rows) === 0)
+        $db_conn = $db->getConnection();
+
+        if ($db_conn === NULL)
         {
             return false;
         }
 
-        $ok = $association->load($rows[ 0 ][ 'id' ]);
+        $query =
+            'MATCH (a:Association { reifier: {reifier_id} })'
+            . ' RETURN a.id AS association_id';
+
+        $bind = [ 'reifier_id' => $this->topic->getId() ];
+
+        $logger->info($query, $bind);
+
+        try
+        {
+            $qresult = $db_conn->run($query, $bind);
+        }
+        catch (Neo4jException $exception)
+        {
+            $logger->error($exception->getMessage());
+            return false;
+        }
+
+        foreach ($qresult->records() as $record)
+        {
+            $association = $this->topicmap->newAssociation();
+            $association->load($record->get('association_id'));
+
+            return
+                [
+                    'association' => $association
+                ];
+        }
         
-        if ($ok < 0)
-        {
-            return false;
-        }
-
-        return
-        [
-            'association' => $association,
-        ];
+        return false;
     }
     
     
     protected function selectReifiedObject_Role()
     {
-        $role = new Role($this->topicmap);
+        $logger = $this->topicmap->getLogger();
+        $db = $this->topicmap->getDb();
 
-        $rows = $role->getDbAdapter()->selectAll([ 'reifier' => $this->topic->getId() ]);
-    
-        if (count($rows) === 0)
+        $db_conn = $db->getConnection();
+
+        if ($db_conn === NULL)
         {
             return false;
         }
 
-        $association = new Association($this->topicmap);
-        $ok = $association->load($rows[ 0 ][ 'association' ]);
-        
-        if ($ok < 0)
+        $query =
+            'MATCH (a:Association)-[r { reifier: {reifier_id} }]-()'
+            . ' RETURN a.id AS association_id, r.id AS role_id';
+
+        $bind = [ 'reifier_id' => $this->topic->getId() ];
+
+        $logger->info($query, $bind);
+
+        try
         {
+            $qresult = $db_conn->run($query, $bind);
+        }
+        catch (Neo4jException $exception)
+        {
+            $logger->error($exception->getMessage());
             return false;
         }
 
-        foreach ($association->getRoles() as $role)
+        foreach ($qresult->records() as $record)
         {
-            if ($role->getId() !== $rows[ 0 ][ 'id' ])
+            $association = new Association($this->topicmap);
+            $ok = $association->load($record->get('association_id'));
+
+            if ($ok < 0)
             {
-                continue;
+                return false;
             }
-                
-            return
-            [
-                'association' => $association,
-                'role' => $role
-            ];
+
+            foreach ($association->getRoles([ 'id' => $record->get('role_id') ]) as $role)
+            {
+                return
+                    [
+                        'association' => $association,
+                        'role' => $role
+                    ];
+            }
         }
-        
+
         return false;
     }
     

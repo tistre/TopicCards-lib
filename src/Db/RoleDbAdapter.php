@@ -77,6 +77,7 @@ class RoleDbAdapter implements iRoleDbAdapter
             $row =
                 [
                     'id' => ($rel->hasValue('id') ? $rel->value('id') : false),
+                    'reifier' => ($rel->hasValue('reifier') ? $rel->value('reifier') : false),
                     'association' => ($assoc->hasValue('id') ? $assoc->value('id') : false),
                     'player' => ($node->hasValue('id') ? $node->value('id') : false)
                 ];
@@ -187,9 +188,15 @@ class RoleDbAdapter implements iRoleDbAdapter
             $data[ 'id' ] = $this->topicmap->createId();
         }
 
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         $property_data =
             [
-                'id' => $data[ 'id' ]
+                'id' => $data[ 'id' ],
+                'reifier' => $data[ 'reifier' ]
             ];
 
         $bind = 
@@ -241,12 +248,17 @@ class RoleDbAdapter implements iRoleDbAdapter
         
         $do_delete = $do_insert = false;
         $ok = 0;
-        
+
+        if (! isset($data[ 'reifier' ]))
+        {
+            $data[ 'reifier' ] = false;
+        }
+
         if ((! isset($data[ 'player' ])) || (strlen($data[ 'player' ]) === 0))
         {
             $do_delete = true;
         }
-        elseif (($previous_data[ 'player' ] !== $data[ 'player' ]) || ($previous_data[ 'type' ] !== $data[ 'type' ]))
+        elseif (($previous_data[ 'player' ] !== $data[ 'player' ]) || ($previous_data[ 'type' ] !== $data[ 'type' ]) || ($previous_data[ 'reifier' ] !== $data[ 'reifier' ]))
         {
             $do_delete = $do_insert = true;
         }
