@@ -68,6 +68,19 @@ class Topic extends Core implements iTopic
     }
 
 
+    public function loadBySubject($uri)
+    {
+        $id = $this->topicmap->getTopicIdBySubject($uri);
+        
+        if (strlen($id) === 0)
+        {
+            return -1;
+        }
+        
+        return $this->load($id);
+    }
+    
+    
     public function getSubjectIdentifiers()
     {
         return $this->subject_identifiers;
