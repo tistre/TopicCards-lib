@@ -2,17 +2,17 @@
 
 namespace TopicCards\Search;
 
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicInterface;
+
 
 // TODO add an interface
 class TopicSearchAdapter extends PersistentSearchAdapter
 {
-    /** @var iTopic */
+    /** @var TopicInterface */
     protected $topic;
 
 
-    public function __construct(iTopic $topic)
+    public function __construct(TopicInterface $topic)
     {
         $this->topic = $topic;
         $this->topicmap = $topic->getTopicMap();
@@ -61,7 +61,7 @@ class TopicSearchAdapter extends PersistentSearchAdapter
 
         $this->topicmap->trigger
         (
-            iTopic::EVENT_INDEXING, 
+            TopicInterface::EVENT_INDEXING, 
             [ 'topic' => $this, 'index_fields' => $result ],
             $callback_result
         );

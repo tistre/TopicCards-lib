@@ -9,7 +9,7 @@ namespace TopicCards\Interfaces;
  * This interface defines the methods needed by a role in an association.
  */
  
-interface iRole extends iCore, iReified, iTyped
+interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
 {
     /**
      * Get the player topic's ID

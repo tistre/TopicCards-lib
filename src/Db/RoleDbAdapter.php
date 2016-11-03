@@ -4,21 +4,21 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
-use TopicCards\Interfaces\iRole;
-use TopicCards\Interfaces\iRoleDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\RoleInterface;
+use TopicCards\Interfaces\RoleDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-class RoleDbAdapter implements iRoleDbAdapter
+class RoleDbAdapter implements RoleDbAdapterInterface
 {
-    /** @var iRole */
+    /** @var RoleInterface */
     protected $role;
 
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
 
-    public function __construct(iRole $role)
+    public function __construct(RoleInterface $role)
     {
         $this->role = $role;
         $this->topicmap = $role->getTopicMap();
@@ -228,7 +228,7 @@ class RoleDbAdapter implements iRoleDbAdapter
         (
             $this->topicmap,
             [ $data[ 'type' ] ],
-            iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE
+            TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE
         );
 
         foreach ($type_queries as $type_query)

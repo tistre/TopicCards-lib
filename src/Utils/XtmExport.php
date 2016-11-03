@@ -2,14 +2,14 @@
 
 namespace TopicCards\Utils;
 
-use TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class XtmExport
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
     
     
@@ -21,11 +21,11 @@ class XtmExport
         
         foreach ($objects as $object)
         {
-            if ($object instanceOf iTopic)
+            if ($object instanceOf TopicInterface)
             {
                 $result .= $this->exportTopic($object, 1);
             }
-            elseif ($object instanceOf iAssociation)
+            elseif ($object instanceOf AssociationInterface)
             {
                 $result .= $this->exportAssociation($object, 1);
             }
@@ -37,7 +37,7 @@ class XtmExport
     }
     
     
-    protected function exportTopic(iTopic $topic, $indent)
+    protected function exportTopic(TopicInterface $topic, $indent)
     {
         $this->topicmap = $topic->getTopicMap();
         
@@ -64,7 +64,7 @@ class XtmExport
     }
 
 
-    protected function exportAssociation(iAssociation $association, $indent)
+    protected function exportAssociation(AssociationInterface $association, $indent)
     {
         $this->topicmap = $association->getTopicMap();
 

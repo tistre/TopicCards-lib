@@ -4,14 +4,14 @@ namespace TopicCards\Model;
 
 use Psr\Log\LoggerInterface;
 use TopicCards\Db\TopicMapDbAdapter;
-use TopicCards\Interfaces\iDb;
-use TopicCards\Interfaces\iSearch;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTopicMapDbAdapter;
+use TopicCards\Interfaces\DbInterface;
+use TopicCards\Interfaces\SearchInterface;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\TopicMapDbAdapterInterface;
 use TopicCards\Utils\StringUtils;
 
 
-class TopicMap implements iTopicMap
+class TopicMap implements TopicMapInterface
 {
     protected $url;
     protected $listeners = [ ];
@@ -22,13 +22,13 @@ class TopicMap implements iTopicMap
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var iSearch */
+    /** @var SearchInterface */
     protected $search;
     
-    /** @var iDb */
+    /** @var DbInterface */
     protected $db;
 
-    /** @var iTopicMapDbAdapter */
+    /** @var TopicMapDbAdapterInterface */
     protected $db_adapter;
 
 
@@ -58,17 +58,17 @@ class TopicMap implements iTopicMap
 
 
     /**
-     * @param iSearch $search
+     * @param SearchInterface $search
      * @return mixed
      */
-    public function setSearch(iSearch $search)
+    public function setSearch(SearchInterface $search)
     {
         $this->search = $search;
     }
 
 
     /**
-     * @return iSearch
+     * @return SearchInterface
      */
     public function getSearch()
     {
@@ -77,17 +77,17 @@ class TopicMap implements iTopicMap
     
     
     /**
-     * @param iDb $db
+     * @param DbInterface $db
      * @return mixed
      */
-    public function setDb(iDb $db)
+    public function setDb(DbInterface $db)
     {
         $this->db = $db;
     }
 
 
     /**
-     * @return iDb
+     * @return DbInterface
      */
     public function getDb()
     {

@@ -2,12 +2,12 @@
 
 namespace TopicCards\Utils;
 
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class XtmReader implements \Iterator
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
     
     protected $filename;
@@ -19,7 +19,7 @@ class XtmReader implements \Iterator
     protected $cnt;
     
     
-    public function __construct($filename, iTopicMap $topicmap)
+    public function __construct($filename, TopicMapInterface $topicmap)
     {
         $this->filename = $filename;
         $this->topicmap = $topicmap;

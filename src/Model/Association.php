@@ -3,35 +3,35 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\AssociationDbAdapter;
-use TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iAssociationDbAdapter;
-use TopicCards\Interfaces\iPersistentSearchAdapter;
-use TopicCards\Interfaces\iRole;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTyped;
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\AssociationDbAdapterInterface;
+use TopicCards\Interfaces\PersistentSearchAdapterInterface;
+use TopicCards\Interfaces\RoleInterface;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\TypedInterface;
 use TopicCards\Search\AssociationSearchAdapter;
 
 
-class Association extends Core implements iAssociation
+class Association extends Core implements AssociationInterface
 {
     use Persistent, Reified, Scoped, Typed;
     
-    /** @var iRole[] */
+    /** @var RoleInterface[] */
     protected $roles = [ ];
     
-    /** @var iAssociationDbAdapter */
+    /** @var AssociationDbAdapterInterface */
     protected $db_adapter;
 
-    /** @var iPersistentSearchAdapter */
+    /** @var PersistentSearchAdapterInterface */
     protected $search_adapter;
 
     
     /**
      * Association constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         parent::__construct($topicmap);
 
@@ -41,7 +41,7 @@ class Association extends Core implements iAssociation
 
 
     /**
-     * @return iAssociationDbAdapter
+     * @return AssociationDbAdapterInterface
      */
     public function getDbAdapter()
     {
@@ -50,7 +50,7 @@ class Association extends Core implements iAssociation
 
 
     /**
-     * @return iPersistentSearchAdapter
+     * @return PersistentSearchAdapterInterface
      */
     public function getSearchAdapter()
     {
@@ -59,7 +59,7 @@ class Association extends Core implements iAssociation
 
 
     /**
-     * @return iRole
+     * @return RoleInterface
      */
     public function newRole()
     {   
@@ -73,7 +73,7 @@ class Association extends Core implements iAssociation
 
     /**
      * @param array $filters
-     * @return iRole[]
+     * @return RoleInterface[]
      */
     public function getRoles(array $filters = [ ])
     {
@@ -118,7 +118,7 @@ class Association extends Core implements iAssociation
 
     /**
      * @param array $filters
-     * @return iRole
+     * @return RoleInterface
      */
     public function getFirstRole(array $filters = [ ])
     {
@@ -162,7 +162,7 @@ class Association extends Core implements iAssociation
         
         if (strlen($this->getTypeId()) === 0)
         {
-            $result = iTyped::ERR_TYPE_MISSING;
+            $result = TypedInterface::ERR_TYPE_MISSING;
             $msg_html .= 'Missing assocation type.';
         }
         

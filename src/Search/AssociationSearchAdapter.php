@@ -2,17 +2,17 @@
 
 namespace TopicCards\Search;
 
-use TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class AssociationSearchAdapter extends PersistentSearchAdapter
 {
-    /** @var iAssociation */
+    /** @var AssociationInterface */
     protected $association;
     
 
-    public function __construct(iAssociation $association)
+    public function __construct(AssociationInterface $association)
     {
         $this->association = $association;
         $this->topicmap = $association->getTopicMap();
@@ -51,7 +51,7 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
 
         $this->topicmap->trigger
         (
-            iAssociation::EVENT_INDEXING, 
+            AssociationInterface::EVENT_INDEXING, 
             [ 'association' => $this, 'index_fields' => $result ],
             $callback_result
         );

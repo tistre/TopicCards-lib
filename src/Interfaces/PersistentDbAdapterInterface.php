@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iPersistentDbAdapter
+interface PersistentDbAdapterInterface
 {
     public function selectAll(array $filters);
     public function insertAll(array $data);

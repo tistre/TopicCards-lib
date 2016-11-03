@@ -2,12 +2,12 @@
 
 namespace TopicCards\Model;
 
-use TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iName;
-use TopicCards\Interfaces\iOccurrence;
-use TopicCards\Interfaces\iRole;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\NameInterface;
+use TopicCards\Interfaces\OccurrenceInterface;
+use TopicCards\Interfaces\RoleInterface;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 trait Reified
@@ -49,11 +49,11 @@ trait Reified
 
 
     /**
-     * @return iTopic
+     * @return TopicInterface
      */
     public function newReifierTopic()
     {
-        /** @var iTopicMap $topicmap */
+        /** @var TopicMapInterface $topicmap */
         $topicmap = $this->getTopicMap();
         
         // We need this object to have an ID so that
@@ -66,25 +66,25 @@ trait Reified
         
         $reifier_id = $topicmap->createId();
         
-        if ($this instanceof iName)
+        if ($this instanceof NameInterface)
         {
-            $what = iTopic::REIFIES_NAME;
+            $what = TopicInterface::REIFIES_NAME;
         }
-        elseif ($this instanceof iOccurrence)
+        elseif ($this instanceof OccurrenceInterface)
         {
-            $what = iTopic::REIFIES_OCCURRENCE;
+            $what = TopicInterface::REIFIES_OCCURRENCE;
         }
-        elseif ($this instanceof iAssociation)
+        elseif ($this instanceof AssociationInterface)
         {
-            $what = iTopic::REIFIES_ASSOCIATION;
+            $what = TopicInterface::REIFIES_ASSOCIATION;
         }
-        elseif ($this instanceof iRole)
+        elseif ($this instanceof RoleInterface)
         {
-            $what = iTopic::REIFIES_ROLE;
+            $what = TopicInterface::REIFIES_ROLE;
         }
         else
         {
-            $what = iTopic::REIFIES_NONE;
+            $what = TopicInterface::REIFIES_NONE;
         }
         
         $reifier_topic = $topicmap->newTopic();

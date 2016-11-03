@@ -5,7 +5,7 @@ namespace TopicCards\Interfaces;
 use Psr\Log\LoggerInterface;
 
 
-interface iTopicMap
+interface TopicMapInterface
 {    
     const SUBJECT_ASSOCIATION_ROLE_TYPE = 'http://psi.topicmaps.org/iso13250/glossary/association-role-type';
     const SUBJECT_ASSOCIATION_TYPE = 'http://psi.topicmaps.org/iso13250/glossary/association-type';
@@ -29,24 +29,24 @@ interface iTopicMap
     public function getLogger();
 
     /**
-     * @param iSearch $search
+     * @param SearchInterface $search
      * @return mixed
      */
-    public function setSearch(iSearch $search);
+    public function setSearch(SearchInterface $search);
 
     /**
-     * @return iSearch
+     * @return SearchInterface
      */
     public function getSearch();
 
     /**
-     * @param iDb $db
+     * @param DbInterface $db
      * @return mixed
      */
-    public function setDb(iDb $db);
+    public function setDb(DbInterface $db);
 
     /**
-     * @return iDb
+     * @return DbInterface
      */
     public function getDb();
     
@@ -66,12 +66,12 @@ interface iTopicMap
     public function createId();
     
     /**
-     * @return iTopic
+     * @return TopicInterface
      */
     public function newTopic();
     
     /**
-     * @return iAssociation
+     * @return AssociationInterface
      */
     public function newAssociation();
     

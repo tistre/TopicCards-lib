@@ -1,11 +1,12 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class TopicTest extends TestCase
 {
-    /** @var \TopicCards\Interfaces\iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     

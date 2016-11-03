@@ -1,13 +1,13 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class RoleReifiedTest extends TestCase
 {
-    /** @var \TopicCards\Interfaces\iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -76,7 +76,7 @@ class RoleReifiedTest extends TestCase
         // Test
 
         $this->assertEquals($role_a->getId(), $reifier_topic->getReifiesId(), 'Reifier topic ID is not the role ID');
-        $this->assertEquals(iTopic::REIFIES_ROLE, $reifier_topic->getReifiesWhat());
+        $this->assertEquals(TopicInterface::REIFIES_ROLE, $reifier_topic->getReifiesWhat());
 
         $this->assertEquals($reifier_topic->getId(), $role_a->getReifierId(), 'Role reifier ID is not the reifier topic ID');
 

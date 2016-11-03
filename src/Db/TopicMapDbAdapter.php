@@ -3,17 +3,17 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTopicMapDbAdapter;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\TopicMapDbAdapterInterface;
 
 
-class TopicMapDbAdapter implements iTopicMapDbAdapter
+class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
     
 
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         $this->topicmap = $topicmap;
     }
@@ -303,58 +303,58 @@ class TopicMapDbAdapter implements iTopicMapDbAdapter
     
     public function selectTopicTypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_TOPIC_TYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_TOPIC_TYPE, $filters);
     }
     
     
     public function selectNameTypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_TOPIC_NAME_TYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE, $filters);
     }
     
 
     public function selectNameScopes(array $filters)
     {
         // XXX selects all scopes, not just name scopes
-        return $this->selectWhat(iTopicMap::SUBJECT_SCOPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_SCOPE, $filters);
     }
     
     
     public function selectOccurrenceTypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_OCCURRENCE_TYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_OCCURRENCE_TYPE, $filters);
     }
 
 
     public function selectOccurrenceDatatypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_DATATYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_DATATYPE, $filters);
     }
 
     
     public function selectOccurrenceScopes(array $filters)
     {
         // XXX selects all scopes, not just occurrence scopes
-        return $this->selectWhat(iTopicMap::SUBJECT_SCOPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_SCOPE, $filters);
     }
     
     
     public function selectAssociationTypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_ASSOCIATION_TYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_ASSOCIATION_TYPE, $filters);
     }
     
     
     public function selectAssociationScopes(array $filters)
     {
         // XXX selects all scopes, not just association scopes
-        return $this->selectWhat(iTopicMap::SUBJECT_SCOPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_SCOPE, $filters);
     }
     
     
     public function selectRoleTypes(array $filters)
     {
-        return $this->selectWhat(iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE, $filters);
+        return $this->selectWhat(TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE, $filters);
     }
     
     

@@ -3,31 +3,30 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\OccurrenceDbAdapter;
-use TopicCards\Interfaces\iOccurrence;
-use TopicCards\Interfaces\iOccurrenceDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\OccurrenceInterface;
+use TopicCards\Interfaces\OccurrenceDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Utils\DatatypeUtils;
 
 
-class Occurrence extends Core implements iOccurrence
+class Occurrence extends Core implements OccurrenceInterface
 {
     // TODO use OccurrenceDbAdapter
     use Reified, Scoped, Typed;
     
     protected $value = false;
     protected $datatype = false;
-
-
-    /** @var iOccurrenceDbAdapter */
+    
+    /** @var OccurrenceDbAdapterInterface */
     protected $db_adapter;
 
 
     /**
      * Name constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         parent::__construct($topicmap);
 
@@ -36,7 +35,7 @@ class Occurrence extends Core implements iOccurrence
 
 
     /**
-     * @return iOccurrenceDbAdapter
+     * @return OccurrenceDbAdapterInterface
      */
     public function getDbAdapter()
     {

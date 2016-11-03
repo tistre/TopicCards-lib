@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iPersistentSearchAdapter
+interface PersistentSearchAdapterInterface
 {
     public function getSearchType();
 

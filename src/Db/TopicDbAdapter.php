@@ -3,9 +3,9 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Model\Association;
 use TopicCards\Model\Name;
 use TopicCards\Model\Occurrence;
@@ -13,16 +13,16 @@ use TopicCards\Model\Role;
 use TopicCards\Model\Topic;
 
 
-class TopicDbAdapter implements iTopicDbAdapter
+class TopicDbAdapter implements TopicDbAdapterInterface
 {
-    /** @var iTopic */
+    /** @var TopicInterface */
     protected $topic;
     
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
 
-    public function __construct(iTopic $topic)
+    public function __construct(TopicInterface $topic)
     {
         $this->topic = $topic;
         $this->topicmap = $topic->getTopicMap();
@@ -77,7 +77,7 @@ class TopicDbAdapter implements iTopicDbAdapter
                     'types' => array_values(array_diff($node->labels(), [ 'Topic' ])),
                     'subject_identifiers' => [ ],
                     'subject_locators' => [ ],
-                    'reifies_what' => ($node->hasValue('reifies_what') ? $node->value('reifies_what') : iTopic::REIFIES_NONE),
+                    'reifies_what' => ($node->hasValue('reifies_what') ? $node->value('reifies_what') : TopicInterface::REIFIES_NONE),
                     'reifies_id' => ($node->hasValue('reifies_id') ? $node->value('reifies_id') : '')
                 ];
 
@@ -123,10 +123,10 @@ class TopicDbAdapter implements iTopicDbAdapter
         
         $map =
         [
-            iTopic::REIFIES_NAME => 'Name',
-            iTopic::REIFIES_OCCURRENCE => 'Occurrence',
-            iTopic::REIFIES_ASSOCIATION => 'Association',
-            iTopic::REIFIES_ROLE => 'Role'
+            TopicInterface::REIFIES_NAME => 'Name',
+            TopicInterface::REIFIES_OCCURRENCE => 'Occurrence',
+            TopicInterface::REIFIES_ASSOCIATION => 'Association',
+            TopicInterface::REIFIES_ROLE => 'Role'
         ];
         
         if (! isset($map[ $reifies_what ]))
@@ -392,8 +392,8 @@ class TopicDbAdapter implements iTopicDbAdapter
         $type_queries = DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
-            $data[ 'types' ], 
-            iTopicMap::SUBJECT_TOPIC_TYPE
+            $data[ 'types' ],
+            TopicMapInterface::SUBJECT_TOPIC_TYPE
         );
         
         foreach ($type_queries as $type_query)
@@ -437,7 +437,7 @@ class TopicDbAdapter implements iTopicDbAdapter
             
             $ok = $this->topicmap->trigger
             (
-                iTopic::EVENT_SAVING, 
+                TopicInterface::EVENT_SAVING, 
                 [ 'topic' => $this, 'dml' => 'insert' ],
                 $callback_result
             );
@@ -527,7 +527,7 @@ class TopicDbAdapter implements iTopicDbAdapter
             (
                 $this->topicmap,
                 $added_types,
-                iTopicMap::SUBJECT_TOPIC_TYPE
+                TopicMapInterface::SUBJECT_TOPIC_TYPE
             );
 
             foreach ($type_queries as $type_query)
@@ -590,7 +590,7 @@ class TopicDbAdapter implements iTopicDbAdapter
 
             $ok = $this->topicmap->trigger
             (
-                iTopic::EVENT_SAVING, 
+                TopicInterface::EVENT_SAVING, 
                 [ 'topic' => $this, 'dml' => 'update' ],
                 $callback_result
             );
@@ -648,7 +648,7 @@ class TopicDbAdapter implements iTopicDbAdapter
 
             $this->topicmap->trigger
             (
-                iTopic::EVENT_DELETING, 
+                TopicInterface::EVENT_DELETING, 
                 [ 'topic_id' => $id ],
                 $callback_result
             );

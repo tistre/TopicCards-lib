@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iTopic extends iPersistent
+interface TopicInterface extends PersistentInterface
 {
     const REIFIES_NONE = '';
     const REIFIES_NAME = 'name';
@@ -19,12 +19,12 @@ interface iTopic extends iPersistent
     
     
     /**
-     * @return iTopicDbAdapter
+     * @return TopicDbAdapterInterface
      */
     public function getDbAdapter();
     
     /**
-     * @return iPersistentSearchAdapter
+     * @return PersistentSearchAdapterInterface
      */
     public function getSearchAdapter();
 
@@ -68,20 +68,20 @@ interface iTopic extends iPersistent
     public function hasType($topic_subject);
     
     /**
-     * @return iName
+     * @return NameInterface
      */
     public function newName();
     
     /**
      * @param array $filters
-     * @return iName[]
+     * @return NameInterface[]
      */
     public function getNames(array $filters = [ ]);
 
 
     /**
      * @param array $filters
-     * @return iName
+     * @return NameInterface
      */
     public function getFirstName(array $filters = [ ]);
     
@@ -91,21 +91,21 @@ interface iTopic extends iPersistent
 
 
     /**
-     * @return iOccurrence
+     * @return OccurrenceInterface
      */
     public function newOccurrence();
 
 
     /**
      * @param array $filters
-     * @return iOccurrence[]
+     * @return OccurrenceInterface[]
      */
     public function getOccurrences(array $filters = [ ]);
 
 
     /**
      * @param array $filters
-     * @return iOccurrence
+     * @return OccurrenceInterface
      */
     public function getFirstOccurrence(array $filters = [ ]);
     

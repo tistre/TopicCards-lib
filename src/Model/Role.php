@@ -3,13 +3,13 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\RoleDbAdapter;
-use TopicCards\Interfaces\iRole;
-use TopicCards\Interfaces\iRoleDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTyped;
+use TopicCards\Interfaces\RoleInterface;
+use TopicCards\Interfaces\RoleDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\TypedInterface;
 
 
-class Role extends Core implements iRole 
+class Role extends Core implements RoleInterface 
 {
     // TODO use , RoleDbAdapter
     use Reified, Typed;
@@ -17,16 +17,16 @@ class Role extends Core implements iRole
     protected $player = false;
 
 
-    /** @var iRoleDbAdapter */
+    /** @var RoleDbAdapterInterface */
     protected $db_adapter;
 
 
     /**
      * Name constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         parent::__construct($topicmap);
 
@@ -35,7 +35,7 @@ class Role extends Core implements iRole
 
 
     /**
-     * @return iRoleDbAdapter
+     * @return RoleDbAdapterInterface
      */
     public function getDbAdapter()
     {
@@ -129,7 +129,7 @@ class Role extends Core implements iRole
 
         if (strlen($this->getTypeId()) === 0)
         {
-            $result = iTyped::ERR_TYPE_MISSING;
+            $result = TypedInterface::ERR_TYPE_MISSING;
             $msg_html .= 'Missing role type.';
         }
 

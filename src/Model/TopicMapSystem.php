@@ -2,10 +2,10 @@
 
 namespace TopicCards\Model;
 
-use TopicCards\Interfaces\iTopicMapSystem;
+use TopicCards\Interfaces\TopicMapSystemInterface;
 
 
-class TopicMapSystem implements iTopicMapSystem
+class TopicMapSystem implements TopicMapSystemInterface
 {
     protected $topicmaps = [ ];
     

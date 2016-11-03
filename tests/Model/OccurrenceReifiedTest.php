@@ -1,14 +1,14 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Utils\DatatypeUtils;
 
 
 class OccurrenceReifiedTest extends TestCase
 {
-    /** @var \TopicCards\Interfaces\iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -54,7 +54,7 @@ class OccurrenceReifiedTest extends TestCase
         $occurrence = $topic->getFirstOccurrence([ 'type' => $occurrence_type ]);
 
         $this->assertEquals($occurrence->getId(), $reifier_topic->getReifiesId(), 'Reifier topic ID is not the occurrence ID');
-        $this->assertEquals(iTopic::REIFIES_OCCURRENCE, $reifier_topic->getReifiesWhat());
+        $this->assertEquals(TopicInterface::REIFIES_OCCURRENCE, $reifier_topic->getReifiesWhat());
         
         $this->assertEquals($reifier_topic->getId(), $occurrence->getReifierId(), 'Occurrence reifier ID is not the reifier topic ID');
         

@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iTyped
+interface TypedInterface
 {
     const ERR_TYPE_MISSING = -21;
     

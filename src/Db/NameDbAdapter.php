@@ -4,21 +4,21 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
-use TopicCards\Interfaces\iName;
-use TopicCards\Interfaces\iNameDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\NameInterface;
+use TopicCards\Interfaces\NameDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-class NameDbAdapter implements iNameDbAdapter
+class NameDbAdapter implements NameDbAdapterInterface
 {
-    /** @var iName */
+    /** @var NameInterface */
     protected $name;
 
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
 
-    public function __construct(iName $name)
+    public function __construct(NameInterface $name)
     {
         $this->name = $name;
         $this->topicmap = $name->getTopicMap();
@@ -124,6 +124,7 @@ class NameDbAdapter implements iNameDbAdapter
     public function updateAll($topic_id, array $data, array $previous_data, Transaction $transaction)
     {
         $ok = 1;
+        $previous_name_data = [ ];
         
         foreach ($data as $name_data)
         {
@@ -248,14 +249,14 @@ class NameDbAdapter implements iNameDbAdapter
         (
             $this->topicmap,
             [ $data[ 'type' ] ],
-            iTopicMap::SUBJECT_TOPIC_NAME_TYPE
+            TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE
         );
 
         $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
             $data[ 'scope' ],
-            iTopicMap::SUBJECT_SCOPE
+            TopicMapInterface::SUBJECT_SCOPE
         ));
 
         foreach ($type_queries as $type_query)
@@ -321,7 +322,7 @@ class NameDbAdapter implements iNameDbAdapter
                 (
                     $this->topicmap,
                     $data[ $key ],
-                    iTopicMap::SUBJECT_SCOPE
+                    TopicMapInterface::SUBJECT_SCOPE
                 );
 
                 foreach ($type_queries as $type_query)
@@ -364,7 +365,7 @@ class NameDbAdapter implements iNameDbAdapter
             (
                 $this->topicmap,
                 [ $data[ 'type' ] ],
-                iTopicMap::SUBJECT_TOPIC_NAME_TYPE
+                TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE
             );
 
             foreach ($type_queries as $type_query)

@@ -2,13 +2,13 @@
 
 namespace TopicCards\Search;
 
-use TopicCards\Interfaces\iPersistentSearchAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\PersistentSearchAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-abstract class PersistentSearchAdapter implements iPersistentSearchAdapter
+abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterface
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
     protected $index_related = false;

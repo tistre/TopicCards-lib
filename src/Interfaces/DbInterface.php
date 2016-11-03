@@ -6,7 +6,7 @@ use GraphAware\Neo4j\Client\ClientInterface;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
 
 
-interface iDb
+interface DbInterface
 {
     public function __construct(array $params);
 

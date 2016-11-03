@@ -5,7 +5,7 @@ namespace TopicCards\Interfaces;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
 
 
-interface iNameDbAdapter
+interface NameDbAdapterInterface
 {
     public function selectAll(array $filters);
 

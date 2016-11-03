@@ -3,6 +3,6 @@
 namespace TopicCards\Interfaces;
 
 
-interface iAssociationDbAdapter extends iPersistentDbAdapter
+interface AssociationDbAdapterInterface extends PersistentDbAdapterInterface
 {
 }

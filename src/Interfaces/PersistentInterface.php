@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iPersistent extends iCore
+interface PersistentInterface extends CoreInterface
 {
     public function load($id);
     public function save();

@@ -11,7 +11,7 @@ namespace TopicCards\Interfaces;
  * handling reification.
  */
  
-interface iReified
+interface ReifiedInterface
 {
     /**
      * Get the reifier topic's ID
@@ -25,6 +25,7 @@ interface iReified
     /**
      * Set the reifier topic by its ID
      *
+     * @param string $topic_id
      * @return int Zero or greater on success
      */
      
@@ -38,7 +39,7 @@ interface iReified
      * not saved yet: You have to set its property and then call save().
      * Also make sure to save this topic as well!
      *
-     * @return iTopic New topic
+     * @return TopicInterface New topic
      */
      
     public function newReifierTopic();

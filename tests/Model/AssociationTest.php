@@ -1,13 +1,19 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTyped;
+use TopicCards\Exception\TopicCardsException;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\TypedInterface;
 
 
 class AssociationTest extends TestCase
 {
-    /** @var iTopicMap */
+    const ASSOCIATION_TYPE = 'http://example.com/schema/newAssociationType';
+    const ROLE_TYPE = 'http://example.com/schema/newOccurrenceType';
+    const TOPIC_A = 'http://example.com/topic/a';
+    const TOPIC_B = 'http://example.com/topic/b';
+    
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -17,65 +23,91 @@ class AssociationTest extends TestCase
         
         self::$topicmap = $topicmap;
     }
-    
-    
-    public function testTypeValidation()
-    {
-        $association_type = 'http://example.com/schema/newAssociationType';
-        $association_type_id = self::$topicmap->getTopicIdBySubject($association_type, true);
 
-        $role_type = 'http://example.com/schema/newOccurrenceType';
-        $role_type_id = self::$topicmap->getTopicIdBySubject($role_type, true);
-        
+
+    protected function setUp()
+    {
         $topic_a = self::$topicmap->newTopic();
-        $ok = $topic_a->save();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Topic A save failed');
+        $topic_a->setSubjectIdentifiers([ self::TOPIC_A ]);
+        $topic_a->save();
 
         $topic_b = self::$topicmap->newTopic();
-        $ok = $topic_b->save();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Topic B save failed');
+        $topic_b->setSubjectIdentifiers([ self::TOPIC_B ]);
+        $topic_b->save();
+    }
+
+
+    protected function tearDown()
+    {
+        $subjects = 
+            [
+                self::TOPIC_A,
+                self::TOPIC_B,
+                self::ASSOCIATION_TYPE,
+                self::ROLE_TYPE
+            ];
         
+        foreach ($subjects as $subject)
+        {
+            $topic = self::$topicmap->newTopic();
+            $topic->loadBySubject($subject);
+            $topic->delete();
+        }
+    }
+    
+    
+    public function testTypeRequired()
+    {
         $association = self::$topicmap->newAssociation();
         
         $role_a = $association->newRole();
-        $role_a->setPlayerId($topic_a->getId());
+        $role_a->setPlayer(self::TOPIC_A);
         
         $role_b = $association->newRole();
-        $role_b->setPlayerId($topic_b->getId());
+        $role_b->setPlayer(self::TOPIC_B);
+
+        $this->expectException(TopicCardsException::class);
+        $this->expectExceptionCode(TypedInterface::ERR_TYPE_MISSING);
         
-        $ok = $association->save();
-        $this->assertEquals(iTyped::ERR_TYPE_MISSING, $ok, 'Association saved although association type is missing');
+        $association->save();
+    }
 
-        $association->setTypeId($association_type_id);
 
-        $ok = $association->save();
-        $this->assertEquals(iTyped::ERR_TYPE_MISSING, $ok, 'Association saved although role type is missing');
+    public function testRoleTypeRequired()
+    {
+        $association = self::$topicmap->newAssociation();
+        $association->setType(self::ASSOCIATION_TYPE);
 
-        $role_a->setTypeId($role_type_id);
-        $role_b->setTypeId($role_type_id);
-        
+        $role_a = $association->newRole();
+        $role_a->setPlayer(self::TOPIC_A);
+
+        $role_b = $association->newRole();
+        $role_b->setPlayer(self::TOPIC_B);
+
+        $this->expectException(TopicCardsException::class);
+        $this->expectExceptionCode(TypedInterface::ERR_TYPE_MISSING);
+
+        $association->save();
+    }
+
+    
+    public function testRoleTypePresent()
+    {
+        $association = self::$topicmap->newAssociation();
+        $association->setType(self::ASSOCIATION_TYPE);
+
+        $role_a = $association->newRole();
+        $role_a->setPlayer(self::TOPIC_A);
+        $role_a->setType(self::ROLE_TYPE);
+
+        $role_b = $association->newRole();
+        $role_b->setPlayer(self::TOPIC_B);
+        $role_b->setType(self::ROLE_TYPE);
+
         $ok = $association->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Association save failed');
 
         $ok = $association->delete();
         $this->assertGreaterThanOrEqual(0, $ok, 'Association delete failed');
-
-        $ok = $topic_a->delete();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Topic A delete failed');
-
-        $ok = $topic_b->delete();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Topic B delete failed');
-
-        $association_type_topic = self::$topicmap->newTopic();
-        $ok = $association_type_topic->load($association_type_id);
-        $this->assertGreaterThanOrEqual(0, $ok, 'Association type topic load failed');
-        $ok = $association_type_topic->delete();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Association type topic delete failed');
-
-        $role_type_topic = self::$topicmap->newTopic();
-        $ok = $role_type_topic->load($role_type_id);
-        $this->assertGreaterThanOrEqual(0, $ok, 'Role type topic load failed');
-        $ok = $role_type_topic->delete();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Role type topic delete failed');
     }
 }

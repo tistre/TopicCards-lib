@@ -3,16 +3,16 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\TopicDbAdapter;
-use TopicCards\Interfaces\iName;
-use TopicCards\Interfaces\iOccurrence;
-use TopicCards\Interfaces\iPersistentSearchAdapter;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\NameInterface;
+use TopicCards\Interfaces\OccurrenceInterface;
+use TopicCards\Interfaces\PersistentSearchAdapterInterface;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Search\TopicSearchAdapter;
 
 
-class Topic extends Core implements iTopic
+class Topic extends Core implements TopicInterface
 {
     use Persistent;
     
@@ -20,28 +20,28 @@ class Topic extends Core implements iTopic
     protected $subject_locators = [ ];
     protected $types = [ ];
     
-    /** @var iName[] */
+    /** @var NameInterface[] */
     protected $names = [ ];
     
-    /** @var iOccurrence[] */
+    /** @var OccurrenceInterface[] */
     protected $occurrences = [ ];
     
     protected $reifies_what = '';
     protected $reifies_id = '';
     
-    /** @var iTopicDbAdapter */
+    /** @var TopicDbAdapterInterface */
     protected $db_adapter;
     
-    /** @var iPersistentSearchAdapter */
+    /** @var PersistentSearchAdapterInterface */
     protected $search_adapter;
     
 
     /**
      * Topic constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         parent::__construct($topicmap);
         
@@ -51,7 +51,7 @@ class Topic extends Core implements iTopic
 
 
     /**
-     * @return iTopicDbAdapter
+     * @return TopicDbAdapterInterface
      */
     public function getDbAdapter()
     {
@@ -60,7 +60,7 @@ class Topic extends Core implements iTopic
 
 
     /**
-     * @return iPersistentSearchAdapter
+     * @return PersistentSearchAdapterInterface
      */
     public function getSearchAdapter()
     {
@@ -183,7 +183,7 @@ class Topic extends Core implements iTopic
 
     /**
      * @param array $filters
-     * @return iName[]
+     * @return NameInterface[]
      */
     public function getNames(array $filters = [ ])
     {
@@ -285,7 +285,7 @@ class Topic extends Core implements iTopic
         {
             $type_key = 
             (
-                ($name->getType() === iTopicMap::SUBJECT_DEFAULT_NAME_TYPE)
+                ($name->getType() === TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE)
                 ? 'default'
                 : 'other'
             );
@@ -340,7 +340,7 @@ class Topic extends Core implements iTopic
 
     /**
      * @param array $filters
-     * @return iOccurrence[]
+     * @return OccurrenceInterface[]
      */
     public function getOccurrences(array $filters = [ ])
     {
@@ -453,7 +453,7 @@ class Topic extends Core implements iTopic
         $reifies_what = $this->getReifiesWhat();
         $reifies_id = $this->getReifiesId();
         
-        return (($reifies_what !== iTopic::REIFIES_NONE) && (strlen($reifies_id) > 0));
+        return (($reifies_what !== TopicInterface::REIFIES_NONE) && (strlen($reifies_id) > 0));
     }
     
 
@@ -478,7 +478,7 @@ class Topic extends Core implements iTopic
             {
                 if (strlen($this->topicmap->getTopicIdBySubject($subject_identifier)) > 0)
                 {
-                    $result = iTopic::ERR_SUBJECT_IDENTIFIER_EXISTS;
+                    $result = TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS;
                     $msg_html .= 'Subject identifier already exists.';
                 }
             }
@@ -536,7 +536,7 @@ class Topic extends Core implements iTopic
             'subject_locators' => [ ], 
             'names' => [ ], 
             'occurrences' => [ ],
-            'reifies_what' => iTopic::REIFIES_NONE,
+            'reifies_what' => TopicInterface::REIFIES_NONE,
             'reifies_id' => ''
         ], $data);
         

@@ -6,10 +6,10 @@ use GraphAware\Common\Transaction\TransactionInterface;
 use GraphAware\Neo4j\Client\ClientBuilder;
 use GraphAware\Neo4j\Client\ClientInterface;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
-use TopicCards\Interfaces\iDb;
+use TopicCards\Interfaces\DbInterface;
 
 
-class Db implements iDb
+class Db implements DbInterface
 {
     /** @var array */
     protected $params = [ ];

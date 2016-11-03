@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iScoped
+interface ScopedInterface
 {
     public function getScopeIds();
     public function setScopeIds(array $topic_ids);

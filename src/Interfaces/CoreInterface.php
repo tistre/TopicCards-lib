@@ -3,12 +3,12 @@
 namespace TopicCards\Interfaces;
 
 
-interface iCore
+interface CoreInterface
 {
-    public function __construct(iTopicMap $topicmap);
+    public function __construct(TopicMapInterface $topicmap);
     
     /**
-     * @return iTopicMap
+     * @return TopicMapInterface
      */
     
     public function getTopicMap();
@@ -25,4 +25,6 @@ interface iCore
      * @return array
      */
     public function getAll();
+    
+    public function setAll(array $data);
 }

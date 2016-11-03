@@ -3,14 +3,14 @@
 namespace TopicCards\Interfaces;
 
 
-interface iTopicMapDbAdapter
+interface TopicMapDbAdapterInterface
 {
     /**
-     * iTopicMapDbAdapter constructor.
+     * TopicMapDbAdapterInterface constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap);
+    public function __construct(TopicMapInterface $topicmap);
 
 
     /**

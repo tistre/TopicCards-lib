@@ -5,7 +5,7 @@ namespace TopicCards\Interfaces;
 use Elasticsearch\Client;
 
 
-interface iSearch
+interface SearchInterface
 {
     public function __construct(array $params);
     
@@ -46,14 +46,14 @@ interface iSearch
     public function getIndexName();
 
 
-    public function getIndexParams(iTopicMap $topicmap, $index);
+    public function getIndexParams(TopicMapInterface $topicmap, $index);
 
 
-    public function recreateIndex(iTopicMap $topicmap, $index, array $params);
+    public function recreateIndex(TopicMapInterface $topicmap, $index, array $params);
 
 
-    public function reindexAllTopics(iTopicMap $topicmap);
+    public function reindexAllTopics(TopicMapInterface $topicmap);
 
 
-    public function reindexAllAssociations(iTopicMap $topicmap);
+    public function reindexAllAssociations(TopicMapInterface $topicmap);
 }

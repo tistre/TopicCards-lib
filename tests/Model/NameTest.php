@@ -1,12 +1,12 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class NameTest extends TestCase
 {
-    /** @var \TopicCards\Interfaces\iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -26,7 +26,7 @@ class NameTest extends TestCase
         $topic = self::$topicmap->newTopic();
         
         $name = $topic->newName();
-        $name->setType(iTopicMap::SUBJECT_DEFAULT_NAME_TYPE);
+        $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
         $name->setValue('hello world');
         
         $ok = $topic->save();
@@ -37,7 +37,7 @@ class NameTest extends TestCase
 
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
         
-        $name = $topic->getFirstName([ 'type' => iTopicMap::SUBJECT_DEFAULT_NAME_TYPE ]);
+        $name = $topic->getFirstName([ 'type' => TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE ]);
         
         $expected =
             [
@@ -56,7 +56,7 @@ class NameTest extends TestCase
         
         $this->assertContains
         (
-            iTopicMap::SUBJECT_TOPIC_NAME_TYPE, 
+            TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE, 
             $name_type_topic->getTypes(), 
             'New name type topic has not been marked as name type.'
         );

@@ -1,13 +1,13 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopicMap;
-use TopicCards\Interfaces\iTopic;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class AssociationReifiedTest extends TestCase
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -76,7 +76,7 @@ class AssociationReifiedTest extends TestCase
         // Test
         
         $this->assertEquals($association->getId(), $reifier_topic->getReifiesId(), 'Reifier topic ID is not the association ID');
-        $this->assertEquals(iTopic::REIFIES_ASSOCIATION, $reifier_topic->getReifiesWhat());
+        $this->assertEquals(TopicInterface::REIFIES_ASSOCIATION, $reifier_topic->getReifiesWhat());
         
         $this->assertEquals($reifier_topic->getId(), $association->getReifierId(), 'Association reifier ID is not the reifier topic ID');
 

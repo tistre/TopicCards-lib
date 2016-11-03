@@ -4,13 +4,13 @@ namespace TopicCards\Utils;
 
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class InstallationUtils
 {
-    public static function importXtmFile(iTopicMap $topicmap, $filename)
+    public static function importXtmFile(TopicMapInterface $topicmap, $filename)
     {
         $logger = $topicmap->getLogger();
         $db = $topicmap->getDb();
@@ -39,7 +39,7 @@ class InstallationUtils
 
             $subject = '';
 
-            if ($object instanceof iTopic)
+            if ($object instanceof TopicInterface)
             {
                 foreach ($object->getSubjectIdentifiers() as $subject)
                 {
@@ -64,7 +64,7 @@ class InstallationUtils
             (
                 "%s: Created %s %s<%s> (%s)",
                 $filename,
-                ($object instanceof iTopic ? 'topic' : 'association'),
+                ($object instanceof TopicInterface ? 'topic' : 'association'),
                 $subject,
                 $object->getId(),
                 $ok
@@ -75,13 +75,13 @@ class InstallationUtils
     }
 
 
-    public static function deleteDb(iTopicMap $topicmap)
+    public static function deleteDb(TopicMapInterface $topicmap)
     {
         // MATCH (n) DETACH DELETE n
     }
 
 
-    public static function initDb(iTopicMap $topicmap)
+    public static function initDb(TopicMapInterface $topicmap)
     {
         self::initDbConstraints($topicmap);
         self::initDbTopics($topicmap);
@@ -90,19 +90,19 @@ class InstallationUtils
     }
 
 
-    protected static function initDbTopics(iTopicMap $topicmap)
+    protected static function initDbTopics(TopicMapInterface $topicmap)
     {
         $subjects =
             [
                 // Name must come first!
-                iTopicMap::SUBJECT_DEFAULT_NAME_TYPE => 'Name',
-                iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE => 'Association role type',
-                iTopicMap::SUBJECT_ASSOCIATION_TYPE => 'Association type',
-                iTopicMap::SUBJECT_DATATYPE => 'Datatype',
-                iTopicMap::SUBJECT_OCCURRENCE_TYPE => 'Property type',
-                iTopicMap::SUBJECT_SCOPE => 'Scope',
-                iTopicMap::SUBJECT_TOPIC_NAME_TYPE => 'Name type',
-                iTopicMap::SUBJECT_TOPIC_TYPE => 'Topic type'
+                TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE => 'Name',
+                TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE => 'Association role type',
+                TopicMapInterface::SUBJECT_ASSOCIATION_TYPE => 'Association type',
+                TopicMapInterface::SUBJECT_DATATYPE => 'Datatype',
+                TopicMapInterface::SUBJECT_OCCURRENCE_TYPE => 'Property type',
+                TopicMapInterface::SUBJECT_SCOPE => 'Scope',
+                TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE => 'Name type',
+                TopicMapInterface::SUBJECT_TOPIC_TYPE => 'Topic type'
             ];
 
         foreach ($subjects as $subject => $name_str)
@@ -111,10 +111,10 @@ class InstallationUtils
 
             $topic->setSubjectIdentifiers([ $subject ]);
 
-            if ($subject !== iTopicMap::SUBJECT_DEFAULT_NAME_TYPE)
+            if ($subject !== TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE)
             {
                 $name = $topic->newName();
-                $name->setType(iTopicMap::SUBJECT_DEFAULT_NAME_TYPE);
+                $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
                 $name->setValue($name_str);
             }
             
@@ -127,7 +127,7 @@ class InstallationUtils
     }
 
 
-    protected static function initDbConstraints(iTopicMap $topicmap)
+    protected static function initDbConstraints(TopicMapInterface $topicmap)
     {
         $logger = $topicmap->getLogger();
         $db = $topicmap->getDb();
@@ -164,7 +164,7 @@ class InstallationUtils
     }
 
 
-    public function initSearch(iTopicMap $topicmap)
+    public function initSearch(TopicMapInterface $topicmap)
     {
         $search = $topicmap->getSearch();
         $index = $search->getIndexName();

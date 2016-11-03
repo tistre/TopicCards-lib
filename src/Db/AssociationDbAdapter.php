@@ -3,22 +3,22 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
-use \TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iPersistentDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use \TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Interfaces\PersistentDbAdapterInterface;
 use TopicCards\Model\Role;
 
 
-class AssociationDbAdapter implements iPersistentDbAdapter
+class AssociationDbAdapter implements PersistentDbAdapterInterface
 {
-    /** @var iAssociation */
+    /** @var AssociationInterface */
     protected $association;
 
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
 
-    public function __construct(iAssociation $association)
+    public function __construct(AssociationInterface $association)
     {
         $this->association = $association;
         $this->topicmap = $association->getTopicMap();
@@ -180,14 +180,14 @@ class AssociationDbAdapter implements iPersistentDbAdapter
         (
             $this->topicmap,
             [ $data[ 'type' ] ],
-            iTopicMap::SUBJECT_ASSOCIATION_TYPE
+            TopicMapInterface::SUBJECT_ASSOCIATION_TYPE
         );
 
         $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
             $data[ 'scope' ],
-            iTopicMap::SUBJECT_SCOPE
+            TopicMapInterface::SUBJECT_SCOPE
         ));
 
         foreach ($type_queries as $type_query)
@@ -220,7 +220,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             $ok = $this->topicmap->trigger
             (
-                iAssociation::EVENT_SAVING, 
+                AssociationInterface::EVENT_SAVING, 
                 [ 'association' => $this, 'dml' => 'insert' ],
                 $callback_result
             );
@@ -288,7 +288,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
                 (
                     $this->topicmap,
                     $data[ $key ],
-                    iTopicMap::SUBJECT_SCOPE
+                    TopicMapInterface::SUBJECT_SCOPE
                 );
 
                 foreach ($type_queries as $type_query)
@@ -328,7 +328,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
             (
                 $this->topicmap,
                 [ $data[ 'type' ] ],
-                iTopicMap::SUBJECT_ASSOCIATION_ROLE_TYPE
+                TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE
             );
 
             foreach ($type_queries as $type_query)
@@ -378,7 +378,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             $ok = $this->topicmap->trigger
             (
-                iAssociation::EVENT_SAVING,
+                AssociationInterface::EVENT_SAVING,
                 [ 'association' => $this, 'dml' => 'update' ],
                 $callback_result
             );
@@ -437,7 +437,7 @@ class AssociationDbAdapter implements iPersistentDbAdapter
 
             $this->topicmap->trigger
             (
-                iAssociation::EVENT_DELETING, 
+                AssociationInterface::EVENT_DELETING, 
                 [ 'association_id' => $id ],
                 $callback_result
             );

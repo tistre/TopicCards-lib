@@ -2,20 +2,20 @@
 
 namespace TopicCards\Utils;
 
-use TopicCards\Interfaces\iAssociation;
-use TopicCards\Interfaces\iTopic;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\TopicInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class XtmImport
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
     
     protected $generated_guids = [ ];
     
     
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         $this->topicmap = $topicmap;
     }
@@ -85,7 +85,7 @@ class XtmImport
     }
     
     
-    protected function importTypes(\DOMElement $context_node, iTopic $topic)
+    protected function importTypes(\DOMElement $context_node, TopicInterface $topic)
     {
         $topic_refs = [ ];
         
@@ -101,19 +101,19 @@ class XtmImport
     }
     
     
-    protected function importSubjectIdentifiers(\DOMElement $context_node, iTopic $topic)
+    protected function importSubjectIdentifiers(\DOMElement $context_node, TopicInterface $topic)
     {
         $this->importSubjects('subjectIdentifier', $context_node, $topic);
     }
     
     
-    protected function importSubjectLocators(\DOMElement $context_node, iTopic $topic)
+    protected function importSubjectLocators(\DOMElement $context_node, TopicInterface $topic)
     {
         $this->importSubjects('subjectLocator', $context_node, $topic);
     }
     
     
-    protected function importSubjects($what, \DOMElement $context_node, iTopic $topic)
+    protected function importSubjects($what, \DOMElement $context_node, TopicInterface $topic)
     {
         $hrefs = [ ];
         
@@ -133,7 +133,7 @@ class XtmImport
     }
 
 
-    protected function importNames(\DOMElement $context_node, iTopic $topic)
+    protected function importNames(\DOMElement $context_node, TopicInterface $topic)
     {
         $names = [ ];
         
@@ -157,7 +157,7 @@ class XtmImport
     }
     
     
-    protected function importOccurrences(\DOMElement $context_node, iTopic $topic)
+    protected function importOccurrences(\DOMElement $context_node, TopicInterface $topic)
     {
         $occurrences = [ ];
         
@@ -195,7 +195,7 @@ class XtmImport
     }
     
     
-    protected function importRoles(\DOMElement $context_node, iAssociation $association)
+    protected function importRoles(\DOMElement $context_node, AssociationInterface $association)
     {
         $roles = [ ];
         

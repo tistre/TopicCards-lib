@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iOccurrence extends iCore, iReified, iScoped, iTyped
+interface OccurrenceInterface extends CoreInterface, ReifiedInterface, ScopedInterface, TypedInterface
 {
     public function getValue();
     public function setValue($str);

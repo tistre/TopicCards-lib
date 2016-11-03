@@ -3,30 +3,30 @@
 namespace TopicCards\Interfaces;
 
 
-interface iAssociation extends iPersistent, iReified, iScoped, iTyped
+interface AssociationInterface extends PersistentInterface, ReifiedInterface, ScopedInterface, TypedInterface
 {
     const EVENT_SAVING = 'association_saving';
     const EVENT_DELETING = 'association_deleting';
     const EVENT_INDEXING = 'association_indexing';
 
     /**
-     * @return iAssociationDbAdapter
+     * @return AssociationDbAdapterInterface
      */
     public function getDbAdapter();
 
     /**
-     * @return iPersistentSearchAdapter
+     * @return PersistentSearchAdapterInterface
      */
     public function getSearchAdapter();
 
     /**
-     * @return iRole
+     * @return RoleInterface
      */
     public function newRole();
 
     /**
      * @param array $filters
-     * @return iRole[]
+     * @return RoleInterface[]
      */
     public function getRoles(array $filters = [ ]);
     
@@ -34,7 +34,7 @@ interface iAssociation extends iPersistent, iReified, iScoped, iTyped
     
     /**
      * @param array $filters
-     * @return iRole
+     * @return RoleInterface
      */
     public function getFirstRole(array $filters = [ ]);
 }

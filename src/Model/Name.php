@@ -3,27 +3,27 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\NameDbAdapter;
-use TopicCards\Interfaces\iName;
-use TopicCards\Interfaces\iNameDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\NameInterface;
+use TopicCards\Interfaces\NameDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-class Name extends Core implements iName
+class Name extends Core implements NameInterface
 {
     use Reified, Scoped, Typed;
     
     protected $value = false;
     
-    /** @var iNameDbAdapter */
+    /** @var NameDbAdapterInterface */
     protected $db_adapter;
 
 
     /**
      * Name constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         parent::__construct($topicmap);
 
@@ -32,7 +32,7 @@ class Name extends Core implements iName
 
 
     /**
-     * @return iNameDbAdapter
+     * @return NameDbAdapterInterface
      */
     public function getDbAdapter()
     {

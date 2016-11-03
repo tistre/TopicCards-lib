@@ -3,9 +3,9 @@
 namespace TopicCards\Model;
 
 use TopicCards\Exception\TopicCardsException;
-use TopicCards\Interfaces\iPersistentDbAdapter;
-use TopicCards\Interfaces\iPersistentSearchAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\PersistentDbAdapterInterface;
+use TopicCards\Interfaces\PersistentSearchAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 trait Persistent
@@ -87,7 +87,7 @@ trait Persistent
 
 
     /**
-     * @return iPersistentDbAdapter
+     * @return PersistentDbAdapterInterface
      */
     protected function getPersistentDbAdapter()
     {
@@ -131,10 +131,10 @@ trait Persistent
 
     public function save()
     {
-        /** @var iTopicMap $topicmap */
+        /** @var TopicMapInterface $topicmap */
         $topicmap = $this->getTopicMap();
         
-        /** @var iPersistentSearchAdapter $search_adapter */
+        /** @var PersistentSearchAdapterInterface $search_adapter */
         $search_adapter = $this->getSearchAdapter();
         
         $ok = $this->validate($dummy);
@@ -232,10 +232,10 @@ trait Persistent
     
     protected function addHistoryItem($dml_type)
     {
-        /** @var iTopicMap $topicmap */
+        /** @var TopicMapInterface $topicmap */
         $topicmap = $this->getTopicMap();
         
-        /** @var iPersistentSearchAdapter $search_adapter */
+        /** @var PersistentSearchAdapterInterface $search_adapter */
         $search_adapter = $this->getSearchAdapter();
         
         $topicmap->getSearch()->index
@@ -258,7 +258,7 @@ trait Persistent
 
     public function getHistoryItems()
     {
-        /** @var iTopicMap $topicmap */
+        /** @var TopicMapInterface $topicmap */
         $topicmap = $this->getTopicMap();
 
         $result = [ ];

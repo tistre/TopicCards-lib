@@ -4,11 +4,11 @@ namespace TopicCards\Search;
 
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
-use TopicCards\Interfaces\iSearch;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\SearchInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-class Search implements iSearch
+class Search implements SearchInterface
 {
     const EVENT_INDEX_PARAMS = 'search_index_params';
 
@@ -111,7 +111,7 @@ class Search implements iSearch
     }
     
     
-    public function getIndexParams(iTopicMap $topicmap, $index)
+    public function getIndexParams(TopicMapInterface $topicmap, $index)
     {
         $params =
             [
@@ -240,7 +240,7 @@ class Search implements iSearch
     }
 
 
-    public function recreateIndex(iTopicMap $topicmap, $index, array $params)
+    public function recreateIndex(TopicMapInterface $topicmap, $index, array $params)
     {
         $connection = $this->getConnection();
 
@@ -260,7 +260,7 @@ class Search implements iSearch
     }
 
 
-    public function reindexAllTopics(iTopicMap $topicmap)
+    public function reindexAllTopics(TopicMapInterface $topicmap)
     {
         $limit = 0;
         $topic_ids = $topicmap->getTopicIds([ 'limit' => $limit ]);
@@ -285,7 +285,7 @@ class Search implements iSearch
     }
 
 
-    public function reindexAllAssociations(iTopicMap $topicmap)
+    public function reindexAllAssociations(TopicMapInterface $topicmap)
     {
         $limit = 0;
         $association_ids = $topicmap->getAssociationIds([ 'limit' => $limit ]);

@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iTopicDbAdapter extends iPersistentDbAdapter 
+interface TopicDbAdapterInterface extends PersistentDbAdapterInterface 
 {
     public function selectReifiedObject();
 }

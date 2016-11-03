@@ -2,13 +2,13 @@
 
 namespace TopicCards\Model;
 
-use TopicCards\Interfaces\iCore;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\CoreInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-abstract class Core implements iCore
+abstract class Core implements CoreInterface
 {
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
     /** @var string */
@@ -18,16 +18,16 @@ abstract class Core implements iCore
     /**
      * Core constructor.
      *
-     * @param iTopicMap $topicmap
+     * @param TopicMapInterface $topicmap
      */
-    public function __construct(iTopicMap $topicmap)
+    public function __construct(TopicMapInterface $topicmap)
     {
         $this->topicmap = $topicmap;
     }
 
 
     /**
-     * @return iTopicMap
+     * @return TopicMapInterface
      */
     public function getTopicMap()
     {

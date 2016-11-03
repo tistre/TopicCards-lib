@@ -2,7 +2,7 @@
 
 namespace TopicCards\Db;
 
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class DbUtils
@@ -104,7 +104,7 @@ class DbUtils
     }
 
 
-    public static function tmConstructLabelQueries(iTopicMap $topicmap, array $topic_ids, $tm_construct_subject)
+    public static function tmConstructLabelQueries(TopicMapInterface $topicmap, array $topic_ids, $tm_construct_subject)
     {
         $result = [];
 

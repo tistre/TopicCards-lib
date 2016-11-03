@@ -4,21 +4,21 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
-use TopicCards\Interfaces\iOccurrence;
-use TopicCards\Interfaces\iOccurrenceDbAdapter;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\OccurrenceInterface;
+use TopicCards\Interfaces\OccurrenceDbAdapterInterface;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
-class OccurrenceDbAdapter implements iOccurrenceDbAdapter
+class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 {
-    /** @var iOccurrence */
+    /** @var OccurrenceInterface */
     protected $occurrence;
 
-    /** @var iTopicMap */
+    /** @var TopicMapInterface */
     protected $topicmap;
 
 
-    public function __construct(iOccurrence $occurrence)
+    public function __construct(OccurrenceInterface $occurrence)
     {
         $this->occurrence = $occurrence;
         $this->topicmap = $occurrence->getTopicMap();
@@ -125,6 +125,7 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
     public function updateAll($topic_id, array $data, array $previous_data, Transaction $transaction)
     {
         $ok = 0;
+        $previous_occurrence_data = [ ];
         
         foreach ($data as $occurrence_data)
         {
@@ -245,21 +246,21 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
         (
             $this->topicmap,
             [ $data[ 'type' ] ],
-            iTopicMap::SUBJECT_OCCURRENCE_TYPE
+            TopicMapInterface::SUBJECT_OCCURRENCE_TYPE
         );
 
         $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
             $data[ 'scope' ],
-            iTopicMap::SUBJECT_SCOPE
+            TopicMapInterface::SUBJECT_SCOPE
         ));
 
         $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
             [ $data[ 'datatype' ] ],
-            iTopicMap::SUBJECT_DATATYPE
+            TopicMapInterface::SUBJECT_DATATYPE
         ));
 
         foreach ($type_queries as $type_query)
@@ -325,7 +326,7 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
                 (
                     $this->topicmap,
                     $data[ $key ],
-                    iTopicMap::SUBJECT_SCOPE
+                    TopicMapInterface::SUBJECT_SCOPE
                 );
 
                 foreach ($type_queries as $type_query)
@@ -368,7 +369,7 @@ class OccurrenceDbAdapter implements iOccurrenceDbAdapter
             (
                 $this->topicmap,
                 [ $data[ 'type' ] ],
-                iTopicMap::SUBJECT_OCCURRENCE_TYPE
+                TopicMapInterface::SUBJECT_OCCURRENCE_TYPE
             );
 
             foreach ($type_queries as $type_query)

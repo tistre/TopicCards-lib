@@ -3,7 +3,7 @@
 namespace TopicCards\Interfaces;
 
 
-interface iTopicMapSystem
+interface TopicMapSystemInterface
 {
     public function newTopicMap($key);
     public function getTopicMap($key);

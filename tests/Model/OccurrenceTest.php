@@ -1,12 +1,12 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use TopicCards\Interfaces\iTopicMap;
+use TopicCards\Interfaces\TopicMapInterface;
 
 
 class OccurrenceTest extends TestCase
 {
-    /** @var \TopicCards\Interfaces\iTopicMap */
+    /** @var TopicMapInterface */
     protected static $topicmap;
 
     
@@ -58,7 +58,7 @@ class OccurrenceTest extends TestCase
         
         $this->assertContains
         (
-            iTopicMap::SUBJECT_OCCURRENCE_TYPE, 
+            TopicMapInterface::SUBJECT_OCCURRENCE_TYPE, 
             $occurrence_type_topic->getTypes(), 
             'New occurrence type topic has not been marked as occurrence type.'
         );
@@ -69,7 +69,7 @@ class OccurrenceTest extends TestCase
 
         $this->assertContains
         (
-            iTopicMap::SUBJECT_DATATYPE,
+            TopicMapInterface::SUBJECT_DATATYPE,
             $datatype_topic->getTypes(),
             'New datatype has not been marked as datatype.'
         );
