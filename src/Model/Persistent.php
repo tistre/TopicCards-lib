@@ -2,6 +2,7 @@
 
 namespace TopicCards\Model;
 
+use TopicCards\Exception\TopicCardsException;
 use TopicCards\Interfaces\iPersistentDbAdapter;
 use TopicCards\Interfaces\iPersistentSearchAdapter;
 use TopicCards\Interfaces\iTopicMap;
@@ -140,8 +141,16 @@ trait Persistent
         
         if ($ok < 0)
         {
-            $topicmap->getLogger()->error(sprintf('%s <%s> save cancelled because the validation failed (%s).', get_class($this), $this->getId(), $ok));
-            return $ok;
+            $error_msg = sprintf
+            (
+                '%s <%s> save cancelled because the validation failed (%s).', 
+                get_class($this), 
+                $this->getId(), 
+                $ok
+            );
+            
+            $topicmap->getLogger()->error($error_msg);
+            throw new TopicCardsException($error_msg, $ok);
         }
 
         $search_adapter->resetIndexRelated();
