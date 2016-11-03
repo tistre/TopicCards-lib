@@ -28,6 +28,13 @@ interface iTopic extends iPersistent
      */
     public function getSearchAdapter();
 
+
+    /**
+     * @param string $uri
+     * @return int
+     */
+    public function loadBySubject($uri);
+
     /**
      * @return string[]
      */
