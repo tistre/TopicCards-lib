@@ -52,7 +52,7 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
         $this->topicmap->trigger
         (
             AssociationInterface::EVENT_INDEXING, 
-            [ 'association' => $this, 'index_fields' => $result ],
+            [ 'association' => $this->association, 'index_fields' => $result ],
             $callback_result
         );
         

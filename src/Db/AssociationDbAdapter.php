@@ -221,7 +221,7 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             $ok = $this->topicmap->trigger
             (
                 AssociationInterface::EVENT_SAVING, 
-                [ 'association' => $this, 'dml' => 'insert' ],
+                [ 'association' => $this->association, 'dml' => 'insert' ],
                 $callback_result
             );
 
@@ -379,7 +379,7 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             $ok = $this->topicmap->trigger
             (
                 AssociationInterface::EVENT_SAVING,
-                [ 'association' => $this, 'dml' => 'update' ],
+                [ 'association' => $this->association, 'dml' => 'update' ],
                 $callback_result
             );
 

@@ -62,7 +62,7 @@ class TopicSearchAdapter extends PersistentSearchAdapter
         $this->topicmap->trigger
         (
             TopicInterface::EVENT_INDEXING, 
-            [ 'topic' => $this, 'index_fields' => $result ],
+            [ 'topic' => $this->topic, 'index_fields' => $result ],
             $callback_result
         );
         

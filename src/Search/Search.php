@@ -10,8 +10,6 @@ use TopicCards\Interfaces\TopicMapInterface;
 
 class Search implements SearchInterface
 {
-    const EVENT_INDEX_PARAMS = 'search_index_params';
-
     /** @var array */
     protected $params = [ ];
     
@@ -228,7 +226,7 @@ class Search implements SearchInterface
 
         $topicmap->trigger
         (
-            self::EVENT_INDEX_PARAMS,
+            SearchInterface::EVENT_INDEX_PARAMS,
             [ 'index_params' => $params ],
             $callback_result
         );

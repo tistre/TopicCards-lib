@@ -438,7 +438,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
             $ok = $this->topicmap->trigger
             (
                 TopicInterface::EVENT_SAVING, 
-                [ 'topic' => $this, 'dml' => 'insert' ],
+                [ 'topic' => $this->topic, 'dml' => 'insert' ],
                 $callback_result
             );
             
@@ -591,7 +591,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
             $ok = $this->topicmap->trigger
             (
                 TopicInterface::EVENT_SAVING, 
-                [ 'topic' => $this, 'dml' => 'update' ],
+                [ 'topic' => $this->topic, 'dml' => 'update' ],
                 $callback_result
             );
 

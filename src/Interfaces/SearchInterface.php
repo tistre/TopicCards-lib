@@ -7,8 +7,9 @@ use Elasticsearch\Client;
 
 interface SearchInterface
 {
-    public function __construct(array $params);
+    const EVENT_INDEX_PARAMS = 'search_index_params';
     
+    public function __construct(array $params);
     
     // TODO add setLogger(), getLogger()
     
