@@ -4,6 +4,7 @@ namespace TopicCards\Utils;
 
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
+use TopicCards\Exception\TopicCardsException;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
@@ -118,7 +119,17 @@ class InstallationUtils
                 $name->setValue($name_str);
             }
             
-            $topic->save();
+            try
+            {
+                $topic->save();
+            }
+            catch (TopicCardsException $exception)
+            {
+                if ($exception->getCode() !== TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS)
+                {
+                    throw $exception;
+                }
+            }
         }
 
         // TODO: Set name of name to Name :)
