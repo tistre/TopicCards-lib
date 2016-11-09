@@ -33,11 +33,14 @@ class XtmReader implements \Iterator
 
     public function rewind()
     {
+        if (! file_exists($this->filename))
+            return;
+        
         $ok = $this->xmlreader->open($this->filename);
 
         // Go to the root node
 
-        if ($ok >= 0)
+        if ($ok)
             $ok = $this->xmlreader->read();
 
         if (! $ok)
