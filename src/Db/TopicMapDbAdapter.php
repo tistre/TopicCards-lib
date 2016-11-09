@@ -179,14 +179,12 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
             return false;
         }
 
-        // TODO add error handling
-
-        $record = $qresult->firstRecord();
-        
-        if (empty($record))
+        if ($qresult->size() === 0)
         {
             return false;
         }
+        
+        $record = $qresult->firstRecord();
         
         $values = $record->get('topic.' . $what);
         
