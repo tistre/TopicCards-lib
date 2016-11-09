@@ -137,15 +137,16 @@ trait Persistent
         /** @var PersistentSearchAdapterInterface $search_adapter */
         $search_adapter = $this->getSearchAdapter();
         
-        $ok = $this->validate($dummy);
+        $ok = $this->validate($msg_html);
         
         if ($ok < 0)
         {
             $error_msg = sprintf
             (
-                '%s <%s> save cancelled because the validation failed (%s).', 
+                '%s <%s> save cancelled because the validation failed (<%s> %s).', 
                 get_class($this), 
                 $this->getId(), 
+                $msg_html,
                 $ok
             );
             

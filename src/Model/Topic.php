@@ -479,7 +479,7 @@ class Topic extends Core implements TopicInterface
                 if (strlen($this->topicmap->getTopicIdBySubject($subject_identifier)) > 0)
                 {
                     $result = TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS;
-                    $msg_html .= 'Subject identifier already exists.';
+                    $msg_html .= sprintf('Subject identifier "%s" already exists.', $subject_identifier);
                 }
             }
         }
