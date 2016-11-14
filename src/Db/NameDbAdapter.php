@@ -6,6 +6,7 @@ use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
 use TopicCards\Interfaces\NameInterface;
 use TopicCards\Interfaces\NameDbAdapterInterface;
+use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
@@ -265,6 +266,24 @@ class NameDbAdapter implements NameDbAdapterInterface
             $transaction->push($type_query['query'], $type_query['bind']);
         }
 
+        // Link reifier
+
+        if (strlen($data[ 'reifier' ]) > 0)
+        {
+            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            (
+                TopicInterface::REIFIES_NAME,
+                $data[ 'id' ],
+                $data[ 'reifier' ]
+            );
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
+
         // TODO: error handling
         return 1;
     }
@@ -377,14 +396,42 @@ class NameDbAdapter implements NameDbAdapterInterface
             $dirty = true;
         }
 
-        if (! $dirty)
+        if ($dirty)
         {
-            return 0;
+            $logger->info($query, $bind);
+            $transaction->push($query, $bind);
         }
 
-        $logger->info($query, $bind);
+        // Link reifier
 
-        $transaction->push($query, $bind);
+        if ($data[ 'reifier' ] !== $previous_data[ 'reifier' ])
+        {
+            if (strlen($data['reifier']) > 0)
+            {
+                $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+                (
+                    TopicInterface::REIFIES_NAME,
+                    $data['id'],
+                    $data['reifier']
+                );
+            }
+            else
+            {
+                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                (
+                    TopicInterface::REIFIES_NAME,
+                    $data['id'],
+                    $previous_data['reifier']
+                );
+            }
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
+
 
         // TODO: error handling
         return 1;

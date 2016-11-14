@@ -58,7 +58,6 @@ class RoleReifiedTest extends TestCase
         // Reify
 
         $reifier_topic = $role_a->newReifierTopic();
-
         $ok = $reifier_topic->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Reifier save failed');
 

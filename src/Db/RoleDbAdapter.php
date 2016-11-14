@@ -6,6 +6,7 @@ use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
 use TopicCards\Interfaces\RoleInterface;
 use TopicCards\Interfaces\RoleDbAdapterInterface;
+use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
@@ -236,7 +237,25 @@ class RoleDbAdapter implements RoleDbAdapterInterface
             $logger->info($type_query['query'], $type_query['bind']);
             $transaction->push($type_query['query'], $type_query['bind']);
         }
-        
+
+        // Link reifier
+
+        if (strlen($data[ 'reifier' ]) > 0)
+        {
+            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            (
+                TopicInterface::REIFIES_ROLE,
+                $data[ 'id' ],
+                $data[ 'reifier' ]
+            );
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
+
         // TODO: error handling
         return 1;
     }
@@ -245,39 +264,57 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     protected function updateRole($association_id, array $data, array $previous_data, Transaction $transaction)
     {
         $logger = $this->topicmap->getLogger();
-        
+
         $do_delete = $do_insert = false;
         $ok = 0;
 
-        if (! isset($data[ 'reifier' ]))
+        if (! isset($data['reifier']))
         {
-            $data[ 'reifier' ] = false;
+            $data['reifier'] = false;
         }
 
-        if ((! isset($data[ 'player' ])) || (strlen($data[ 'player' ]) === 0))
+        if ((! isset($data['player'])) || (strlen($data['player']) === 0))
         {
             $do_delete = true;
         }
-        elseif (($previous_data[ 'player' ] !== $data[ 'player' ]) || ($previous_data[ 'type' ] !== $data[ 'type' ]) || ($previous_data[ 'reifier' ] !== $data[ 'reifier' ]))
+        elseif (($previous_data['player'] !== $data['player']) || ($previous_data['type'] !== $data['type']) || ($previous_data['reifier'] !== $data['reifier']))
         {
             $do_delete = $do_insert = true;
         }
-        
+
         if ($do_delete)
         {
-            $bind = 
-                [ 
-                    'id' => $data[ 'id' ],
+            // Unlink reifier
+
+            if (strlen($data['reifier']) > 0)
+            {
+                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                (
+                    TopicInterface::REIFIES_ROLE,
+                    $data['id'],
+                    $data['reifier']
+                );
+
+                foreach ($reifier_queries as $query)
+                {
+                    $logger->info($query['query'], $query['bind']);
+                    $transaction->push($query['query'], $query['bind']);
+                }
+            }
+
+            $bind =
+                [
+                    'id' => $data['id'],
                     'association_id' => $association_id,
-                    'player_id' => $previous_data[ 'player' ]
+                    'player_id' => $previous_data['player']
                 ];
-            
+    
             $query = 'MATCH (a:Association { id: {association_id} })-[r { id: {id} }]-(t:Topic { id: {player_id} }) DELETE r';
-
+    
             $logger->info($query, $bind);
-            
+    
             $transaction->push($query, $bind);
-
+    
             // TODO: error handling
             $ok = 1;
         }

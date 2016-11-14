@@ -66,31 +66,8 @@ trait Reified
         
         $reifier_id = $topicmap->createId();
         
-        if ($this instanceof NameInterface)
-        {
-            $what = TopicInterface::REIFIES_NAME;
-        }
-        elseif ($this instanceof OccurrenceInterface)
-        {
-            $what = TopicInterface::REIFIES_OCCURRENCE;
-        }
-        elseif ($this instanceof AssociationInterface)
-        {
-            $what = TopicInterface::REIFIES_ASSOCIATION;
-        }
-        elseif ($this instanceof RoleInterface)
-        {
-            $what = TopicInterface::REIFIES_ROLE;
-        }
-        else
-        {
-            $what = TopicInterface::REIFIES_NONE;
-        }
-        
         $reifier_topic = $topicmap->newTopic();
         $reifier_topic->setId($reifier_id);
-        $reifier_topic->setReifiesId($this->getId());
-        $reifier_topic->setReifiesWhat($what);
                 
         $this->setReifierId($reifier_id);
         

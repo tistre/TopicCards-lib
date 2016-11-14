@@ -4,6 +4,7 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use \TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Interfaces\PersistentDbAdapterInterface;
 use TopicCards\Model\Role;
@@ -196,6 +197,24 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             $transaction->push($type_query['query'], $type_query['bind']);
         }
 
+        // Link reifier
+
+        if (strlen($data[ 'reifier' ]) > 0)
+        {
+            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            (
+                TopicInterface::REIFIES_ASSOCIATION,
+                $data[ 'id' ],
+                $data[ 'reifier' ]
+            );
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
+
         // TODO: Error handling
 
         $role = new Role($this->topicmap);
@@ -341,6 +360,36 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $logger->info($query, $bind);
 
         $transaction->push($query, $bind);
+
+        // Link reifier
+
+        if ($data[ 'reifier' ] !== $previous_data[ 'reifier' ])
+        {
+            if (strlen($data['reifier']) > 0)
+            {
+                $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+                (
+                    TopicInterface::REIFIES_ASSOCIATION,
+                    $data['id'],
+                    $data['reifier']
+                );
+            }
+            else
+            {
+                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                (
+                    TopicInterface::REIFIES_ASSOCIATION,
+                    $data['id'],
+                    $previous_data['reifier']
+                );
+            }
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
 
         // TODO: Error handling
         $ok = 1;

@@ -2,6 +2,12 @@
 
 namespace TopicCards\Db;
 
+use TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Interfaces\CoreInterface;
+use TopicCards\Interfaces\NameInterface;
+use TopicCards\Interfaces\OccurrenceInterface;
+use TopicCards\Interfaces\RoleInterface;
+use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
@@ -135,6 +141,60 @@ class DbUtils
                 ];
         }
         
+        return $result;
+    }
+
+
+    public static function tmConstructLinkReifierQueries($reifies_what, $reifies_id, $reifier_topic_id)
+    {
+        $result = [];
+        
+        $property_data =
+            [
+                'reifies_what' => $reifies_what,
+                'reifies_id' => $reifies_id
+            ];
+        
+        $bind = [ 'id' => $reifier_topic_id ];
+        $property_query = self::propertiesUpdateString('node', $property_data, $bind);
+
+        $result[] = 
+            [
+                'query' => sprintf
+                (
+                    'MATCH (node:Topic { id: {id} })%s',
+                    $property_query
+                ),
+                'bind' => $bind
+            ];
+
+        return $result;
+    }
+
+
+    public static function tmConstructUnlinkReifierQueries($reifies_what, $reifies_id, $reifier_topic_id)
+    {
+        $result = [];
+
+        $property_data =
+            [
+                'reifies_what' => '',
+                'reifies_id' => ''
+            ];
+
+        $bind = [ 'id' => $reifier_topic_id ];
+        $property_query = self::propertiesUpdateString('node', $property_data, $bind);
+
+        $result[] =
+            [
+                'query' => sprintf
+                (
+                    'MATCH (node:Topic { id: {id} })%s',
+                    $property_query
+                ),
+                'bind' => $bind
+            ];
+
         return $result;
     }
 }

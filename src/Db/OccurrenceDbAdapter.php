@@ -6,6 +6,7 @@ use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
 use TopicCards\Interfaces\OccurrenceInterface;
 use TopicCards\Interfaces\OccurrenceDbAdapterInterface;
+use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
@@ -263,12 +264,30 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             TopicMapInterface::SUBJECT_DATATYPE
         ));
 
-        foreach ($type_queries as $type_query)
+        foreach ($type_queries as $query)
         {
-            $logger->info($type_query['query'], $type_query['bind']);
-            $transaction->push($type_query['query'], $type_query['bind']);
+            $logger->info($query['query'], $query['bind']);
+            $transaction->push($query['query'], $query['bind']);
         }
 
+        // Link reifier
+
+        if (strlen($data[ 'reifier' ]) > 0)
+        {
+            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            (
+                TopicInterface::REIFIES_OCCURRENCE,
+                $data[ 'id' ],
+                $data[ 'reifier' ]
+            );
+
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
+        
         // TODO: error handling
         return 1;
     }
@@ -381,14 +400,41 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             $dirty = true;
         }
 
-        if (! $dirty)
+        if ($dirty)
         {
-            return 0;
+            $logger->info($query, $bind);
+            $transaction->push($query, $bind);
         }
+        
+        // Link reifier
 
-        $logger->info($query, $bind);
+        if ($data[ 'reifier' ] !== $previous_data[ 'reifier' ])
+        {
+            if (strlen($data['reifier']) > 0)
+            {
+                $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+                (
+                    TopicInterface::REIFIES_OCCURRENCE,
+                    $data['id'],
+                    $data['reifier']
+                );
+            }
+            else
+            {
+                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                (
+                    TopicInterface::REIFIES_OCCURRENCE,
+                    $data['id'],
+                    $previous_data['reifier']
+                );
+            }
 
-        $transaction->push($query, $bind);
+            foreach ($reifier_queries as $query)
+            {
+                $logger->info($query['query'], $query['bind']);
+                $transaction->push($query['query'], $query['bind']);
+            }
+        }
 
         // TODO: error handling
         return 1;

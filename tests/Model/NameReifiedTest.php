@@ -30,6 +30,8 @@ class NameReifiedTest extends TestCase
         $name = $topic->getFirstName([ 'type' => TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE ]);
         
         $reifier_topic = $name->newReifierTopic();
+        $ok = $reifier_topic->save();
+        $this->assertGreaterThanOrEqual(0, $ok, 'Reifier save failed');
         
         $name_name = $reifier_topic->newName();
         $name_name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
@@ -38,9 +40,6 @@ class NameReifiedTest extends TestCase
         $ok = $topic->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic save failed');
         
-        $ok = $reifier_topic->save();
-        $this->assertGreaterThanOrEqual(0, $ok, 'Reifier save failed');
-
         $ok = $topic->load($topic->getId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
 

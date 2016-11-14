@@ -58,7 +58,6 @@ class AssociationReifiedTest extends TestCase
         // Reify
         
         $reifier_topic = $association->newReifierTopic();
-        
         $ok = $reifier_topic->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Reifier save failed');
         
