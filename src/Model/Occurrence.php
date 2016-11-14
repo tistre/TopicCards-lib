@@ -11,7 +11,6 @@ use TopicCards\Utils\DatatypeUtils;
 
 class Occurrence extends Core implements OccurrenceInterface
 {
-    // TODO use OccurrenceDbAdapter
     use Reified, Scoped, Typed;
     
     protected $value = false;
