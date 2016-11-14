@@ -275,12 +275,18 @@ class XtmExport
         if (count($types) === 0)
             return '';
 
-        $result = sprintf("%s<instanceOf>\n", str_repeat('  ', $indent));
-            
+        $result = '';
+        
         foreach ($types as $topic_id)
-            $result .= $this->exportTopicRef($topic_id, ($indent + 1));
-            
-        $result .= sprintf("%s</instanceOf>\n", str_repeat('  ', $indent));
+        {
+            $result .= sprintf 
+            (
+                "%s<instanceOf>\n%s%s</instanceOf>\n",
+                str_repeat('  ', $indent),
+                $this->exportTopicRef($topic_id, ($indent + 1)),
+                str_repeat('  ', $indent)
+            );
+        }
         
         return $result;
     }
