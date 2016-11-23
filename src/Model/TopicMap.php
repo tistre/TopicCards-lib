@@ -18,6 +18,7 @@ class TopicMap implements TopicMapInterface
     protected $db_table_prefix;
     protected $search_index;
     protected $upload_path;
+    protected $cache = [ ];
 
     /** @var LoggerInterface */
     protected $logger;
@@ -192,6 +193,13 @@ class TopicMap implements TopicMapInterface
 
     public function getTopicIdBySubject($uri, $create_topic = false)
     {
+        $cache_key = __METHOD__ . "($uri)";
+
+        if (isset($this->cache[ $cache_key ]))
+        {
+            return $this->cache[ $cache_key ];
+        }
+        
         $result = $this->db_adapter->selectTopicBySubject($uri);
         
         if ((strlen($result) === 0) && $create_topic)
@@ -206,20 +214,34 @@ class TopicMap implements TopicMapInterface
             }
         }
         
+        if (strlen($result) > 0)
+        {
+            $this->cache[ $cache_key ] = $result;
+        }
+        
         return $result;
     }
     
     
     public function getTopicSubject($topic_id)
     {
+        $cache_key = __METHOD__ . "($topic_id)";
+
+        if (isset($this->cache[ $cache_key ]))
+        {
+            return $this->cache[ $cache_key ];
+        }
+
         // XXX we might want to optimize this and not do 2 calls
         // to get at the locator
-        
+
         $result = $this->db_adapter->selectTopicSubjectIdentifier($topic_id);
         
         if ($result === false)
             $result = $this->db_adapter->selectTopicSubjectLocator($topic_id);
-        
+
+        $this->cache[ $cache_key ] = $result;
+
         return $result;
     }
     
@@ -228,8 +250,19 @@ class TopicMap implements TopicMapInterface
     {
         if (strlen($topic_id) === 0)
             return false;
-            
-        return $this->db_adapter->selectTopicSubjectIdentifier($topic_id);
+        
+        $cache_key = __METHOD__ . "($topic_id)";
+        
+        if (isset($this->cache[ $cache_key ]))
+        {
+            return $this->cache[ $cache_key ];
+        }
+        
+        $result = $this->db_adapter->selectTopicSubjectIdentifier($topic_id);
+
+        $this->cache[ $cache_key ] = $result;
+        
+        return $result;
     }
     
     
@@ -237,8 +270,19 @@ class TopicMap implements TopicMapInterface
     {
         if (strlen($topic_id) === 0)
             return false;
-            
-        return $this->db_adapter->selectTopicSubjectLocator($topic_id);
+
+        $cache_key = __METHOD__ . "($topic_id)";
+
+        if (isset($this->cache[ $cache_key ]))
+        {
+            return $this->cache[ $cache_key ];
+        }
+        
+        $result = $this->db_adapter->selectTopicSubjectLocator($topic_id);
+
+        $this->cache[ $cache_key ] = $result;
+
+        return $result;
     }
     
     
@@ -246,7 +290,14 @@ class TopicMap implements TopicMapInterface
     {
         if (strlen($topic_id) === 0)
             return false;
-            
+
+        $cache_key = __METHOD__ . "($topic_id)";
+
+        if (isset($this->cache[ $cache_key ]))
+        {
+            return $this->cache[ $cache_key ];
+        }
+
         $topic = $this->newTopic();
         
         $ok = $topic->load($topic_id);
@@ -254,7 +305,11 @@ class TopicMap implements TopicMapInterface
         if ($ok < 0)
             return false;
         
-        return $topic->getLabel();
+        $result = $topic->getLabel();
+
+        $this->cache[ $cache_key ] = $result;
+        
+        return $result;
     }
     
     
