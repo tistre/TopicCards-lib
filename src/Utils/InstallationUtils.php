@@ -175,6 +175,42 @@ class InstallationUtils
     }
 
 
+    protected static function initDbIndexes(TopicMapInterface $topicmap)
+    {
+        $logger = $topicmap->getLogger();
+        $db = $topicmap->getDb();
+
+        $db_conn = $db->getConnection();
+
+        if ($db_conn === NULL)
+        {
+            $logger->emergency('Database connection failed.');
+            return -1;
+        }
+
+        $queries =
+            [
+                'CREATE INDEX ON :Topic(subject_identifiers)'
+            ];
+
+        foreach ($queries as $query)
+        {
+            $logger->info($query);
+
+            try
+            {
+                $db_conn->run($query);
+            }
+            catch (Neo4jException $exception)
+            {
+                $logger->error($exception->getMessage());
+                // TODO: Error handling
+                return -1;
+            }
+        }
+    }
+
+    
     public function initSearch(TopicMapInterface $topicmap)
     {
         $search = $topicmap->getSearch();
