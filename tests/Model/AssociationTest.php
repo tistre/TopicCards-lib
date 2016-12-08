@@ -8,10 +8,10 @@ use TopicCards\Interfaces\TypedInterface;
 
 class AssociationTest extends TestCase
 {
-    const ASSOCIATION_TYPE = 'http://example.com/schema/newAssociationType';
-    const ROLE_TYPE = 'http://example.com/schema/newOccurrenceType';
-    const TOPIC_A = 'http://example.com/topic/a';
-    const TOPIC_B = 'http://example.com/topic/b';
+    const ASSOCIATION_TYPE = 'http://example.com/schema/associationType' . __FILE__;
+    const ROLE_TYPE = 'http://example.com/schema/roleType' . __FILE__;
+    const TOPIC_A = 'http://example.com/topic/a' . __FILE__;
+    const TOPIC_B = 'http://example.com/topic/b' . __FILE__;
     
     /** @var TopicMapInterface */
     protected static $topicmap;

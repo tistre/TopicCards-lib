@@ -23,10 +23,10 @@ class AssociationReifiedTest extends TestCase
     {
         // Create types
         
-        $association_type = 'http://example.com/schema/newAssociationType';
+        $association_type = 'http://example.com/schema/associationType' . __FILE__;
         $association_type_id = self::$topicmap->getTopicIdBySubject($association_type, true);
 
-        $role_type = 'http://example.com/schema/newOccurrenceType';
+        $role_type = 'http://example.com/schema/roleType' . __FILE__;
         $role_type_id = self::$topicmap->getTopicIdBySubject($role_type, true);
         
         // Create topics

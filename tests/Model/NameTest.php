@@ -20,9 +20,6 @@ class NameTest extends TestCase
     
     public function testNewTypeAndDatatype()
     {
-        $occurrence_type = 'http://example.com/schema/newOccurrenceType';
-        $datatype = 'http://example.com/schema/newDatatype';
-        
         $topic = self::$topicmap->newTopic();
         
         $name = $topic->newName();

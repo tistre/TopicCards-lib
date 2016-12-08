@@ -20,8 +20,8 @@ class OccurrenceTest extends TestCase
     
     public function testNewTypeAndDatatype()
     {
-        $occurrence_type = 'http://example.com/schema/newOccurrenceType';
-        $datatype = 'http://example.com/schema/newDatatype';
+        $occurrence_type = 'http://example.com/schema/occurrenceType' . __FILE__;
+        $datatype = 'http://example.com/schema/datatype' . __FILE__;
         
         $topic = self::$topicmap->newTopic();
         
