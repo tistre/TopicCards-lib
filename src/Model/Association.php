@@ -163,7 +163,7 @@ class Association extends Core implements AssociationInterface
         if (strlen($this->getTypeId()) === 0)
         {
             $result = TypedInterface::ERR_TYPE_MISSING;
-            $msg_html .= 'Missing assocation type.';
+            $msg_html .= 'Missing association type.';
         }
         
         foreach ($this->getRoles([ ]) as $role)
