@@ -10,15 +10,15 @@ class RoleReifiedTest extends TestCase
     /** @var TopicMapInterface */
     protected static $topicmap;
 
-    
+
     public static function setUpBeforeClass()
     {
         global $topicmap;
-        
+
         self::$topicmap = $topicmap;
     }
-    
-    
+
+
     public function testNewReifierTopic()
     {
         // Create types
@@ -77,11 +77,14 @@ class RoleReifiedTest extends TestCase
         $this->assertEquals($role_a->getId(), $reifier_topic->getReifiesId(), 'Reifier topic ID is not the role ID');
         $this->assertEquals(TopicInterface::REIFIES_ROLE, $reifier_topic->getReifiesWhat());
 
-        $this->assertEquals($reifier_topic->getId(), $role_a->getReifierId(), 'Role reifier ID is not the reifier topic ID');
+        $this->assertEquals($reifier_topic->getId(), $role_a->getReifierId(),
+            'Role reifier ID is not the reifier topic ID');
 
         $reified_object = $reifier_topic->getReifiedObject();
-        $this->assertEquals($role_a->getId(), $reified_object['role']->getId(), 'Reified role object ID is not the role ID');
-        $this->assertEquals($association->getId(), $reified_object['association']->getId(), 'Reified association object ID is not the association ID');
+        $this->assertEquals($role_a->getId(), $reified_object['role']->getId(),
+            'Reified role object ID is not the role ID');
+        $this->assertEquals($association->getId(), $reified_object['association']->getId(),
+            'Reified association object ID is not the association ID');
 
         // Cleanup
 

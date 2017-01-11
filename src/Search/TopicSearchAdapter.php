@@ -18,7 +18,7 @@ class TopicSearchAdapter extends PersistentSearchAdapter
         $this->topicmap = $topic->getTopicMap();
     }
 
-    
+
     public function getSearchType()
     {
         return 'topic';
@@ -29,46 +29,45 @@ class TopicSearchAdapter extends PersistentSearchAdapter
     {
         return $this->topic->getId();
     }
-    
-    
+
+
     protected function getIndexFields()
     {
-        $result = 
-        [ 
-            // XXX add sort date
-            'label' => $this->topic->getLabel(),
-            'name' => [ ],
-            'has_name_type_id' => [ ],
-            'topic_type_id' => $this->topic->getTypeIds(),
-            'subject' => array_merge($this->topic->getSubjectIdentifiers(), $this->topic->getSubjectLocators()),
-            'occurrence' => [ ],
-            'has_occurrence_type_id' => [ ]
-        ];
-        
-        foreach ($this->topic->getNames([ ]) as $name)
-        {
-            $result[ 'name' ][ ] = $name->getValue();
-            $result[ 'has_name_type_id' ][ ] = $name->getTypeId();
+        $result =
+            [
+                // XXX add sort date
+                'label' => $this->topic->getLabel(),
+                'name' => [],
+                'has_name_type_id' => [],
+                'topic_type_id' => $this->topic->getTypeIds(),
+                'subject' => array_merge($this->topic->getSubjectIdentifiers(), $this->topic->getSubjectLocators()),
+                'occurrence' => [],
+                'has_occurrence_type_id' => []
+            ];
+
+        foreach ($this->topic->getNames([]) as $name) {
+            $result['name'][] = $name->getValue();
+            $result['has_name_type_id'][] = $name->getTypeId();
         }
 
-        foreach ($this->topic->getOccurrences([ ]) as $occurrence)
-        {
-            $result[ 'occurrence' ][ ] = $occurrence->getValue();
-            $result[ 'has_occurrence_type_id' ][ ] = $occurrence->getTypeId();
+        foreach ($this->topic->getOccurrences([]) as $occurrence) {
+            $result['occurrence'][] = $occurrence->getValue();
+            $result['has_occurrence_type_id'][] = $occurrence->getTypeId();
         }
 
-        $callback_result = [ ];
+        $callback_result = [];
 
         $this->topicmap->trigger
         (
-            TopicInterface::EVENT_INDEXING, 
-            [ 'topic' => $this->topic, 'index_fields' => $result ],
+            TopicInterface::EVENT_INDEXING,
+            ['topic' => $this->topic, 'index_fields' => $result],
             $callback_result
         );
-        
-        if (isset($callback_result[ 'index_fields' ]) && is_array($callback_result[ 'index_fields' ]))
-            $result = $callback_result[ 'index_fields' ];
-        
+
+        if (isset($callback_result['index_fields']) && is_array($callback_result['index_fields'])) {
+            $result = $callback_result['index_fields'];
+        }
+
         return $result;
     }
 }

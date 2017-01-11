@@ -17,8 +17,7 @@ class DbUtils
     {
         $result = '';
 
-        foreach ($labels as $label)
-        {
+        foreach ($labels as $label) {
             $result .= sprintf(':`%s`', $label);
         }
 
@@ -30,30 +29,24 @@ class DbUtils
     {
         $property_strings = [];
 
-        foreach ($properties as $key => $value)
-        {
-            if (empty($value))
-            {
+        foreach ($properties as $key => $value) {
+            if (empty($value)) {
                 continue;
             }
 
-            if (is_array($value))
-            {
+            if (is_array($value)) {
                 $parts = [];
 
-                foreach ($value as $i => $v)
-                {
+                foreach ($value as $i => $v) {
                     $k = $key . $i;
                     $parts[] = sprintf('{%s}', $k);
-                    $bind[ $k ] = $v;
+                    $bind[$k] = $v;
                 }
 
                 $property_strings[] = sprintf('%s: [ %s ]', $key, implode(', ', $parts));
-            }
-            else
-            {
+            } else {
                 $property_strings[] = sprintf('%s: {%s}', $key, $key);
-                $bind[ $key ] = $value;
+                $bind[$key] = $value;
             }
         }
 
@@ -66,43 +59,35 @@ class DbUtils
         $set_property_strings = [];
         $remove_property_strings = [];
 
-        foreach ($properties as $key => $value)
-        {
-            if ((is_array($value) && (count($value) === 0)) || ((! is_array($value)) && (strlen($value) === 0)))
-            {
+        foreach ($properties as $key => $value) {
+            if ((is_array($value) && (count($value) === 0)) || ((! is_array($value)) && (strlen($value) === 0))) {
                 $remove_property_strings[] = sprintf('%s.%s', $node, $key);
                 continue;
             }
 
-            if (is_array($value))
-            {
+            if (is_array($value)) {
                 $parts = [];
 
-                foreach ($value as $i => $v)
-                {
+                foreach ($value as $i => $v) {
                     $k = $key . $i;
                     $parts[] = sprintf('{%s}', $k);
-                    $bind[ $k ] = $v;
+                    $bind[$k] = $v;
                 }
 
                 $set_property_strings[] = sprintf('%s.%s = [ %s ]', $node, $key, implode(', ', $parts));
-            }
-            else
-            {
+            } else {
                 $set_property_strings[] = sprintf('%s.%s = {%s}', $node, $key, $key);
-                $bind[ $key ] = $value;
+                $bind[$key] = $value;
             }
         }
 
         $result = '';
 
-        if (count($remove_property_strings) > 0)
-        {
+        if (count($remove_property_strings) > 0) {
             $result .= sprintf(' REMOVE %s', implode(', ', $remove_property_strings));
         }
 
-        if (count($set_property_strings) > 0)
-        {
+        if (count($set_property_strings) > 0) {
             $result .= sprintf(' SET %s', implode(', ', $set_property_strings));
         }
 
@@ -116,31 +101,28 @@ class DbUtils
 
         $tm_construct_id = $topicmap->getTopicIdBySubject($tm_construct_subject);
 
-        if (strlen($tm_construct_id) === 0)
-        {
+        if (strlen($tm_construct_id) === 0) {
             return $result;
         }
 
-        foreach ($topic_ids as $topic_id)
-        {
-            if (strlen($topic_id) === 0)
-            {
+        foreach ($topic_ids as $topic_id) {
+            if (strlen($topic_id) === 0) {
                 continue;
             }
-            
+
             // TODO: Skip the ones which the cache knows are already labelled
-            
-            $result[ ] = 
+
+            $result[] =
                 [
                     'query' => sprintf
                     (
                         'MATCH (node:Topic { id: {id} }) SET node%s',
-                        self::labelsString([ $tm_construct_id ])
+                        self::labelsString([$tm_construct_id])
                     ),
-                    'bind' => [ 'id' => $topic_id ]
+                    'bind' => ['id' => $topic_id]
                 ];
         }
-        
+
         return $result;
     }
 
@@ -148,17 +130,17 @@ class DbUtils
     public static function tmConstructLinkReifierQueries($reifies_what, $reifies_id, $reifier_topic_id)
     {
         $result = [];
-        
+
         $property_data =
             [
                 'reifies_what' => $reifies_what,
                 'reifies_id' => $reifies_id
             ];
-        
-        $bind = [ 'id' => $reifier_topic_id ];
+
+        $bind = ['id' => $reifier_topic_id];
         $property_query = self::propertiesUpdateString('node', $property_data, $bind);
 
-        $result[] = 
+        $result[] =
             [
                 'query' => sprintf
                 (
@@ -182,7 +164,7 @@ class DbUtils
                 'reifies_id' => ''
             ];
 
-        $bind = [ 'id' => $reifier_topic_id ];
+        $bind = ['id' => $reifier_topic_id];
         $property_query = self::propertiesUpdateString('node', $property_data, $bind);
 
         $result[] =

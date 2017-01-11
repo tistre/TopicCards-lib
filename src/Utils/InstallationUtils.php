@@ -18,21 +18,19 @@ class InstallationUtils
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             $logger->emergency('Database connection failed.');
+
             return -1;
         }
 
         $ok = 0;
         $logger->info("Starting to import <$filename>...");
-        
+
         $objects = new XtmReader($filename, $topicmap);
 
-        foreach ($objects as $object)
-        {
-            if (! is_object($object))
-            {
+        foreach ($objects as $object) {
+            if (! is_object($object)) {
                 continue;
             }
 
@@ -40,23 +38,18 @@ class InstallationUtils
 
             $subject = '';
 
-            if ($object instanceof TopicInterface)
-            {
-                foreach ($object->getSubjectIdentifiers() as $subject)
-                {
+            if ($object instanceof TopicInterface) {
+                foreach ($object->getSubjectIdentifiers() as $subject) {
                     break;
                 }
 
-                if ($subject === '')
-                {
-                    foreach ($object->getSubjectLocators() as $subject)
-                    {
+                if ($subject === '') {
+                    foreach ($object->getSubjectLocators() as $subject) {
                         break;
                     }
                 }
 
-                if ($subject !== '')
-                {
+                if ($subject !== '') {
                     $subject = sprintf('[%s] ', $subject);
                 }
             }
@@ -106,34 +99,28 @@ class InstallationUtils
                 TopicMapInterface::SUBJECT_TOPIC_TYPE => 'Topic type'
             ];
 
-        foreach ($subjects as $subject => $name_str)
-        {
+        foreach ($subjects as $subject => $name_str) {
             $topic = $topicmap->newTopic();
 
-            $topic->setSubjectIdentifiers([ $subject ]);
+            $topic->setSubjectIdentifiers([$subject]);
 
-            if ($subject !== TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE)
-            {
+            if ($subject !== TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE) {
                 $name = $topic->newName();
                 $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
                 $name->setValue($name_str);
             }
-            
-            try
-            {
+
+            try {
                 $topic->save();
-            }
-            catch (TopicCardsException $exception)
-            {
-                if ($exception->getCode() !== TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS)
-                {
+            } catch (TopicCardsException $exception) {
+                if ($exception->getCode() !== TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS) {
                     throw $exception;
                 }
             }
         }
 
         // TODO: Set name of name to Name :)
-        
+
         return 1;
     }
 
@@ -145,9 +132,9 @@ class InstallationUtils
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             $logger->emergency('Database connection failed.');
+
             return -1;
         }
 
@@ -157,17 +144,14 @@ class InstallationUtils
                 'CREATE CONSTRAINT ON (a:Association) ASSERT a.id IS UNIQUE',
             ];
 
-        foreach ($queries as $query)
-        {
+        foreach ($queries as $query) {
             $logger->info($query);
 
-            try
-            {
+            try {
                 $db_conn->run($query);
-            }
-            catch (Neo4jException $exception)
-            {
+            } catch (Neo4jException $exception) {
                 $logger->error($exception->getMessage());
+
                 // TODO: Error handling
                 return -1;
             }
@@ -182,9 +166,9 @@ class InstallationUtils
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             $logger->emergency('Database connection failed.');
+
             return -1;
         }
 
@@ -193,24 +177,21 @@ class InstallationUtils
                 'CREATE INDEX ON :Topic(subject_identifiers)'
             ];
 
-        foreach ($queries as $query)
-        {
+        foreach ($queries as $query) {
             $logger->info($query);
 
-            try
-            {
+            try {
                 $db_conn->run($query);
-            }
-            catch (Neo4jException $exception)
-            {
+            } catch (Neo4jException $exception) {
                 $logger->error($exception->getMessage());
+
                 // TODO: Error handling
                 return -1;
             }
         }
     }
 
-    
+
     public function initSearch(TopicMapInterface $topicmap)
     {
         $search = $topicmap->getSearch();

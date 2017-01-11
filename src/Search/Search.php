@@ -11,8 +11,8 @@ use TopicCards\Interfaces\TopicMapInterface;
 class Search implements SearchInterface
 {
     /** @var array */
-    protected $params = [ ];
-    
+    protected $params = [];
+
     /** @var Client */
     protected $connection;
 
@@ -27,45 +27,43 @@ class Search implements SearchInterface
     {
         return $this->params;
     }
-    
-    
+
+
     /**
      * @return Client
      */
     public function getConnection()
     {
-        if (! $this->connection)
-        {
-            if (! isset($this->params[ 'connection' ]))
-            {
-                $this->params[ 'connection' ] = [ ];
+        if (! $this->connection) {
+            if (! isset($this->params['connection'])) {
+                $this->params['connection'] = [];
             }
-            
-            $this->connection = new Client($this->params[ 'connection' ]);
+
+            $this->connection = new Client($this->params['connection']);
         }
 
         return $this->connection;
     }
-    
-    
+
+
     public function search(array $params)
     {
         return $this->run('search', $params);
     }
-    
-    
+
+
     public function index(array $params)
     {
         return $this->run('index', $params);
     }
-    
-    
+
+
     public function get(array $params)
     {
         return $this->run('get', $params);
     }
-    
-    
+
+
     public function delete(array $params)
     {
         return $this->run('delete', $params);
@@ -75,40 +73,33 @@ class Search implements SearchInterface
     public function run($method, array $params)
     {
         $this->getConnection();
-        
-        if (! isset($params[ 'index' ]))
-        {
-            $params[ 'index' ] = $this->params[ 'index' ];
+
+        if (! isset($params['index'])) {
+            $params['index'] = $this->params['index'];
         }
-        
-        try
-        {
+
+        try {
             $result = $this->connection->$method($params);
-        }
-        catch (\Exception $e)
-        {
+        } catch (\Exception $e) {
             // Delete on a non-indexed item returns a 404Exception, ignore that
-            if ($e instanceof Missing404Exception)
-            {
+            if ($e instanceof Missing404Exception) {
                 $result = true;
-            }
-            else
-            {
+            } else {
                 trigger_error(sprintf("%s %s: %s", __METHOD__, $method, $e->getMessage()), E_USER_WARNING);
                 $result = false;
             }
         }
-        
+
         return $result;
     }
 
 
     public function getIndexName()
     {
-        return $this->params[ 'index' ];
+        return $this->params['index'];
     }
-    
-    
+
+
     public function getIndexParams(TopicMapInterface $topicmap, $index)
     {
         $params =
@@ -120,7 +111,7 @@ class Search implements SearchInterface
                             [
                                 'topic' =>
                                     [
-                                        '_source' => [ 'enabled' => true ],
+                                        '_source' => ['enabled' => true],
                                         'properties' =>
                                             [
                                                 'has_name_type_id' =>
@@ -167,7 +158,7 @@ class Search implements SearchInterface
                                     ],
                                 'association' =>
                                     [
-                                        '_source' => [ 'enabled' => true ],
+                                        '_source' => ['enabled' => true],
                                         'properties' =>
                                             [
                                                 'association_type_id' =>
@@ -189,7 +180,7 @@ class Search implements SearchInterface
                                     ],
                                 'history' =>
                                     [
-                                        '_source' => [ 'enabled' => true ],
+                                        '_source' => ['enabled' => true],
                                         'properties' =>
                                             [
                                                 'dml' =>
@@ -222,17 +213,18 @@ class Search implements SearchInterface
                     ]
             ];
 
-        $callback_result = [ ];
+        $callback_result = [];
 
         $topicmap->trigger
         (
             SearchInterface::EVENT_INDEX_PARAMS,
-            [ 'index_params' => $params ],
+            ['index_params' => $params],
             $callback_result
         );
 
-        if (isset($callback_result[ 'index_params' ]) && is_array($callback_result[ 'index_params' ]))
-            $params = $callback_result[ 'index_params' ];
+        if (isset($callback_result['index_params']) && is_array($callback_result['index_params'])) {
+            $params = $callback_result['index_params'];
+        }
 
         return $params;
     }
@@ -242,14 +234,12 @@ class Search implements SearchInterface
     {
         $connection = $this->getConnection();
 
-        if (strlen($index) === 0)
-        {
-            $index = $this->params[ 'index' ];
+        if (strlen($index) === 0) {
+            $index = $this->params['index'];
         }
 
-        if ($connection->indices()->exists([ 'index' => $index ]))
-        {
-            $connection->indices()->delete([ 'index' => $index ]);
+        if ($connection->indices()->exists(['index' => $index])) {
+            $connection->indices()->delete(['index' => $index]);
         }
 
         $connection->indices()->create($params);
@@ -261,24 +251,25 @@ class Search implements SearchInterface
     public function reindexAllTopics(TopicMapInterface $topicmap)
     {
         $limit = 0;
-        $topic_ids = $topicmap->getTopicIds([ 'limit' => $limit ]);
+        $topic_ids = $topicmap->getTopicIds(['limit' => $limit]);
 
         $topic = $topicmap->newTopic();
         $cnt = 0;
 
-        foreach ($topic_ids as $topic_id)
-        {
+        foreach ($topic_ids as $topic_id) {
             $ok = $topic->load($topic_id);
 
-            if ($ok >= 0)
+            if ($ok >= 0) {
                 $ok = $topic->getSearchAdapter()->index();
+            }
 
             printf("#%d %s (%s)\n", ++$cnt, $topic->getId(), $ok);
 
-            if (($limit > 0) && ($cnt >= $limit))
+            if (($limit > 0) && ($cnt >= $limit)) {
                 break;
+            }
         }
-        
+
         return $cnt;
     }
 
@@ -286,22 +277,23 @@ class Search implements SearchInterface
     public function reindexAllAssociations(TopicMapInterface $topicmap)
     {
         $limit = 0;
-        $association_ids = $topicmap->getAssociationIds([ 'limit' => $limit ]);
+        $association_ids = $topicmap->getAssociationIds(['limit' => $limit]);
 
         $association = $topicmap->newAssociation();
         $cnt = 0;
 
-        foreach ($association_ids as $association_id)
-        {
+        foreach ($association_ids as $association_id) {
             $ok = $association->load($association_id);
 
-            if ($ok >= 0)
+            if ($ok >= 0) {
                 $association->getSearchAdapter()->index();
+            }
 
-            if (($limit > 0) && ($cnt >= $limit))
+            if (($limit > 0) && ($cnt >= $limit)) {
                 break;
+            }
         }
-        
+
         return $cnt;
     }
 }

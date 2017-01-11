@@ -8,18 +8,19 @@ use Elasticsearch\Client;
 interface SearchInterface
 {
     const EVENT_INDEX_PARAMS = 'search_index_params';
-    
+
+
     public function __construct(array $params);
-    
+
     // TODO add setLogger(), getLogger()
-    
-    
+
+
     /**
      * @return array
      */
     public function getParams();
 
-    
+
     /**
      * @return Client
      */

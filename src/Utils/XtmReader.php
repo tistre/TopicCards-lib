@@ -9,121 +9,116 @@ class XtmReader implements \Iterator
 {
     /** @var TopicMapInterface */
     protected $topicmap;
-    
+
     protected $filename;
-    
+
     /** @var \XMLReader */
     protected $xmlreader;
-    
+
     protected $importer;
     protected $cnt;
-    
-    
+
+
     public function __construct($filename, TopicMapInterface $topicmap)
     {
         $this->filename = $filename;
         $this->topicmap = $topicmap;
-        
+
         $this->xmlreader = new \XMLReader();
         $this->importer = new XtmImport($topicmap);
-        
+
         $this->cnt = -1;
     }
 
 
     public function rewind()
     {
-        if (! file_exists($this->filename))
+        if (! file_exists($this->filename)) {
             return;
-        
+        }
+
         $ok = $this->xmlreader->open($this->filename);
 
         // Go to the root node
 
-        if ($ok)
+        if ($ok) {
             $ok = $this->xmlreader->read();
+        }
 
-        if (! $ok)
+        if (! $ok) {
             return;
-            
+        }
+
         // Go to the first child node
 
-        while (true)
-        {
+        while (true) {
             $ok = $this->xmlreader->read();
-            
-            if (! $ok)
+
+            if (! $ok) {
                 return;
-    
-            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT)
-            {
+            }
+
+            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT) {
                 $this->cnt = 0;
+
                 return;
             }
         }
     }
-    
-    
+
+
     public function current()
     {
         /** @var \DOMElement $node */
-        
+
         $node = $this->xmlreader->expand();
-        
-        if ($node === false)
-        {
+
+        if ($node === false) {
             return false;
         }
 
-        if ($node->nodeType !== XML_ELEMENT_NODE)
-        {
+        if ($node->nodeType !== XML_ELEMENT_NODE) {
             return false;
         }
 
-        if ($node->tagName === 'topic')
-        {
+        if ($node->tagName === 'topic') {
             return $this->importer->importTopic($node);
-        }
-        elseif ($node->tagName === 'association')
-        {
+        } elseif ($node->tagName === 'association') {
             return $this->importer->importAssociation($node);
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
-    
-    
+
+
     public function key()
     {
         return $this->cnt;
     }
-    
-    
+
+
     public function next()
     {
-        while (true)
-        {
+        while (true) {
             $ok = $this->xmlreader->next();
-            
-            if (! $ok)
-            {
+
+            if (! $ok) {
                 $this->cnt = -1;
+
                 return;
             }
-    
-            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT)
-            {
+
+            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT) {
                 $this->cnt++;
+
                 return;
             }
         }
-        
+
         $this->cnt = -1;
     }
-    
-    
+
+
     public function valid()
     {
         return ($this->cnt >= 0);

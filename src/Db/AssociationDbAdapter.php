@@ -33,22 +33,19 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             return -1;
         }
 
-        $property_data = [ ];
+        $property_data = [];
 
-        foreach ([ 'id', 'reifier', 'scope' ] as $key)
-        {
-            if (isset($filters[ $key ]))
-            {
-                $property_data[ $key ] = $filters[ $key ];
+        foreach (['id', 'reifier', 'scope'] as $key) {
+            if (isset($filters[$key])) {
+                $property_data[$key] = $filters[$key];
             }
         }
 
-        $bind = [ ];
+        $bind = [];
         $property_query = DbUtils::propertiesString($property_data, $bind);
 
         $query = sprintf
@@ -59,25 +56,22 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $logger->info($query, $bind);
 
-        try
-        {
+        try {
             $qresult = $db_conn->run($query, $bind);
-        }
-        catch (Neo4jException $exception)
-        {
+        } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
+
             // TODO: Error handling
             return -1;
         }
 
         // TODO add error handling
 
-        $result = [ ];
+        $result = [];
 
         $role = new Role($this->topicmap);
 
-        foreach ($qresult->records() as $record)
-        {
+        foreach ($qresult->records() as $record) {
             $node = $record->get('node');
 
             $row =
@@ -86,41 +80,38 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
                     'id' => $node->value('id'),
                     'updated' => $node->value('updated'),
                     'version' => $node->value('version'),
-                    'scope' => [ ],
+                    'scope' => [],
                     'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false)
                 ];
 
             // Type
 
-            $types = array_values(array_diff($node->labels(), [ 'Association' ]));
-            $row[ 'type' ] = $types[ 0 ];
+            $types = array_values(array_diff($node->labels(), ['Association']));
+            $row['type'] = $types[0];
 
             // Scope
 
-            if ($node->hasValue('scope'))
-            {
-                $row[ 'scope' ] = $node->value('scope');
+            if ($node->hasValue('scope')) {
+                $row['scope'] = $node->value('scope');
 
-                if (! is_array($row[ 'scope' ]))
-                {
-                    $value = $row[ 'scope' ];
-                    $row[ 'scope' ] = [ ];
+                if (! is_array($row['scope'])) {
+                    $value = $row['scope'];
+                    $row['scope'] = [];
 
-                    if (strlen($value) > 0)
-                    {
-                        $row[ 'scope' ][ ] = $value;
+                    if (strlen($value) > 0) {
+                        $row['scope'][] = $value;
                     }
                 }
             }
 
-            $row[ 'roles' ] = $role->getDbAdapter()->selectAll([ 'association' => $row[ 'id' ] ]);
+            $row['roles'] = $role->getDbAdapter()->selectAll(['association' => $row['id']]);
 
-            $result[ ] = $row;
+            $result[] = $row;
         }
 
         return $result;
     }
-    
+
 
     public function insertAll(array $data)
     {
@@ -129,36 +120,31 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             return -1;
         }
 
         $now = date('c');
 
-        $data[ 'created' ] = $data[ 'updated' ] = $now;
-        $data[ 'version' ] = 1;
+        $data['created'] = $data['updated'] = $now;
+        $data['version'] = 1;
 
-        if (empty($data[ 'scope' ]))
-        {
-            $data[ 'scope' ] = [ ];
-        }
-        elseif (! is_array($data[ 'scope' ]))
-        {
-            $data[ 'scope' ] = [ $data[ 'scope' ] ];
+        if (empty($data['scope'])) {
+            $data['scope'] = [];
+        } elseif (! is_array($data['scope'])) {
+            $data['scope'] = [$data['scope']];
         }
 
-        $property_data = [ ];
+        $property_data = [];
 
-        foreach ([ 'created', 'id', 'updated', 'version', 'scope', 'reifier' ] as $key)
-        {
-            $property_data[ $key ] = $data[ $key ];
+        foreach (['created', 'id', 'updated', 'version', 'scope', 'reifier'] as $key) {
+            $property_data[$key] = $data[$key];
         }
 
-        $bind = [ ];
+        $bind = [];
         $property_query = DbUtils::propertiesString($property_data, $bind);
 
-        $classes = [ 'Association', $data[ 'type' ] ];
+        $classes = ['Association', $data['type']];
 
         $transaction = $db->beginTransaction();
 
@@ -172,44 +158,41 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $logger->info($query, $bind);
 
         $transaction->push($query, $bind);
-        
+
         // TODO: Add a relation to the reifier topic!
-        
+
         // Mark type topics
 
         $type_queries = DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
-            [ $data[ 'type' ] ],
+            [$data['type']],
             TopicMapInterface::SUBJECT_ASSOCIATION_TYPE
         );
 
         $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
-            $data[ 'scope' ],
+            $data['scope'],
             TopicMapInterface::SUBJECT_SCOPE
         ));
 
-        foreach ($type_queries as $type_query)
-        {
+        foreach ($type_queries as $type_query) {
             $logger->info($type_query['query'], $type_query['bind']);
             $transaction->push($type_query['query'], $type_query['bind']);
         }
 
         // Link reifier
 
-        if (strlen($data[ 'reifier' ]) > 0)
-        {
+        if (strlen($data['reifier']) > 0) {
             $reifier_queries = DbUtils::tmConstructLinkReifierQueries
             (
                 TopicInterface::REIFIES_ASSOCIATION,
-                $data[ 'id' ],
-                $data[ 'reifier' ]
+                $data['id'],
+                $data['reifier']
             );
 
-            foreach ($reifier_queries as $query)
-            {
+            foreach ($reifier_queries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
@@ -218,42 +201,37 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         // TODO: Error handling
 
         $role = new Role($this->topicmap);
-        $ok = $role->getDbAdapter()->insertAll($data[ 'id' ], $data[ 'roles' ], $transaction);
+        $ok = $role->getDbAdapter()->insertAll($data['id'], $data['roles'], $transaction);
 
-        try
-        {
+        try {
             $db->commit($transaction);
-        }
-        catch (Neo4jException $exception)
-        {
+        } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
             $db->rollBack($transaction);
-            
+
             // TODO: Error handling
             $ok = -1;
         }
 
-        if ($ok >= 0)
-        {
-            $callback_result = [ ];
+        if ($ok >= 0) {
+            $callback_result = [];
 
             $ok = $this->topicmap->trigger
             (
-                AssociationInterface::EVENT_SAVING, 
-                [ 'association' => $this->association, 'dml' => 'insert' ],
+                AssociationInterface::EVENT_SAVING,
+                ['association' => $this->association, 'dml' => 'insert'],
                 $callback_result
             );
 
-            if (isset($callback_result[ 'index_related' ]))
-            {
-                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
+            if (isset($callback_result['index_related'])) {
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result['index_related']);
             }
         }
 
         return $ok;
     }
-    
-    
+
+
     public function updateAll(array $data)
     {
         $logger = $this->topicmap->getLogger();
@@ -261,64 +239,55 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             return -1;
         }
 
-        $data[ 'updated' ] = date('c');
-        $data[ 'version' ]++;
+        $data['updated'] = date('c');
+        $data['version']++;
 
-        if (empty($data[ 'scope' ]))
-        {
-            $data[ 'scope' ] = [ ];
-        }
-        elseif (! is_array($data[ 'scope' ]))
-        {
-            $data[ 'scope' ] = [ $data[ 'scope' ] ];
+        if (empty($data['scope'])) {
+            $data['scope'] = [];
+        } elseif (! is_array($data['scope'])) {
+            $data['scope'] = [$data['scope']];
         }
 
-        if (! isset($data[ 'reifier' ]))
-        {
-            $data[ 'reifier' ] = false;
+        if (! isset($data['reifier'])) {
+            $data['reifier'] = false;
         }
 
         $transaction = $db->beginTransaction();
-        
-        $property_data = [ ];
+
+        $property_data = [];
         $previous_data = $this->association->getPreviousData();
 
-        foreach ([ 'created', 'id', 'updated', 'version', 'scope', 'reifier' ] as $key)
-        {
+        foreach (['created', 'id', 'updated', 'version', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
-            if (isset($previous_data[ $key ]) && (serialize($previous_data[ $key ]) === serialize($data[ $key ])))
-            {
+            if (isset($previous_data[$key]) && (serialize($previous_data[$key]) === serialize($data[$key]))) {
                 continue;
             }
-            
-            $property_data[ $key ] = $data[ $key ];
-            
-            if ($key === 'scope')
-            {
+
+            $property_data[$key] = $data[$key];
+
+            if ($key === 'scope') {
                 // Mark type topics
 
                 $type_queries = DbUtils::tmConstructLabelQueries
                 (
                     $this->topicmap,
-                    $data[ $key ],
+                    $data[$key],
                     TopicMapInterface::SUBJECT_SCOPE
                 );
 
-                foreach ($type_queries as $type_query)
-                {
+                foreach ($type_queries as $type_query) {
                     $logger->info($type_query['query'], $type_query['bind']);
                     $transaction->push($type_query['query'], $type_query['bind']);
                 }
             }
         }
 
-        $bind = [ 'id' => $data[ 'id' ] ];
+        $bind = ['id' => $data['id']];
         $property_query = DbUtils::propertiesUpdateString('node', $property_data, $bind);
 
         $query = sprintf
@@ -327,18 +296,17 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             $property_query
         );
 
-        if ($previous_data[ 'type' ] !== $data[ 'type' ])
-        {
+        if ($previous_data['type'] !== $data['type']) {
             $query .= sprintf
             (
                 ' REMOVE node%s',
-                DbUtils::labelsString([ $previous_data[ 'type' ] ])
+                DbUtils::labelsString([$previous_data['type']])
             );
 
             $query .= sprintf
             (
                 ' SET node%s',
-                DbUtils::labelsString([ $data[ 'type' ] ])
+                DbUtils::labelsString([$data['type']])
             );
 
             // Mark type topics
@@ -346,12 +314,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             $type_queries = DbUtils::tmConstructLabelQueries
             (
                 $this->topicmap,
-                [ $data[ 'type' ] ],
+                [$data['type']],
                 TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE
             );
 
-            foreach ($type_queries as $type_query)
-            {
+            foreach ($type_queries as $type_query) {
                 $logger->info($type_query['query'], $type_query['bind']);
                 $transaction->push($type_query['query'], $type_query['bind']);
             }
@@ -363,19 +330,15 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         // Link reifier
 
-        if ($data[ 'reifier' ] !== $previous_data[ 'reifier' ])
-        {
-            if (strlen($data['reifier']) > 0)
-            {
+        if ($data['reifier'] !== $previous_data['reifier']) {
+            if (strlen($data['reifier']) > 0) {
                 $reifier_queries = DbUtils::tmConstructLinkReifierQueries
                 (
                     TopicInterface::REIFIES_ASSOCIATION,
                     $data['id'],
                     $data['reifier']
                 );
-            }
-            else
-            {
+            } else {
                 $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
                 (
                     TopicInterface::REIFIES_ASSOCIATION,
@@ -384,8 +347,7 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
                 );
             }
 
-            foreach ($reifier_queries as $query)
-            {
+            foreach ($reifier_queries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
@@ -394,15 +356,14 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         // TODO: Error handling
         $ok = 1;
 
-        if ($ok >= 0)
-        {
+        if ($ok >= 0) {
             $role = new Role($this->topicmap);
 
             $role->getDbAdapter()->updateAll
             (
-                $data[ 'id' ],
-                $data[ 'roles' ],
-                $previous_data[ 'roles' ],
+                $data['id'],
+                $data['roles'],
+                $previous_data['roles'],
                 // Collect an array of queries instead of passing the transaction?
                 $transaction
             );
@@ -410,31 +371,26 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $ok = 1;
 
-        try
-        {
+        try {
             $db->commit($transaction);
-        }
-        catch (Neo4jException $exception)
-        {
+        } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
             // TODO: Error handling
             $ok = -1;
         }
 
-        if ($ok >= 0)
-        {
-            $callback_result = [ ];
+        if ($ok >= 0) {
+            $callback_result = [];
 
             $ok = $this->topicmap->trigger
             (
                 AssociationInterface::EVENT_SAVING,
-                [ 'association' => $this->association, 'dml' => 'update' ],
+                ['association' => $this->association, 'dml' => 'update'],
                 $callback_result
             );
 
-            if (isset($callback_result[ 'index_related' ]))
-            {
-                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
+            if (isset($callback_result['index_related'])) {
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result['index_related']);
             }
         }
 
@@ -451,8 +407,7 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             return -1;
         }
 
@@ -461,18 +416,15 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
             . ' OPTIONAL MATCH (node)-[r]-()'
             . ' DELETE r, node';
 
-        $bind = [ 'id' => $id ];
+        $bind = ['id' => $id];
 
         $logger->info($query, $bind);
-        
+
         $ok = 1;
 
-        try
-        {
+        try {
             $db_conn->run($query, $bind);
-        }
-        catch (Neo4jException $exception)
-        {
+        } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
             // TODO: Error handling
             $ok = -1;
@@ -480,23 +432,21 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
 
         // TODO: error handling
 
-        if ($ok >= 0)
-        {
-            $callback_result = [ ];
+        if ($ok >= 0) {
+            $callback_result = [];
 
             $this->topicmap->trigger
             (
-                AssociationInterface::EVENT_DELETING, 
-                [ 'association_id' => $id ],
+                AssociationInterface::EVENT_DELETING,
+                ['association_id' => $id],
                 $callback_result
             );
 
-            if (isset($callback_result[ 'index_related' ]))
-            {
-                $this->association->getSearchAdapter()->addIndexRelated($callback_result[ 'index_related' ]);
+            if (isset($callback_result['index_related'])) {
+                $this->association->getSearchAdapter()->addIndexRelated($callback_result['index_related']);
             }
         }
-            
+
         return 1;
     }
 }

@@ -33,42 +33,36 @@ class RoleDbAdapter implements RoleDbAdapterInterface
 
         $db_conn = $db->getConnection();
 
-        if ($db_conn === NULL)
-        {
+        if ($db_conn === null) {
             return -1;
         }
 
-        if (! empty($filters[ 'reifier' ]))
-        {
+        if (! empty($filters['reifier'])) {
             // TODO to be implemented
             return -1;
         }
 
-        if (! isset($filters[ 'association' ]))
-        {
+        if (! isset($filters['association'])) {
             return -1;
         }
 
         $query = 'MATCH (assoc:Association { id: {id} })-[rel]-(node:Topic) RETURN assoc, rel, node';
-        $bind = [ 'id' => $filters[ 'association' ] ];
+        $bind = ['id' => $filters['association']];
 
         $logger->info($query, $bind);
-        
-        try
-        {
+
+        try {
             $qresult = $db_conn->run($query, $bind);
-        }
-        catch (Neo4jException $exception)
-        {
+        } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
+
             // TODO: Error handling
             return -1;
         }
 
-        $result = [ ];
+        $result = [];
 
-        foreach ($qresult->records() as $record)
-        {
+        foreach ($qresult->records() as $record) {
             $rel = $record->get('rel');
             // TODO: Only fetch the topic ID, not the whole topic
             $node = $record->get('node');
@@ -85,9 +79,9 @@ class RoleDbAdapter implements RoleDbAdapterInterface
 
             // Type
 
-            $row[ 'type' ] = $rel->type();
+            $row['type'] = $rel->type();
 
-            $result[ ] = $row;
+            $result[] = $row;
         }
 
         return $result;
@@ -96,8 +90,7 @@ class RoleDbAdapter implements RoleDbAdapterInterface
 
     public function insertAll($association_id, array $data, Transaction $transaction)
     {
-        foreach ($data as $role_data)
-        {
+        foreach ($data as $role_data) {
             $this->insertRole($association_id, $role_data, $transaction);
         }
 
@@ -105,22 +98,19 @@ class RoleDbAdapter implements RoleDbAdapterInterface
 
         return 1;
     }
-    
-    
+
+
     public function updateAll($association_id, array $data, array $previous_data, Transaction $transaction)
     {
         $ok = 1;
-        
-        foreach ($data as $role_data)
-        {
+
+        foreach ($data as $role_data) {
             // No ID? Must be a new role
 
-            if (empty($role_data[ 'id' ]))
-            {
+            if (empty($role_data['id'])) {
                 $ok = $this->insertRole($association_id, $role_data, $transaction);
 
-                if ($ok < 0)
-                {
+                if ($ok < 0) {
                     return $ok;
                 }
 
@@ -130,23 +120,19 @@ class RoleDbAdapter implements RoleDbAdapterInterface
             // If the ID is not in $previous_data, it's a new role
 
             $found = false;
-            $previous_role_data = [ ];
+            $previous_role_data = [];
 
-            foreach ($previous_data as $previous_role_data)
-            {
-                if ($previous_role_data[ 'id' ] === $role_data[ 'id' ])
-                {
+            foreach ($previous_data as $previous_role_data) {
+                if ($previous_role_data['id'] === $role_data['id']) {
                     $found = true;
                     break;
                 }
             }
 
-            if (! $found)
-            {
+            if (! $found) {
                 $ok = $this->insertRole($association_id, $role_data, $transaction);
 
-                if ($ok < 0)
-                {
+                if ($ok < 0) {
                     return $ok;
                 }
 
@@ -157,8 +143,7 @@ class RoleDbAdapter implements RoleDbAdapterInterface
 
             $ok = $this->updateRole($association_id, $role_data, $previous_role_data, $transaction);
 
-            if ($ok < 0)
-            {
+            if ($ok < 0) {
                 return $ok;
             }
 
@@ -168,47 +153,43 @@ class RoleDbAdapter implements RoleDbAdapterInterface
         // TODO: error handling
         return $ok;
     }
-    
-    
+
+
     protected function insertRole($association_id, array $data, Transaction $transaction)
     {
         $logger = $this->topicmap->getLogger();
-        
-        if ((! isset($data[ 'player' ])) || (strlen($data[ 'player' ]) === 0))
-        {
+
+        if ((! isset($data['player'])) || (strlen($data['player']) === 0)) {
             return 0;
         }
 
-        if (empty($data[ 'type' ]))
-        {
+        if (empty($data['type'])) {
             return -1;
         }
-        
-        if (empty($data[ 'id' ]))
-        {
-            $data[ 'id' ] = $this->topicmap->createId();
+
+        if (empty($data['id'])) {
+            $data['id'] = $this->topicmap->createId();
         }
 
-        if (! isset($data[ 'reifier' ]))
-        {
-            $data[ 'reifier' ] = false;
+        if (! isset($data['reifier'])) {
+            $data['reifier'] = false;
         }
 
         $property_data =
             [
-                'id' => $data[ 'id' ],
-                'reifier' => $data[ 'reifier' ]
+                'id' => $data['id'],
+                'reifier' => $data['reifier']
             ];
 
-        $bind = 
-            [ 
+        $bind =
+            [
                 'association_id' => $association_id,
-                'topic_id' => $data[ 'player' ]
+                'topic_id' => $data['player']
             ];
 
         $property_query = DbUtils::propertiesString($property_data, $bind);
 
-        $classes = [ $data[ 'type' ] ];
+        $classes = [$data['type']];
 
         $query = sprintf
         (
@@ -228,29 +209,26 @@ class RoleDbAdapter implements RoleDbAdapterInterface
         $type_queries = DbUtils::tmConstructLabelQueries
         (
             $this->topicmap,
-            [ $data[ 'type' ] ],
+            [$data['type']],
             TopicMapInterface::SUBJECT_ASSOCIATION_ROLE_TYPE
         );
 
-        foreach ($type_queries as $type_query)
-        {
+        foreach ($type_queries as $type_query) {
             $logger->info($type_query['query'], $type_query['bind']);
             $transaction->push($type_query['query'], $type_query['bind']);
         }
 
         // Link reifier
 
-        if (strlen($data[ 'reifier' ]) > 0)
-        {
+        if (strlen($data['reifier']) > 0) {
             $reifier_queries = DbUtils::tmConstructLinkReifierQueries
             (
                 TopicInterface::REIFIES_ROLE,
-                $data[ 'id' ],
-                $data[ 'reifier' ]
+                $data['id'],
+                $data['reifier']
             );
 
-            foreach ($reifier_queries as $query)
-            {
+            foreach ($reifier_queries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
@@ -268,26 +246,20 @@ class RoleDbAdapter implements RoleDbAdapterInterface
         $do_delete = $do_insert = false;
         $ok = 0;
 
-        if (! isset($data['reifier']))
-        {
+        if (! isset($data['reifier'])) {
             $data['reifier'] = false;
         }
 
-        if ((! isset($data['player'])) || (strlen($data['player']) === 0))
-        {
+        if ((! isset($data['player'])) || (strlen($data['player']) === 0)) {
             $do_delete = true;
-        }
-        elseif (($previous_data['player'] !== $data['player']) || ($previous_data['type'] !== $data['type']) || ($previous_data['reifier'] !== $data['reifier']))
-        {
+        } elseif (($previous_data['player'] !== $data['player']) || ($previous_data['type'] !== $data['type']) || ($previous_data['reifier'] !== $data['reifier'])) {
             $do_delete = $do_insert = true;
         }
 
-        if ($do_delete)
-        {
+        if ($do_delete) {
             // Unlink reifier
 
-            if (strlen($data['reifier']) > 0)
-            {
+            if (strlen($data['reifier']) > 0) {
                 $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
                 (
                     TopicInterface::REIFIES_ROLE,
@@ -295,8 +267,7 @@ class RoleDbAdapter implements RoleDbAdapterInterface
                     $data['reifier']
                 );
 
-                foreach ($reifier_queries as $query)
-                {
+                foreach ($reifier_queries as $query) {
                     $logger->info($query['query'], $query['bind']);
                     $transaction->push($query['query'], $query['bind']);
                 }
@@ -308,19 +279,18 @@ class RoleDbAdapter implements RoleDbAdapterInterface
                     'association_id' => $association_id,
                     'player_id' => $previous_data['player']
                 ];
-    
+
             $query = 'MATCH (a:Association { id: {association_id} })-[r { id: {id} }]-(t:Topic { id: {player_id} }) DELETE r';
-    
+
             $logger->info($query, $bind);
-    
+
             $transaction->push($query, $bind);
-    
+
             // TODO: error handling
             $ok = 1;
         }
 
-        if ($do_insert)
-        {
+        if ($do_insert) {
             $ok = $this->insertRole($association_id, $data, $transaction);
         }
 

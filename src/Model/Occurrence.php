@@ -12,10 +12,10 @@ use TopicCards\Utils\DatatypeUtils;
 class Occurrence extends Core implements OccurrenceInterface
 {
     use Reified, Scoped, Typed;
-    
+
     protected $value = false;
     protected $datatype = false;
-    
+
     /** @var OccurrenceDbAdapterInterface */
     protected $db_adapter;
 
@@ -46,69 +46,70 @@ class Occurrence extends Core implements OccurrenceInterface
     {
         return $this->value;
     }
-    
-    
+
+
     public function setValue($str)
     {
         $this->value = $str;
 
         return 1;
     }
-    
-    
+
+
     public function getDatatypeId()
     {
         return $this->datatype;
     }
-    
+
 
     public function setDatatypeId($topic_id)
     {
         $this->datatype = $topic_id;
-        
+
         return 1;
     }
-    
+
 
     public function getDatatype()
     {
         return $this->topicmap->getTopicSubject($this->getDatatypeId());
     }
-    
-    
+
+
     public function setDatatype($topic_subject)
     {
         $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
-        
-        if (strlen($topic_id) === 0)
+
+        if (strlen($topic_id) === 0) {
             return -1;
-            
+        }
+
         return $this->setDatatypeId($topic_id);
     }
 
-    
+
     public function validate(&$msg_html)
     {
         $ok = DatatypeUtils::validate
         (
-            $this->value, 
-            $this->getDatatype(), 
+            $this->value,
+            $this->getDatatype(),
             $msg_txt
         );
-        
+
         $msg_html = htmlspecialchars($msg_txt);
-        
+
         return $ok;
     }
 
-    
+
     public function getAll()
     {
-        $result = 
-        [
-            'value' => $this->getValue(),
-            'datatype' => $this->getDatatypeId()
-        ];
+        $result =
+            [
+                'value' => $this->getValue(),
+                'datatype' => $this->getDatatypeId()
+            ];
 
         $result = array_merge($result, $this->getAllId());
 
@@ -117,38 +118,42 @@ class Occurrence extends Core implements OccurrenceInterface
         $result = array_merge($result, $this->getAllReified());
 
         $result = array_merge($result, $this->getAllScoped());
-            
+
         return $result;
     }
-    
-    
+
+
     public function setAll(array $data)
     {
         $data = array_merge(
-        [
-            'value' => false,
-            'datatype' => false
-        ], $data);
-        
-        $ok = $this->setValue($data[ 'value' ]);
-        $ok = $this->setDatatypeId($data[ 'datatype' ]);
-        
-        if ($ok >= 0)
+            [
+                'value' => false,
+                'datatype' => false
+            ], $data);
+
+        $ok = $this->setValue($data['value']);
+        $ok = $this->setDatatypeId($data['datatype']);
+
+        if ($ok >= 0) {
             $ok = $this->setAllId($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllTyped($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllReified($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllScoped($data);
-            
+        }
+
         return $ok;
     }
-    
-    
+
+
     /**
      * Mark an existing (saved) occurrence for removal on topic save
      */

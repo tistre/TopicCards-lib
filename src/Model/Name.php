@@ -11,9 +11,9 @@ use TopicCards\Interfaces\TopicMapInterface;
 class Name extends Core implements NameInterface
 {
     use Reified, Scoped, Typed;
-    
+
     protected $value = false;
-    
+
     /** @var NameDbAdapterInterface */
     protected $db_adapter;
 
@@ -44,21 +44,22 @@ class Name extends Core implements NameInterface
     {
         return $this->value;
     }
-    
-    
+
+
     public function setValue($str)
     {
         $this->value = $str;
+
         return 1;
     }
-    
-    
+
+
     public function getAll()
     {
-        $result = 
-        [
-            'value' => $this->getValue()
-        ];
+        $result =
+            [
+                'value' => $this->getValue()
+            ];
 
         $result = array_merge($result, $this->getAllId());
 
@@ -67,32 +68,36 @@ class Name extends Core implements NameInterface
         $result = array_merge($result, $this->getAllReified());
 
         $result = array_merge($result, $this->getAllScoped());
-            
+
         return $result;
     }
-    
-    
+
+
     public function setAll(array $data)
     {
         $data = array_merge(
-        [
-            'value' => false
-        ], $data);
-        
-        $ok = $this->setValue($data[ 'value' ]);
-        
-        if ($ok >= 0)
+            [
+                'value' => false
+            ], $data);
+
+        $ok = $this->setValue($data['value']);
+
+        if ($ok >= 0) {
             $ok = $this->setAllId($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllTyped($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllReified($data);
-            
-        if ($ok >= 0)
+        }
+
+        if ($ok >= 0) {
             $ok = $this->setAllScoped($data);
-            
+        }
+
         return $ok;
     }
 
