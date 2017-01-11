@@ -77,6 +77,9 @@ interface TopicMapInterface
     
     public function newFileTopic($filename);
 
+
+    public function clearCache();
+
     public function getTopicIds(array $filters);
     public function getTopicIdBySubject($uri, $create_topic = false);
     public function getTopicSubject($topic_id);

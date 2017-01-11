@@ -27,6 +27,8 @@ class AssociationTest extends TestCase
 
     protected function setUp()
     {
+        self::$topicmap->clearCache();
+        
         $topic_a = self::$topicmap->newTopic();
         $topic_a->setSubjectIdentifiers([ self::TOPIC_A ]);
         $topic_a->save();
@@ -50,8 +52,23 @@ class AssociationTest extends TestCase
         foreach ($subjects as $subject)
         {
             $topic = self::$topicmap->newTopic();
-            $topic->loadBySubject($subject);
-            $topic->delete();
+            $ok = $topic->loadBySubject($subject);
+            
+            if ($ok < 0)
+            {
+                continue;
+            }
+
+            $association_ids = self::$topicmap->getAssociationIds([ 'role_player_id' => $topic->getId() ]);
+
+            foreach ($association_ids as $association_id) 
+            {
+                $association = self::$topicmap->newAssociation();
+                $association->load($association_id);
+                $ok = $association->delete();
+            }
+            
+            $ok = $topic->delete();
         }
     }
     

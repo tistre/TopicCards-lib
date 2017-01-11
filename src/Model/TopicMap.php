@@ -189,8 +189,14 @@ class TopicMap implements TopicMapInterface
     {
         return $this->db_adapter->selectTopics($filters);
     }
-    
 
+
+    public function clearCache()
+    {
+        $this->cache = [ ];
+    }
+    
+    
     public function getTopicIdBySubject($uri, $create_topic = false)
     {
         $cache_key = __METHOD__ . "($uri)";
