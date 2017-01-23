@@ -5,7 +5,7 @@ namespace TopicCards\Interfaces;
 
 interface CoreInterface
 {
-    public function __construct(TopicMapInterface $topicmap);
+    public function __construct(TopicMapInterface $topicMap);
     
     /**
      * @return TopicMapInterface
@@ -19,7 +19,7 @@ interface CoreInterface
     public function getId();
     
     public function setId($id);
-    public function validate(&$msg_html);
+    public function validate(&$msgHtml);
     
     /**
      * @return array

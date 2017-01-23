@@ -17,9 +17,9 @@ trait Typed
     }
 
 
-    public function setTypeId($topic_id)
+    public function setTypeId($topicId)
     {
-        $this->type = $topic_id;
+        $this->type = $topicId;
 
         return 1;
     }
@@ -27,31 +27,31 @@ trait Typed
 
     public function getType()
     {
-        return $this->topicmap->getTopicSubject($this->type);
+        return $this->topicMap->getTopicSubject($this->type);
     }
 
 
-    public function setType($topic_subject)
+    public function setType($topicSubject)
     {
-        $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
+        $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return -1;
         }
 
-        return $this->setTypeId($topic_id);
+        return $this->setTypeId($topicId);
     }
 
 
-    public function hasTypeId($topic_id)
+    public function hasTypeId($topicId)
     {
-        return ($this->getTypeId() === $topic_id);
+        return ($this->getTypeId() === $topicId);
     }
 
 
-    public function hasType($topic_subject)
+    public function hasType($topicSubject)
     {
-        return ($this->getType() === $topic_subject);
+        return ($this->getType() === $topicSubject);
     }
 
 

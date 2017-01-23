@@ -100,19 +100,19 @@ interface TopicMapInterface
     public function getTopicIds(array $filters);
 
 
-    public function getTopicIdBySubject($uri, $create_topic = false);
+    public function getTopicIdBySubject($uri, $createTopic = false);
 
 
-    public function getTopicSubject($topic_id);
+    public function getTopicSubject($topicId);
 
 
-    public function getTopicSubjectIdentifier($topic_id);
+    public function getTopicSubjectIdentifier($topicId);
 
 
-    public function getTopicSubjectLocator($topic_id);
+    public function getTopicSubjectLocator($topicId);
 
 
-    public function getTopicLabel($topic_id);
+    public function getTopicLabel($topicId);
 
 
     public function getAssociationIds(array $filters);
@@ -130,7 +130,7 @@ interface TopicMapInterface
     public function getOccurrenceTypeIds(array $filters);
 
 
-    public function getOccurrenceDatatypeIds(array $filters);
+    public function getOccurrenceDataTypeIds(array $filters);
 
 
     public function getOccurrenceScopeIds(array $filters);

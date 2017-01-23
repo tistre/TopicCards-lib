@@ -100,7 +100,7 @@ class Search implements SearchInterface
     }
 
 
-    public function getIndexParams(TopicMapInterface $topicmap, $index)
+    public function getIndexParams(TopicMapInterface $topicMap, $index)
     {
         $params =
             [
@@ -213,24 +213,24 @@ class Search implements SearchInterface
                     ]
             ];
 
-        $callback_result = [];
+        $callbackResult = [];
 
-        $topicmap->trigger
+        $topicMap->trigger
         (
             SearchInterface::EVENT_INDEX_PARAMS,
             ['index_params' => $params],
-            $callback_result
+            $callbackResult
         );
 
-        if (isset($callback_result['index_params']) && is_array($callback_result['index_params'])) {
-            $params = $callback_result['index_params'];
+        if (isset($callbackResult['index_params']) && is_array($callbackResult['index_params'])) {
+            $params = $callbackResult['index_params'];
         }
 
         return $params;
     }
 
 
-    public function recreateIndex(TopicMapInterface $topicmap, $index, array $params)
+    public function recreateIndex(TopicMapInterface $topicMap, $index, array $params)
     {
         $connection = $this->getConnection();
 
@@ -248,16 +248,16 @@ class Search implements SearchInterface
     }
 
 
-    public function reindexAllTopics(TopicMapInterface $topicmap)
+    public function reindexAllTopics(TopicMapInterface $topicMap)
     {
         $limit = 0;
-        $topic_ids = $topicmap->getTopicIds(['limit' => $limit]);
+        $topicIds = $topicMap->getTopicIds(['limit' => $limit]);
 
-        $topic = $topicmap->newTopic();
+        $topic = $topicMap->newTopic();
         $cnt = 0;
 
-        foreach ($topic_ids as $topic_id) {
-            $ok = $topic->load($topic_id);
+        foreach ($topicIds as $topicId) {
+            $ok = $topic->load($topicId);
 
             if ($ok >= 0) {
                 $ok = $topic->getSearchAdapter()->index();
@@ -274,16 +274,16 @@ class Search implements SearchInterface
     }
 
 
-    public function reindexAllAssociations(TopicMapInterface $topicmap)
+    public function reindexAllAssociations(TopicMapInterface $topicMap)
     {
         $limit = 0;
-        $association_ids = $topicmap->getAssociationIds(['limit' => $limit]);
+        $associationIds = $topicMap->getAssociationIds(['limit' => $limit]);
 
-        $association = $topicmap->newAssociation();
+        $association = $topicMap->newAssociation();
         $cnt = 0;
 
-        foreach ($association_ids as $association_id) {
-            $ok = $association->load($association_id);
+        foreach ($associationIds as $associationId) {
+            $ok = $association->load($associationId);
 
             if ($ok >= 0) {
                 $association->getSearchAdapter()->index();

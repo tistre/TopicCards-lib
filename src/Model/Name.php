@@ -15,19 +15,19 @@ class Name extends Core implements NameInterface
     protected $value = false;
 
     /** @var NameDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
 
     /**
      * Name constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        parent::__construct($topicmap);
+        parent::__construct($topicMap);
 
-        $this->db_adapter = new NameDbAdapter($this);
+        $this->dbAdapter = new NameDbAdapter($this);
     }
 
 
@@ -36,7 +36,7 @@ class Name extends Core implements NameInterface
      */
     public function getDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 

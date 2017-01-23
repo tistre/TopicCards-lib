@@ -11,17 +11,17 @@ interface TypedInterface
     public function getTypeId();
 
 
-    public function setTypeId($topic_id);
+    public function setTypeId($topicId);
 
 
     public function getType();
 
 
-    public function setType($topic_subject);
+    public function setType($topicSubject);
 
 
-    public function hasTypeId($topic_id);
+    public function hasTypeId($topicId);
 
 
-    public function hasType($topic_subject);
+    public function hasType($topicSubject);
 }

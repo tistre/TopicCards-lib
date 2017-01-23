@@ -16,7 +16,7 @@ trait Persistent
     protected $loaded = false;
 
     /** @var array Copy of the data as it was on load (needed for label removal) */
-    protected $previous_data = [];
+    protected $previousData = [];
 
 
     public function getCreated()
@@ -94,13 +94,13 @@ trait Persistent
      */
     protected function getPersistentDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 
     public function load($id)
     {
-        $this->previous_data = [];
+        $this->previousData = [];
 
         $rows = $this->getPersistentDbAdapter()->selectAll(['id' => $id]);
 
@@ -115,7 +115,7 @@ trait Persistent
         $ok = $this->setAll($rows[0]);
 
         if ($ok >= 0) {
-            $this->previous_data = $this->getAll();
+            $this->previousData = $this->getAll();
             $this->loaded = true;
         }
 
@@ -131,56 +131,56 @@ trait Persistent
 
     public function save()
     {
-        /** @var TopicMapInterface $topicmap */
-        $topicmap = $this->getTopicMap();
+        /** @var TopicMapInterface $topicMap */
+        $topicMap = $this->getTopicMap();
 
-        /** @var PersistentSearchAdapterInterface $search_adapter */
-        $search_adapter = $this->getSearchAdapter();
+        /** @var PersistentSearchAdapterInterface $searchAdapter */
+        $searchAdapter = $this->getSearchAdapter();
 
-        $ok = $this->validate($msg_html);
+        $ok = $this->validate($msgHtml);
 
         if ($ok < 0) {
-            $error_msg = sprintf
+            $errorMsg = sprintf
             (
                 '%s <%s> save cancelled because the validation failed (<%s> %s).',
                 get_class($this),
                 $this->getId(),
-                $msg_html,
+                $msgHtml,
                 $ok
             );
 
-            $topicmap->getLogger()->error($error_msg);
-            throw new TopicCardsException($error_msg, $ok);
+            $topicMap->getLogger()->error($errorMsg);
+            throw new TopicCardsException($errorMsg, $ok);
         }
 
-        $search_adapter->resetIndexRelated();
+        $searchAdapter->resetIndexRelated();
 
         if ($this->getVersion() === 0) {
             if (strlen($this->getId()) === 0) {
-                $this->setId($topicmap->createId());
+                $this->setId($topicMap->createId());
             }
 
             $ok = $this->getPersistentDbAdapter()->insertAll($this->getAll());
 
             if ($ok < 0) {
-                $topicmap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
+                $topicMap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
                     $ok));
             }
         } else {
             $ok = $this->getPersistentDbAdapter()->updateAll($this->getAll());
 
             if ($ok < 0) {
-                $topicmap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
+                $topicMap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
                     $ok));
             }
         }
 
         if ($ok >= 0) {
             $this->setVersion($this->getVersion() + 1);
-            $this->previous_data = $this->getAll();
+            $this->previousData = $this->getAll();
 
-            $search_adapter->index();
-            $search_adapter->indexRelated();
+            $searchAdapter->index();
+            $searchAdapter->indexRelated();
 
             $this->addHistoryItem(($this->getVersion() <= 1 ? 'i' : 'u'));
         }
@@ -219,28 +219,28 @@ trait Persistent
      */
     public function getPreviousData()
     {
-        return $this->previous_data;
+        return $this->previousData;
     }
 
 
-    protected function addHistoryItem($dml_type)
+    protected function addHistoryItem($dmlType)
     {
-        /** @var TopicMapInterface $topicmap */
-        $topicmap = $this->getTopicMap();
+        /** @var TopicMapInterface $topicMap */
+        $topicMap = $this->getTopicMap();
 
-        /** @var PersistentSearchAdapterInterface $search_adapter */
-        $search_adapter = $this->getSearchAdapter();
+        /** @var PersistentSearchAdapterInterface $searchAdapter */
+        $searchAdapter = $this->getSearchAdapter();
 
-        $topicmap->getSearch()->index
+        $topicMap->getSearch()->index
         (
             [
                 'type' => 'history',
                 'body' =>
                     [
-                        'type' => $search_adapter->getSearchType(),
+                        'type' => $searchAdapter->getSearchType(),
                         'id' => $this->getId(),
                         'when' => date('c'),
-                        'dml' => $dml_type
+                        'dml' => $dmlType
                     ]
             ]
         );
@@ -251,8 +251,8 @@ trait Persistent
 
     public function getHistoryItems()
     {
-        /** @var TopicMapInterface $topicmap */
-        $topicmap = $this->getTopicMap();
+        /** @var TopicMapInterface $topicMap */
+        $topicMap = $this->getTopicMap();
 
         $result = [];
 
@@ -263,7 +263,7 @@ trait Persistent
                 'from' => 0
             ];
 
-        $response = $topicmap->getSearch()->search
+        $response = $topicMap->getSearch()->search
         (
             [
                 'type' => 'history',

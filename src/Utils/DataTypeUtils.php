@@ -3,7 +3,7 @@
 namespace TopicCards\Utils;
 
 
-class DatatypeUtils
+class DataTypeUtils
 {
     const DATATYPE_BOOLEAN = 'http://www.w3.org/2001/XMLSchema#boolean';
     const DATATYPE_HTML = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML';
@@ -14,32 +14,32 @@ class DatatypeUtils
     const DATATYPE_XML = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral';
 
 
-    public static function validate(&$value, $datatype, &$error_msg)
+    public static function validate(&$value, $dataType, &$errorMsg)
     {
-        $error_msg = '';
+        $errorMsg = '';
 
-        if (self::isXhtml($datatype)) {
-            return self::validateXhtml($value, $datatype, $error_msg);
-        } elseif (self::isXml($datatype)) {
-            return self::validateXml($value, $datatype, $error_msg);
+        if ($dataType === self::DATATYPE_XHTML) {
+            return self::validateXhtml($value, $dataType, $errorMsg);
+        } elseif (self::isXml($dataType)) {
+            return self::validateXml($value, $dataType, $errorMsg);
         }
 
         return 1;
     }
 
 
-    protected static function validateXhtml(&$value, $datatype, &$error_msg)
+    protected static function validateXhtml(&$value, $dataType, &$errorMsg)
     {
         // XHTML value can be "hello <i>world</i>", need to wrap it in a div
         // to validate
 
-        $xml_value = self::valueToXml($value, $datatype);
+        $xml_value = self::valueToXml($value, $dataType);
 
-        return self::validateXml($xml_value, $datatype, $error_msg);
+        return self::validateXml($xml_value, $dataType, $errorMsg);
     }
 
 
-    protected static function validateXml(&$value, $datatype, &$error_msg)
+    protected static function validateXml(&$value, $dataType, &$errorMsg)
     {
         libxml_use_internal_errors(true);
 
@@ -68,21 +68,21 @@ class DatatypeUtils
             );
         }
 
-        $error_msg = implode('. ', $msgs);
+        $errorMsg = implode('. ', $msgs);
 
         return -1;
     }
 
 
-    public static function valueToXml($value, $datatype)
+    public static function valueToXml($value, $dataType)
     {
-        if (self::isXhtml($datatype)) {
+        if ($dataType === self::DATATYPE_XHTML) {
             return sprintf
             (
                 '<div xmlns="http://www.w3.org/1999/xhtml">%s</div>',
                 $value
             );
-        } elseif (self::isXml($datatype)) {
+        } elseif (self::isXml($dataType)) {
             return $value;
         } else {
             return htmlspecialchars($value);
@@ -90,14 +90,14 @@ class DatatypeUtils
     }
 
 
-    public static function getValueFromDomNode(\DOMElement $context_node, $datatype)
+    public static function getValueFromDomNode(\DOMElement $contextNode, $dataType)
     {
-        if (self::isXhtml($datatype)) {
+        if ($dataType === self::DATATYPE_XHTML) {
             // XHTML content is wrapped in a <div>
 
             $xhtml = '';
 
-            foreach ($context_node->childNodes as $node) {
+            foreach ($contextNode->childNodes as $node) {
                 if ($node->nodeType != XML_ELEMENT_NODE) {
                     continue;
                 }
@@ -110,10 +110,10 @@ class DatatypeUtils
             }
 
             return $xhtml;
-        } elseif (self::isXml($datatype)) {
-            return self::getNodeXml($context_node);
+        } elseif (self::isXml($dataType)) {
+            return self::getNodeXml($contextNode);
         } else {
-            return $context_node->nodeValue;
+            return $contextNode->nodeValue;
         }
     }
 
@@ -122,10 +122,10 @@ class DatatypeUtils
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
 
-        $node_copy = $dom->importNode($node, true);
-        $dom->appendChild($node_copy);
+        $nodeCopy = $dom->importNode($node, true);
+        $dom->appendChild($nodeCopy);
 
-        $xml = $dom->saveXML($node_copy);
+        $xml = $dom->saveXML($nodeCopy);
 
         $start = strpos($xml, '>') + 1;
         $length = strrpos($xml, '<') - $start;
@@ -134,22 +134,16 @@ class DatatypeUtils
     }
 
 
-    public static function isXhtml($datatype)
-    {
-        return ($datatype === 'http://www.w3.org/1999/xhtml');
-    }
-
-
-    public static function isXml($datatype)
+    public static function isXml($dataType)
     {
         // XXX What are the datatype URIs for application/xml, something+xml etc.?
 
-        $xml_datatypes =
+        $xmlDataTypes =
             [
                 'http://www.w3.org/1999/02/22-rdf-syntax-ns#XMLLiteral',
                 'http://www.w3.org/2001/XMLSchema#anyType'
             ];
 
-        return in_array($datatype, $xml_datatypes);
+        return in_array($dataType, $xmlDataTypes);
     }
 }

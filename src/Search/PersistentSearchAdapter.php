@@ -9,9 +9,9 @@ use TopicCards\Interfaces\TopicMapInterface;
 abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterface
 {
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
-    protected $index_related = false;
+    protected $indexRelated = false;
 
 
     abstract public function getSearchType();
@@ -25,7 +25,7 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
 
     public function index()
     {
-        $response = $this->topicmap->getSearch()->index
+        $response = $this->topicMap->getSearch()->index
         (
             [
                 'type' => $this->getSearchType(),
@@ -44,7 +44,7 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
 
     public function removeFromIndex()
     {
-        $response = $this->topicmap->getSearch()->delete
+        $response = $this->topicMap->getSearch()->delete
         (
             [
                 'type' => $this->getSearchType(),
@@ -62,7 +62,7 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
 
     public function getIndexedData()
     {
-        return $this->topicmap->getSearch()->get
+        return $this->topicMap->getSearch()->get
         (
             [
                 'type' => $this->getSearchType(),
@@ -74,13 +74,13 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
 
     public function resetIndexRelated()
     {
-        $this->index_related = ['topic_id' => [], 'association_id' => []];
+        $this->indexRelated = ['topic_id' => [], 'association_id' => []];
     }
 
 
     public function addIndexRelated($add)
     {
-        if (! is_array($this->index_related)) {
+        if (! is_array($this->indexRelated)) {
             $this->resetIndexRelated();
         }
 
@@ -90,9 +90,9 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
 
         foreach (['topic_id', 'association_id'] as $key) {
             if (isset($add[$key]) && is_array($add[$key])) {
-                $this->index_related[$key] = array_merge
+                $this->indexRelated[$key] = array_merge
                 (
-                    $this->index_related[$key],
+                    $this->indexRelated[$key],
                     $add[$key]
                 );
             }
@@ -107,13 +107,13 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
         // TODO to be implemented
         $cnt = 0;
 
-        if (count($this->index_related['topic_id']) > 0) {
+        if (count($this->indexRelated['topic_id']) > 0) {
             $topic = $this->getTopicMap()->newTopic();
 
-            $topic_ids = array_unique($this->index_related['topic_id']);
+            $topicIds = array_unique($this->indexRelated['topic_id']);
 
-            foreach ($topic_ids as $topic_id) {
-                $topic->load($topic_id);
+            foreach ($topicIds as $topicId) {
+                $topic->load($topicId);
                 $topic->index();
 
                 $cnt++;
@@ -121,15 +121,15 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
         }
 
         /* TODO implement associations
-        if (count($this->index_related[ 'association_id' ]) > 0)
+        if (count($this->indexRelated[ 'association_id' ]) > 0)
         {
             $association = $this->getTopicMap()->newAssociation();
             
-            $association_ids = array_unique($this->index_related[ 'association_id' ]);
+            $associationIds = array_unique($this->indexRelated[ 'association_id' ]);
 
-            foreach ($association_ids as $association_id)
+            foreach ($associationIds as $associationId)
             {
-                $association->load($association_id);
+                $association->load($associationId);
                 $association->index();
                 
                 $cnt++;

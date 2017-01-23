@@ -11,23 +11,23 @@ use TopicCards\Interfaces\TopicMapInterface;
 
 class InstallationUtils
 {
-    public static function importXtmFile(TopicMapInterface $topicmap, $filename)
+    public static function importXtmFile(TopicMapInterface $topicMap, $fileName)
     {
-        $logger = $topicmap->getLogger();
-        $db = $topicmap->getDb();
+        $logger = $topicMap->getLogger();
+        $db = $topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             $logger->emergency('Database connection failed.');
 
             return -1;
         }
 
         $ok = 0;
-        $logger->info("Starting to import <$filename>...");
+        $logger->info("Starting to import <$fileName>...");
 
-        $objects = new XtmReader($filename, $topicmap);
+        $objects = new XtmReader($fileName, $topicMap);
 
         foreach ($objects as $object) {
             if (! is_object($object)) {
@@ -57,7 +57,7 @@ class InstallationUtils
             $logger->info(sprintf
             (
                 "%s: Created %s %s<%s> (%s)",
-                $filename,
+                $fileName,
                 ($object instanceof TopicInterface ? 'topic' : 'association'),
                 $subject,
                 $object->getId(),
@@ -69,22 +69,22 @@ class InstallationUtils
     }
 
 
-    public static function deleteDb(TopicMapInterface $topicmap)
+    public static function deleteDb(TopicMapInterface $topicMap)
     {
-        // MATCH (n) DETACH DELETE n
+        // TODO: MATCH (n) DETACH DELETE n
     }
 
 
-    public static function initDb(TopicMapInterface $topicmap)
+    public static function initDb(TopicMapInterface $topicMap)
     {
-        self::initDbConstraints($topicmap);
-        self::initDbTopics($topicmap);
+        self::initDbConstraints($topicMap);
+        self::initDbTopics($topicMap);
 
         // $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_00_datatypes.xtm');
     }
 
 
-    protected static function initDbTopics(TopicMapInterface $topicmap)
+    protected static function initDbTopics(TopicMapInterface $topicMap)
     {
         $subjects =
             [
@@ -99,15 +99,15 @@ class InstallationUtils
                 TopicMapInterface::SUBJECT_TOPIC_TYPE => 'Topic type'
             ];
 
-        foreach ($subjects as $subject => $name_str) {
-            $topic = $topicmap->newTopic();
+        foreach ($subjects as $subject => $nameStr) {
+            $topic = $topicMap->newTopic();
 
             $topic->setSubjectIdentifiers([$subject]);
 
             if ($subject !== TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE) {
                 $name = $topic->newName();
                 $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
-                $name->setValue($name_str);
+                $name->setValue($nameStr);
             }
 
             try {
@@ -125,14 +125,14 @@ class InstallationUtils
     }
 
 
-    protected static function initDbConstraints(TopicMapInterface $topicmap)
+    protected static function initDbConstraints(TopicMapInterface $topicMap)
     {
-        $logger = $topicmap->getLogger();
-        $db = $topicmap->getDb();
+        $logger = $topicMap->getLogger();
+        $db = $topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             $logger->emergency('Database connection failed.');
 
             return -1;
@@ -148,7 +148,7 @@ class InstallationUtils
             $logger->info($query);
 
             try {
-                $db_conn->run($query);
+                $dbConn->run($query);
             } catch (Neo4jException $exception) {
                 $logger->error($exception->getMessage());
 
@@ -159,14 +159,14 @@ class InstallationUtils
     }
 
 
-    protected static function initDbIndexes(TopicMapInterface $topicmap)
+    protected static function initDbIndexes(TopicMapInterface $topicMap)
     {
-        $logger = $topicmap->getLogger();
-        $db = $topicmap->getDb();
+        $logger = $topicMap->getLogger();
+        $db = $topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             $logger->emergency('Database connection failed.');
 
             return -1;
@@ -181,7 +181,7 @@ class InstallationUtils
             $logger->info($query);
 
             try {
-                $db_conn->run($query);
+                $dbConn->run($query);
             } catch (Neo4jException $exception) {
                 $logger->error($exception->getMessage());
 
@@ -192,20 +192,20 @@ class InstallationUtils
     }
 
 
-    public function initSearch(TopicMapInterface $topicmap)
+    public function initSearch(TopicMapInterface $topicMap)
     {
-        $search = $topicmap->getSearch();
+        $search = $topicMap->getSearch();
         $index = $search->getIndexName();
 
         $search->recreateIndex
         (
-            $topicmap,
+            $topicMap,
             $index,
-            $search->getIndexParams($topicmap, $index)
+            $search->getIndexParams($topicMap, $index)
         );
 
-        $search->reindexAllTopics($topicmap);
-        $search->reindexAllAssociations($topicmap);
+        $search->reindexAllTopics($topicMap);
+        $search->reindexAllAssociations($topicMap);
 
         return 1;
     }

@@ -23,11 +23,11 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
     /**
      * Set the player topic by its ID
      *
-     * @param string $topic_id Topic ID
+     * @param string $topicId Topic ID
      * @return int Zero or greater on success
      */
 
-    public function setPlayerId($topic_id);
+    public function setPlayerId($topicId);
 
 
     /**
@@ -42,9 +42,9 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
     /**
      * Set the player topic by its subject
      *
-     * @param string $topic_subject Topic subject
+     * @param string $topicSubject Topic subject
      * @return int Zero or greater on success
      */
 
-    public function setPlayer($topic_subject);
+    public function setPlayer($topicSubject);
 }

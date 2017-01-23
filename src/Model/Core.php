@@ -9,7 +9,7 @@ use TopicCards\Interfaces\TopicMapInterface;
 abstract class Core implements CoreInterface
 {
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
     /** @var string */
     protected $id = '';
@@ -18,11 +18,11 @@ abstract class Core implements CoreInterface
     /**
      * Core constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        $this->topicmap = $topicmap;
+        $this->topicMap = $topicMap;
     }
 
 
@@ -31,17 +31,17 @@ abstract class Core implements CoreInterface
      */
     public function getTopicMap()
     {
-        return $this->topicmap;
+        return $this->topicMap;
     }
 
     
     /**
-     * @param string $msg_html
+     * @param string $msgHtml
      * @return int
      */
-    public function validate(&$msg_html)
+    public function validate(&$msgHtml)
     {
-        $msg_html = '';
+        $msgHtml = '';
         
         return 0;
     }

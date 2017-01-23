@@ -16,24 +16,24 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     protected $occurrence;
 
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
 
     public function __construct(OccurrenceInterface $occurrence)
     {
         $this->occurrence = $occurrence;
-        $this->topicmap = $occurrence->getTopicMap();
+        $this->topicMap = $occurrence->getTopicMap();
     }
 
 
     public function selectAll(array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -52,7 +52,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -62,7 +62,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
         $result = [];
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $node = $record->get('node');
 
             $row =
@@ -101,10 +101,10 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
-    public function insertAll($topic_id, array $data, Transaction $transaction)
+    public function insertAll($topicId, array $data, Transaction $transaction)
     {
-        foreach ($data as $occurrence_data) {
-            $this->insertOccurrence($topic_id, $occurrence_data, $transaction);
+        foreach ($data as $occurrenceData) {
+            $this->insertOccurrence($topicId, $occurrenceData, $transaction);
         }
 
         // TODO: error handling
@@ -113,16 +113,16 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
-    public function updateAll($topic_id, array $data, array $previous_data, Transaction $transaction)
+    public function updateAll($topicId, array $data, array $previousData, Transaction $transaction)
     {
         $ok = 0;
-        $previous_occurrence_data = [];
+        $previousOccurrenceData = [];
 
-        foreach ($data as $occurrence_data) {
+        foreach ($data as $occurrenceData) {
             // No ID? Must be a new occurrence
 
-            if (empty($occurrence_data['id'])) {
-                $ok = $this->insertOccurrence($topic_id, $occurrence_data, $transaction);
+            if (empty($occurrenceData['id'])) {
+                $ok = $this->insertOccurrence($topicId, $occurrenceData, $transaction);
 
                 if ($ok < 0) {
                     return $ok;
@@ -135,15 +135,15 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
             $found = false;
 
-            foreach ($previous_data as $previous_occurrence_data) {
-                if ($previous_occurrence_data['id'] === $occurrence_data['id']) {
+            foreach ($previousData as $previousOccurrenceData) {
+                if ($previousOccurrenceData['id'] === $occurrenceData['id']) {
                     $found = true;
                     break;
                 }
             }
 
             if (! $found) {
-                $ok = $this->insertOccurrence($topic_id, $occurrence_data, $transaction);
+                $ok = $this->insertOccurrence($topicId, $occurrenceData, $transaction);
 
                 if ($ok < 0) {
                     return $ok;
@@ -154,7 +154,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
             // It's an updated occurrence...
 
-            $ok = $this->updateOccurrence($topic_id, $occurrence_data, $previous_occurrence_data, $transaction);
+            $ok = $this->updateOccurrence($topicId, $occurrenceData, $previousOccurrenceData, $transaction);
 
             if ($ok < 0) {
                 return $ok;
@@ -168,16 +168,16 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
-    protected function insertOccurrence($topic_id, array $data, Transaction $transaction)
+    protected function insertOccurrence($topicId, array $data, Transaction $transaction)
     {
-        $logger = $this->topicmap->getLogger();
+        $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['value'])) || (strlen($data['value']) === 0)) {
             return 0;
         }
 
         if (empty($data['id'])) {
-            $data['id'] = $this->topicmap->createId();
+            $data['id'] = $this->topicMap->createId();
         }
 
         if (empty($data['scope'])) {
@@ -190,7 +190,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             $data['reifier'] = false;
         }
 
-        $property_data =
+        $propertyData =
             [
                 'id' => $data['id'],
                 'value' => $data['value'],
@@ -199,9 +199,9 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
                 'reifier' => $data['reifier']
             ];
 
-        $bind = ['topic_id' => $topic_id];
+        $bind = ['topic_id' => $topicId];
 
-        $property_query = DbUtils::propertiesString($property_data, $bind);
+        $propertyQuery = DbUtils::propertiesString($propertyData, $bind);
 
         $classes = ['Occurrence', $data['type']];
 
@@ -210,7 +210,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             'MATCH (a:Topic { id: {topic_id} })'
             . ' CREATE (a)-[:hasOccurrence]->(b%s { %s })',
             DbUtils::labelsString($classes),
-            $property_query
+            $propertyQuery
         );
 
         $logger->info($query, $bind);
@@ -219,28 +219,28 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
         // Mark type topics
 
-        $type_queries = DbUtils::tmConstructLabelQueries
+        $typeQueries = DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             [$data['type']],
             TopicMapInterface::SUBJECT_OCCURRENCE_TYPE
         );
 
-        $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
+        $typeQueries = array_merge($typeQueries, DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             $data['scope'],
             TopicMapInterface::SUBJECT_SCOPE
         ));
 
-        $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
+        $typeQueries = array_merge($typeQueries, DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             [$data['datatype']],
             TopicMapInterface::SUBJECT_DATATYPE
         ));
 
-        foreach ($type_queries as $query) {
+        foreach ($typeQueries as $query) {
             $logger->info($query['query'], $query['bind']);
             $transaction->push($query['query'], $query['bind']);
         }
@@ -248,14 +248,14 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
         // Link reifier
 
         if (strlen($data['reifier']) > 0) {
-            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            $reifierQueries = DbUtils::tmConstructLinkReifierQueries
             (
                 TopicInterface::REIFIES_OCCURRENCE,
                 $data['id'],
                 $data['reifier']
             );
 
-            foreach ($reifier_queries as $query) {
+            foreach ($reifierQueries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
@@ -266,9 +266,9 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
-    protected function updateOccurrence($topic_id, array $data, array $previous_data, Transaction $transaction)
+    protected function updateOccurrence($topicId, array $data, array $previousData, Transaction $transaction)
     {
-        $logger = $this->topicmap->getLogger();
+        $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['value'])) || (strlen($data['value']) === 0)) {
             $bind = ['id' => $data['id']];
@@ -292,51 +292,51 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             $data['reifier'] = false;
         }
 
-        $property_data = [];
+        $propertyData = [];
 
         foreach (['value', 'datatype', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
-            if (isset($previous_data[$key]) && (serialize($previous_data[$key]) === serialize($data[$key]))) {
+            if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {
                 continue;
             }
 
-            $property_data[$key] = $data[$key];
+            $propertyData[$key] = $data[$key];
 
             if ($key === 'scope') {
                 // Mark type topics
 
-                $type_queries = DbUtils::tmConstructLabelQueries
+                $typeQueries = DbUtils::tmConstructLabelQueries
                 (
-                    $this->topicmap,
+                    $this->topicMap,
                     $data[$key],
                     TopicMapInterface::SUBJECT_SCOPE
                 );
 
-                foreach ($type_queries as $type_query) {
-                    $logger->info($type_query['query'], $type_query['bind']);
-                    $transaction->push($type_query['query'], $type_query['bind']);
+                foreach ($typeQueries as $typeQuery) {
+                    $logger->info($typeQuery['query'], $typeQuery['bind']);
+                    $transaction->push($typeQuery['query'], $typeQuery['bind']);
                 }
             }
         }
 
         $bind = ['id' => $data['id']];
-        $property_query = DbUtils::propertiesUpdateString('node', $property_data, $bind);
+        $propertyQuery = DbUtils::propertiesUpdateString('node', $propertyData, $bind);
 
         // Skip update if no property changes and no type change!
-        $dirty = (strlen($property_query) > 0);
+        $dirty = (strlen($propertyQuery) > 0);
 
         $query = sprintf
         (
             'MATCH (node:Occurrence { id: {id} })%s',
-            $property_query
+            $propertyQuery
         );
 
-        if ($data['type'] !== $previous_data['type']) {
+        if ($data['type'] !== $previousData['type']) {
             $query .= sprintf
             (
                 ' REMOVE node%s',
-                DbUtils::labelsString([$previous_data['type']])
+                DbUtils::labelsString([$previousData['type']])
             );
 
             $query .= sprintf
@@ -347,16 +347,16 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
             // Mark type topics
 
-            $type_queries = DbUtils::tmConstructLabelQueries
+            $typeQueries = DbUtils::tmConstructLabelQueries
             (
-                $this->topicmap,
+                $this->topicMap,
                 [$data['type']],
                 TopicMapInterface::SUBJECT_OCCURRENCE_TYPE
             );
 
-            foreach ($type_queries as $type_query) {
-                $logger->info($type_query['query'], $type_query['bind']);
-                $transaction->push($type_query['query'], $type_query['bind']);
+            foreach ($typeQueries as $typeQuery) {
+                $logger->info($typeQuery['query'], $typeQuery['bind']);
+                $transaction->push($typeQuery['query'], $typeQuery['bind']);
             }
 
             $dirty = true;
@@ -369,24 +369,24 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
         // Link reifier
 
-        if ($data['reifier'] !== $previous_data['reifier']) {
+        if ($data['reifier'] !== $previousData['reifier']) {
             if (strlen($data['reifier']) > 0) {
-                $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+                $reifierQueries = DbUtils::tmConstructLinkReifierQueries
                 (
                     TopicInterface::REIFIES_OCCURRENCE,
                     $data['id'],
                     $data['reifier']
                 );
             } else {
-                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                $reifierQueries = DbUtils::tmConstructUnlinkReifierQueries
                 (
                     TopicInterface::REIFIES_OCCURRENCE,
                     $data['id'],
-                    $previous_data['reifier']
+                    $previousData['reifier']
                 );
             }
 
-            foreach ($reifier_queries as $query) {
+            foreach ($reifierQueries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }

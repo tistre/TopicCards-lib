@@ -40,11 +40,11 @@ class StringUtils
     }
 
 
-    protected static function sortByKey($sort_function, array &$arr, $key)
+    protected static function sortByKey(callable $sortFunction, array &$arr, $key)
     {
         $collator = new \Collator('en_US');
 
-        $sort_function
+        $sortFunction
         (
             $arr,
             function ($a, $b) use ($key, $collator) {

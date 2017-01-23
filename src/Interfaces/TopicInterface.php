@@ -61,7 +61,7 @@ interface TopicInterface extends PersistentInterface
     public function getTypeIds();
 
 
-    public function setTypeIds(array $topic_ids);
+    public function setTypeIds(array $topicIds);
 
 
     /**
@@ -70,13 +70,13 @@ interface TopicInterface extends PersistentInterface
     public function getTypes();
 
 
-    public function setTypes(array $topic_subjects);
+    public function setTypes(array $topicSubjects);
 
 
-    public function hasTypeId($topic_id);
+    public function hasTypeId($topicId);
 
 
-    public function hasType($topic_subject);
+    public function hasType($topicSubject);
 
 
     /**
@@ -131,16 +131,16 @@ interface TopicInterface extends PersistentInterface
     public function getReifiesWhat();
 
 
-    public function setReifiesWhat($reifies_what);
+    public function setReifiesWhat($reifiesWhat);
 
 
     public function getReifiesId();
 
 
-    public function setReifiesId($reifies_id);
+    public function setReifiesId($reifiesId);
 
 
-    public function isReifier(&$reifies_what, &$reifies_id);
+    public function isReifier(&$reifiesWhat, &$reifiesId);
 
 
     public function getReifiedObject();

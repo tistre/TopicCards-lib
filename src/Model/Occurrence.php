@@ -6,7 +6,7 @@ use TopicCards\Db\OccurrenceDbAdapter;
 use TopicCards\Interfaces\OccurrenceInterface;
 use TopicCards\Interfaces\OccurrenceDbAdapterInterface;
 use TopicCards\Interfaces\TopicMapInterface;
-use TopicCards\Utils\DatatypeUtils;
+use TopicCards\Utils\DataTypeUtils;
 
 
 class Occurrence extends Core implements OccurrenceInterface
@@ -14,22 +14,22 @@ class Occurrence extends Core implements OccurrenceInterface
     use Reified, Scoped, Typed;
 
     protected $value = false;
-    protected $datatype = false;
+    protected $dataType = false;
 
     /** @var OccurrenceDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
 
     /**
      * Name constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        parent::__construct($topicmap);
+        parent::__construct($topicMap);
 
-        $this->db_adapter = new OccurrenceDbAdapter($this);
+        $this->dbAdapter = new OccurrenceDbAdapter($this);
     }
 
 
@@ -38,7 +38,7 @@ class Occurrence extends Core implements OccurrenceInterface
      */
     public function getDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 
@@ -56,48 +56,48 @@ class Occurrence extends Core implements OccurrenceInterface
     }
 
 
-    public function getDatatypeId()
+    public function getDataTypeId()
     {
-        return $this->datatype;
+        return $this->dataType;
     }
 
 
-    public function setDatatypeId($topic_id)
+    public function setDataTypeId($topic_id)
     {
-        $this->datatype = $topic_id;
+        $this->dataType = $topic_id;
 
         return 1;
     }
 
 
-    public function getDatatype()
+    public function getDataType()
     {
-        return $this->topicmap->getTopicSubject($this->getDatatypeId());
+        return $this->topicMap->getTopicSubject($this->getDataTypeId());
     }
 
 
-    public function setDatatype($topic_subject)
+    public function setDataType($topicSubject)
     {
-        $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
+        $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return -1;
         }
 
-        return $this->setDatatypeId($topic_id);
+        return $this->setDataTypeId($topicId);
     }
 
 
-    public function validate(&$msg_html)
+    public function validate(&$msgHtml)
     {
-        $ok = DatatypeUtils::validate
+        $ok = DataTypeUtils::validate
         (
             $this->value,
-            $this->getDatatype(),
-            $msg_txt
+            $this->getDataType(),
+            $msgTxt
         );
 
-        $msg_html = htmlspecialchars($msg_txt);
+        $msgHtml = htmlspecialchars($msgTxt);
 
         return $ok;
     }
@@ -108,7 +108,7 @@ class Occurrence extends Core implements OccurrenceInterface
         $result =
             [
                 'value' => $this->getValue(),
-                'datatype' => $this->getDatatypeId()
+                'datatype' => $this->getDataTypeId()
             ];
 
         $result = array_merge($result, $this->getAllId());
@@ -132,7 +132,7 @@ class Occurrence extends Core implements OccurrenceInterface
             ], $data);
 
         $ok = $this->setValue($data['value']);
-        $ok = $this->setDatatypeId($data['datatype']);
+        $ok = $this->setDataTypeId($data['datatype']);
 
         if ($ok >= 0) {
             $ok = $this->setAllId($data);

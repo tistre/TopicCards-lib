@@ -21,9 +21,9 @@ trait Reified
     }
 
 
-    public function setReifierId($topic_id)
+    public function setReifierId($topicId)
     {
-        $this->reifier = $topic_id;
+        $this->reifier = $topicId;
 
         return 1;
     }
@@ -54,23 +54,23 @@ trait Reified
      */
     public function newReifierTopic()
     {
-        /** @var TopicMapInterface $topicmap */
-        $topicmap = $this->getTopicMap();
+        /** @var TopicMapInterface $topicMap */
+        $topicMap = $this->getTopicMap();
 
         // We need this object to have an ID so that
         // we can store it in the reifier topic
 
         if (strlen($this->getId()) === 0) {
-            $this->setId($topicmap->createId());
+            $this->setId($topicMap->createId());
         }
 
-        $reifier_id = $topicmap->createId();
+        $reifierId = $topicMap->createId();
 
-        $reifier_topic = $topicmap->newTopic();
-        $reifier_topic->setId($reifier_id);
+        $reifierTopic = $topicMap->newTopic();
+        $reifierTopic->setId($reifierId);
 
-        $this->setReifierId($reifier_id);
+        $this->setReifierId($reifierId);
 
-        return $reifier_topic;
+        return $reifierTopic;
     }
 }

@@ -15,9 +15,7 @@ class TopicMap implements TopicMapInterface
 {
     protected $url;
     protected $listeners = [];
-    protected $db_table_prefix;
-    protected $search_index;
-    protected $upload_path;
+    protected $searchIndex;
     protected $cache = [];
 
     /** @var LoggerInterface */
@@ -30,12 +28,12 @@ class TopicMap implements TopicMapInterface
     protected $db;
 
     /** @var TopicMapDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
 
     public function __construct()
     {
-        $this->db_adapter = new TopicMapDbAdapter($this);
+        $this->dbAdapter = new TopicMapDbAdapter($this);
     }
 
 
@@ -117,10 +115,10 @@ class TopicMap implements TopicMapInterface
         $cnt = 0;
 
         foreach ($this->listeners[$event] as $callback) {
-            $callback_ok = $callback($this, $event, $params, $result);
+            $callbackOk = $callback($this, $event, $params, $result);
 
-            if ($callback_ok < 0) {
-                return $callback_ok;
+            if ($callbackOk < 0) {
+                return $callbackOk;
             }
 
             $cnt++;
@@ -146,7 +144,7 @@ class TopicMap implements TopicMapInterface
 
     public function setSearchIndex($index)
     {
-        $this->search_index = $index;
+        $this->searchIndex = $index;
 
         return 1;
     }
@@ -154,7 +152,7 @@ class TopicMap implements TopicMapInterface
 
     public function getSearchIndex()
     {
-        return $this->search_index;
+        return $this->searchIndex;
     }
 
 
@@ -183,7 +181,7 @@ class TopicMap implements TopicMapInterface
 
     public function getTopicIds(array $filters)
     {
-        return $this->db_adapter->selectTopics($filters);
+        return $this->dbAdapter->selectTopics($filters);
     }
 
 
@@ -193,17 +191,17 @@ class TopicMap implements TopicMapInterface
     }
     
 
-    public function getTopicIdBySubject($uri, $create_topic = false)
+    public function getTopicIdBySubject($uri, $createTopic = false)
     {
-        $cache_key = __METHOD__ . "($uri)";
+        $cacheKey = __METHOD__ . "($uri)";
 
-        if (isset($this->cache[$cache_key])) {
-            return $this->cache[$cache_key];
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
-        $result = $this->db_adapter->selectTopicBySubject($uri);
+        $result = $this->dbAdapter->selectTopicBySubject($uri);
 
-        if ((strlen($result) === 0) && $create_topic) {
+        if ((strlen($result) === 0) && $createTopic) {
             $topic = $this->newTopic();
             $topic->setSubjectIdentifiers([$uri]);
             $ok = $topic->save();
@@ -214,91 +212,91 @@ class TopicMap implements TopicMapInterface
         }
 
         if (strlen($result) > 0) {
-            $this->cache[$cache_key] = $result;
+            $this->cache[$cacheKey] = $result;
         }
 
         return $result;
     }
 
 
-    public function getTopicSubject($topic_id)
+    public function getTopicSubject($topicId)
     {
-        $cache_key = __METHOD__ . "($topic_id)";
+        $cacheKey = __METHOD__ . "($topicId)";
 
-        if (isset($this->cache[$cache_key])) {
-            return $this->cache[$cache_key];
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
         // XXX we might want to optimize this and not do 2 calls
         // to get at the locator
 
-        $result = $this->db_adapter->selectTopicSubjectIdentifier($topic_id);
+        $result = $this->dbAdapter->selectTopicSubjectIdentifier($topicId);
 
         if ($result === false) {
-            $result = $this->db_adapter->selectTopicSubjectLocator($topic_id);
+            $result = $this->dbAdapter->selectTopicSubjectLocator($topicId);
         }
 
-        $this->cache[$cache_key] = $result;
+        $this->cache[$cacheKey] = $result;
 
         return $result;
     }
 
 
-    public function getTopicSubjectIdentifier($topic_id)
+    public function getTopicSubjectIdentifier($topicId)
     {
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return false;
         }
 
-        $cache_key = __METHOD__ . "($topic_id)";
+        $cacheKey = __METHOD__ . "($topicId)";
 
-        if (isset($this->cache[$cache_key])) {
-            return $this->cache[$cache_key];
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
-        $result = $this->db_adapter->selectTopicSubjectIdentifier($topic_id);
+        $result = $this->dbAdapter->selectTopicSubjectIdentifier($topicId);
 
-        $this->cache[$cache_key] = $result;
+        $this->cache[$cacheKey] = $result;
 
         return $result;
     }
 
 
-    public function getTopicSubjectLocator($topic_id)
+    public function getTopicSubjectLocator($topicId)
     {
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return false;
         }
 
-        $cache_key = __METHOD__ . "($topic_id)";
+        $cacheKey = __METHOD__ . "($topicId)";
 
-        if (isset($this->cache[$cache_key])) {
-            return $this->cache[$cache_key];
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
-        $result = $this->db_adapter->selectTopicSubjectLocator($topic_id);
+        $result = $this->dbAdapter->selectTopicSubjectLocator($topicId);
 
-        $this->cache[$cache_key] = $result;
+        $this->cache[$cacheKey] = $result;
 
         return $result;
     }
 
 
-    public function getTopicLabel($topic_id)
+    public function getTopicLabel($topicId)
     {
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return false;
         }
 
-        $cache_key = __METHOD__ . "($topic_id)";
+        $cacheKey = __METHOD__ . "($topicId)";
 
-        if (isset($this->cache[$cache_key])) {
-            return $this->cache[$cache_key];
+        if (isset($this->cache[$cacheKey])) {
+            return $this->cache[$cacheKey];
         }
 
         $topic = $this->newTopic();
 
-        $ok = $topic->load($topic_id);
+        $ok = $topic->load($topicId);
 
         if ($ok < 0) {
             return false;
@@ -306,7 +304,7 @@ class TopicMap implements TopicMapInterface
 
         $result = $topic->getLabel();
 
-        $this->cache[$cache_key] = $result;
+        $this->cache[$cacheKey] = $result;
 
         return $result;
     }
@@ -322,67 +320,67 @@ class TopicMap implements TopicMapInterface
 
     public function getAssociationIds(array $filters)
     {
-        return $this->db_adapter->selectAssociations($filters);
+        return $this->dbAdapter->selectAssociations($filters);
     }
 
 
     public function getTopicTypeIds(array $filters)
     {
-        return $this->db_adapter->selectTopicTypes($filters);
+        return $this->dbAdapter->selectTopicTypes($filters);
     }
 
 
     public function getNameTypeIds(array $filters)
     {
-        return $this->db_adapter->selectNameTypes($filters);
+        return $this->dbAdapter->selectNameTypes($filters);
     }
 
 
     public function getNameScopeIds(array $filters)
     {
-        return $this->db_adapter->selectNameScopes($filters);
+        return $this->dbAdapter->selectNameScopes($filters);
     }
 
 
     public function getOccurrenceTypeIds(array $filters)
     {
-        return $this->db_adapter->selectOccurrenceTypes($filters);
+        return $this->dbAdapter->selectOccurrenceTypes($filters);
     }
 
 
-    public function getOccurrenceDatatypeIds(array $filters)
+    public function getOccurrenceDataTypeIds(array $filters)
     {
-        return $this->db_adapter->selectOccurrenceDatatypes($filters);
+        return $this->dbAdapter->selectOccurrenceDataTypes($filters);
     }
 
 
     public function getOccurrenceScopeIds(array $filters)
     {
-        return $this->db_adapter->selectOccurrenceScopes($filters);
+        return $this->dbAdapter->selectOccurrenceScopes($filters);
     }
 
 
     public function getAssociationTypeIds(array $filters)
     {
-        return $this->db_adapter->selectAssociationTypes($filters);
+        return $this->dbAdapter->selectAssociationTypes($filters);
     }
 
 
     public function getAssociationScopeIds(array $filters)
     {
-        return $this->db_adapter->selectAssociationScopes($filters);
+        return $this->dbAdapter->selectAssociationScopes($filters);
     }
 
 
     public function getRoleTypeIds(array $filters)
     {
-        return $this->db_adapter->selectRoleTypes($filters);
+        return $this->dbAdapter->selectRoleTypes($filters);
     }
 
 
     public function getRolePlayerIds(array $filters)
     {
-        return $this->db_adapter->selectRolePlayers($filters);
+        return $this->dbAdapter->selectRolePlayers($filters);
     }
 
 
@@ -400,12 +398,12 @@ class TopicMap implements TopicMapInterface
 
         $occurrence = $topic->newOccurrence();
         $occurrence->setType('http://schema.org/contentSize');
-        $occurrence->setDatatype('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
+        $occurrence->setDataType('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
         $occurrence->setValue(filesize($filename));
 
         $occurrence = $topic->newOccurrence();
         $occurrence->setType('http://purl.uniprot.org/core/md5Checksum');
-        $occurrence->setDatatype('http://www.w3.org/2001/XMLSchema#string');
+        $occurrence->setDataType('http://www.w3.org/2001/XMLSchema#string');
         $occurrence->setValue(md5_file($filename));
 
         $type = 'http://dbpedia.org/ontology/File';
@@ -417,7 +415,7 @@ class TopicMap implements TopicMapInterface
         if (strlen($mimetype) > 0) {
             $occurrence = $topic->newOccurrence();
             $occurrence->setType('http://www.w3.org/ns/dcat#mediaType');
-            $occurrence->setDatatype('http://www.w3.org/2001/XMLSchema#string');
+            $occurrence->setDataType('http://www.w3.org/2001/XMLSchema#string');
             $occurrence->setValue($mimetype);
 
             if (substr($mimetype, 0, 6) === 'image/') {
@@ -432,12 +430,12 @@ class TopicMap implements TopicMapInterface
         if (is_array($size)) {
             $occurrence = $topic->newOccurrence();
             $occurrence->setType('http://schema.org/width');
-            $occurrence->setDatatype('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
+            $occurrence->setDataType('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
             $occurrence->setValue($size[0]);
 
             $occurrence = $topic->newOccurrence();
             $occurrence->setType('http://schema.org/height');
-            $occurrence->setDatatype('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
+            $occurrence->setDataType('http://www.w3.org/2001/XMLSchema#nonNegativeInteger');
             $occurrence->setValue($size[1]);
         }
 

@@ -20,7 +20,7 @@ class Association extends Core implements AssociationInterface
     protected $roles = [ ];
     
     /** @var AssociationDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
     /** @var PersistentSearchAdapterInterface */
     protected $search_adapter;
@@ -29,13 +29,13 @@ class Association extends Core implements AssociationInterface
     /**
      * Association constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        parent::__construct($topicmap);
+        parent::__construct($topicMap);
 
-        $this->db_adapter = new AssociationDbAdapter($this);
+        $this->dbAdapter = new AssociationDbAdapter($this);
         $this->search_adapter = new AssociationSearchAdapter($this);
     }
 
@@ -45,7 +45,7 @@ class Association extends Core implements AssociationInterface
      */
     public function getDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 
@@ -63,7 +63,7 @@ class Association extends Core implements AssociationInterface
      */
     public function newRole()
     {   
-        $role = new Role($this->topicmap);
+        $role = new Role($this->topicMap);
         
         $this->roles[ ] = $role;
         
@@ -83,10 +83,10 @@ class Association extends Core implements AssociationInterface
         $result = [ ];
         
         if (isset($filters[ 'type' ]))
-            $filters[ 'type_id' ] = $this->topicmap->getTopicIdBySubject($filters[ 'type' ]);
+            $filters[ 'type_id' ] = $this->topicMap->getTopicIdBySubject($filters[ 'type' ]);
 
         if (isset($filters[ 'player' ]))
-            $filters[ 'player_id' ] = $this->topicmap->getTopicIdBySubject($filters[ 'player' ]);
+            $filters[ 'player_id' ] = $this->topicMap->getTopicIdBySubject($filters[ 'player' ]);
 
         foreach ($this->roles as $role)
         {
@@ -155,15 +155,15 @@ class Association extends Core implements AssociationInterface
     }
 
     
-    public function validate(&$msg_html)
+    public function validate(&$msgHtml)
     {
         $result = 1;
-        $msg_html = '';
+        $msgHtml = '';
         
         if (strlen($this->getTypeId()) === 0)
         {
             $result = TypedInterface::ERR_TYPE_MISSING;
-            $msg_html .= 'Missing association type.';
+            $msgHtml .= 'Missing association type.';
         }
         
         foreach ($this->getRoles([ ]) as $role)
@@ -173,7 +173,7 @@ class Association extends Core implements AssociationInterface
             if ($ok < 0)
             {
                 $result = $ok;
-                $msg_html .= $msg;
+                $msgHtml .= $msg;
             }
         }
         

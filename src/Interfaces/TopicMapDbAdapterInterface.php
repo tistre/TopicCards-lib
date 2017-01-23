@@ -8,9 +8,9 @@ interface TopicMapDbAdapterInterface
     /**
      * TopicMapDbAdapterInterface constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap);
+    public function __construct(TopicMapInterface $topicMap);
 
 
     /**
@@ -23,10 +23,10 @@ interface TopicMapDbAdapterInterface
     public function selectTopicBySubject($uri);
 
 
-    public function selectTopicSubjectIdentifier($topic_id);
+    public function selectTopicSubjectIdentifier($topicId);
 
 
-    public function selectTopicSubjectLocator($topic_id);
+    public function selectTopicSubjectLocator($topicId);
 
 
     public function selectAssociations(array $filters);
@@ -44,7 +44,7 @@ interface TopicMapDbAdapterInterface
     public function selectOccurrenceTypes(array $filters);
 
 
-    public function selectOccurrenceDatatypes(array $filters);
+    public function selectOccurrenceDataTypes(array $filters);
 
 
     public function selectOccurrenceScopes(array $filters);

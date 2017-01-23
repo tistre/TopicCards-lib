@@ -48,14 +48,14 @@ interface SearchInterface
     public function getIndexName();
 
 
-    public function getIndexParams(TopicMapInterface $topicmap, $index);
+    public function getIndexParams(TopicMapInterface $topicMap, $index);
 
 
-    public function recreateIndex(TopicMapInterface $topicmap, $index, array $params);
+    public function recreateIndex(TopicMapInterface $topicMap, $index, array $params);
 
 
-    public function reindexAllTopics(TopicMapInterface $topicmap);
+    public function reindexAllTopics(TopicMapInterface $topicMap);
 
 
-    public function reindexAllAssociations(TopicMapInterface $topicmap);
+    public function reindexAllAssociations(TopicMapInterface $topicMap);
 }

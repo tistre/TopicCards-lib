@@ -16,24 +16,24 @@ class NameDbAdapter implements NameDbAdapterInterface
     protected $name;
 
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
 
     public function __construct(NameInterface $name)
     {
         $this->name = $name;
-        $this->topicmap = $name->getTopicMap();
+        $this->topicMap = $name->getTopicMap();
     }
 
 
     public function selectAll(array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -52,7 +52,7 @@ class NameDbAdapter implements NameDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -62,7 +62,7 @@ class NameDbAdapter implements NameDbAdapterInterface
 
         $result = [];
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $node = $record->get('node');
 
             $row =
@@ -100,10 +100,10 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
-    public function insertAll($topic_id, array $data, Transaction $transaction)
+    public function insertAll($topicId, array $data, Transaction $transaction)
     {
-        foreach ($data as $name_data) {
-            $this->insertName($topic_id, $name_data, $transaction);
+        foreach ($data as $nameData) {
+            $this->insertName($topicId, $nameData, $transaction);
         }
 
         // TODO: error handling
@@ -112,16 +112,16 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
-    public function updateAll($topic_id, array $data, array $previous_data, Transaction $transaction)
+    public function updateAll($topicId, array $data, array $previousData, Transaction $transaction)
     {
         $ok = 1;
-        $previous_name_data = [];
+        $previousNameData = [];
 
-        foreach ($data as $name_data) {
+        foreach ($data as $nameData) {
             // No ID? Must be a new name
 
-            if (empty($name_data['id'])) {
-                $ok = $this->insertName($topic_id, $name_data, $transaction);
+            if (empty($nameData['id'])) {
+                $ok = $this->insertName($topicId, $nameData, $transaction);
 
                 if ($ok < 0) {
                     return $ok;
@@ -134,15 +134,15 @@ class NameDbAdapter implements NameDbAdapterInterface
 
             $found = false;
 
-            foreach ($previous_data as $previous_name_data) {
-                if ($previous_name_data['id'] === $name_data['id']) {
+            foreach ($previousData as $previousNameData) {
+                if ($previousNameData['id'] === $nameData['id']) {
                     $found = true;
                     break;
                 }
             }
 
             if (! $found) {
-                $ok = $this->insertName($topic_id, $name_data, $transaction);
+                $ok = $this->insertName($topicId, $nameData, $transaction);
 
                 if ($ok < 0) {
                     return $ok;
@@ -153,7 +153,7 @@ class NameDbAdapter implements NameDbAdapterInterface
 
             // It's an updated name...
 
-            $ok = $this->updateName($topic_id, $name_data, $previous_name_data, $transaction);
+            $ok = $this->updateName($topicId, $nameData, $previousNameData, $transaction);
 
             if ($ok < 0) {
                 return $ok;
@@ -167,9 +167,9 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
-    protected function insertName($topic_id, array $data, Transaction $transaction)
+    protected function insertName($topicId, array $data, Transaction $transaction)
     {
-        $logger = $this->topicmap->getLogger();
+        $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['value'])) || (strlen($data['value']) === 0)) {
             return 0;
@@ -180,7 +180,7 @@ class NameDbAdapter implements NameDbAdapterInterface
         }
 
         if (empty($data['id'])) {
-            $data['id'] = $this->topicmap->createId();
+            $data['id'] = $this->topicMap->createId();
         }
 
         if (empty($data['scope'])) {
@@ -193,7 +193,7 @@ class NameDbAdapter implements NameDbAdapterInterface
             $data['reifier'] = false;
         }
 
-        $property_data =
+        $propertyData =
             [
                 'id' => $data['id'],
                 'value' => $data['value'],
@@ -201,9 +201,9 @@ class NameDbAdapter implements NameDbAdapterInterface
                 'reifier' => $data['reifier']
             ];
 
-        $bind = ['topic_id' => $topic_id];
+        $bind = ['topic_id' => $topicId];
 
-        $property_query = DbUtils::propertiesString($property_data, $bind);
+        $propertyQuery = DbUtils::propertiesString($propertyData, $bind);
 
         $classes = ['Name', $data['type']];
 
@@ -212,7 +212,7 @@ class NameDbAdapter implements NameDbAdapterInterface
             'MATCH (a:Topic { id: {topic_id} })'
             . ' CREATE (a)-[:hasName]->(b%s { %s })',
             DbUtils::labelsString($classes),
-            $property_query
+            $propertyQuery
         );
 
         $logger->info($query, $bind);
@@ -221,36 +221,36 @@ class NameDbAdapter implements NameDbAdapterInterface
 
         // Mark type topics
 
-        $type_queries = DbUtils::tmConstructLabelQueries
+        $typeQueries = DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             [$data['type']],
             TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE
         );
 
-        $type_queries = array_merge($type_queries, DbUtils::tmConstructLabelQueries
+        $typeQueries = array_merge($typeQueries, DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             $data['scope'],
             TopicMapInterface::SUBJECT_SCOPE
         ));
 
-        foreach ($type_queries as $type_query) {
-            $logger->info($type_query['query'], $type_query['bind']);
-            $transaction->push($type_query['query'], $type_query['bind']);
+        foreach ($typeQueries as $typeQuery) {
+            $logger->info($typeQuery['query'], $typeQuery['bind']);
+            $transaction->push($typeQuery['query'], $typeQuery['bind']);
         }
 
         // Link reifier
 
         if (strlen($data['reifier']) > 0) {
-            $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+            $reifierQueries = DbUtils::tmConstructLinkReifierQueries
             (
                 TopicInterface::REIFIES_NAME,
                 $data['id'],
                 $data['reifier']
             );
 
-            foreach ($reifier_queries as $query) {
+            foreach ($reifierQueries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
@@ -261,9 +261,9 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
-    protected function updateName($topic_id, array $data, array $previous_data, Transaction $transaction)
+    protected function updateName($topicId, array $data, array $previousData, Transaction $transaction)
     {
-        $logger = $this->topicmap->getLogger();
+        $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['value'])) || (strlen($data['value']) === 0)) {
             $bind = ['id' => $data['id']];
@@ -287,51 +287,51 @@ class NameDbAdapter implements NameDbAdapterInterface
             $data['reifier'] = false;
         }
 
-        $property_data = [];
+        $propertyData = [];
 
         foreach (['value', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
-            if (isset($previous_data[$key]) && (serialize($previous_data[$key]) === serialize($data[$key]))) {
+            if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {
                 continue;
             }
 
-            $property_data[$key] = $data[$key];
+            $propertyData[$key] = $data[$key];
 
             if ($key === 'scope') {
                 // Mark type topics
 
-                $type_queries = DbUtils::tmConstructLabelQueries
+                $typeQueries = DbUtils::tmConstructLabelQueries
                 (
-                    $this->topicmap,
+                    $this->topicMap,
                     $data[$key],
                     TopicMapInterface::SUBJECT_SCOPE
                 );
 
-                foreach ($type_queries as $type_query) {
-                    $logger->info($type_query['query'], $type_query['bind']);
-                    $transaction->push($type_query['query'], $type_query['bind']);
+                foreach ($typeQueries as $typeQuery) {
+                    $logger->info($typeQuery['query'], $typeQuery['bind']);
+                    $transaction->push($typeQuery['query'], $typeQuery['bind']);
                 }
             }
         }
 
         $bind = ['id' => $data['id']];
-        $property_query = DbUtils::propertiesUpdateString('node', $property_data, $bind);
+        $propertyQuery = DbUtils::propertiesUpdateString('node', $propertyData, $bind);
 
         // Skip update if no property changes and no type change!
-        $dirty = (strlen($property_query) > 0);
+        $dirty = (strlen($propertyQuery) > 0);
 
         $query = sprintf
         (
             'MATCH (node:Name { id: {id} })%s',
-            $property_query
+            $propertyQuery
         );
 
-        if ($data['type'] !== $previous_data['type']) {
+        if ($data['type'] !== $previousData['type']) {
             $query .= sprintf
             (
                 ' REMOVE node%s',
-                DbUtils::labelsString([$previous_data['type']])
+                DbUtils::labelsString([$previousData['type']])
             );
 
             $query .= sprintf
@@ -342,16 +342,16 @@ class NameDbAdapter implements NameDbAdapterInterface
 
             // Mark type topics
 
-            $type_queries = DbUtils::tmConstructLabelQueries
+            $typeQueries = DbUtils::tmConstructLabelQueries
             (
-                $this->topicmap,
+                $this->topicMap,
                 [$data['type']],
                 TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE
             );
 
-            foreach ($type_queries as $type_query) {
-                $logger->info($type_query['query'], $type_query['bind']);
-                $transaction->push($type_query['query'], $type_query['bind']);
+            foreach ($typeQueries as $typeQuery) {
+                $logger->info($typeQuery['query'], $typeQuery['bind']);
+                $transaction->push($typeQuery['query'], $typeQuery['bind']);
             }
 
             $dirty = true;
@@ -364,30 +364,29 @@ class NameDbAdapter implements NameDbAdapterInterface
 
         // Link reifier
 
-        if ($data['reifier'] !== $previous_data['reifier']) {
+        if ($data['reifier'] !== $previousData['reifier']) {
             if (strlen($data['reifier']) > 0) {
-                $reifier_queries = DbUtils::tmConstructLinkReifierQueries
+                $reifierQueries = DbUtils::tmConstructLinkReifierQueries
                 (
                     TopicInterface::REIFIES_NAME,
                     $data['id'],
                     $data['reifier']
                 );
             } else {
-                $reifier_queries = DbUtils::tmConstructUnlinkReifierQueries
+                $reifierQueries = DbUtils::tmConstructUnlinkReifierQueries
                 (
                     TopicInterface::REIFIES_NAME,
                     $data['id'],
-                    $previous_data['reifier']
+                    $previousData['reifier']
                 );
             }
 
-            foreach ($reifier_queries as $query) {
+            foreach ($reifierQueries as $query) {
                 $logger->info($query['query'], $query['bind']);
                 $transaction->push($query['query'], $query['bind']);
             }
         }
-
-
+        
         // TODO: error handling
         return 1;
     }

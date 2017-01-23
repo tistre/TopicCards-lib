@@ -10,7 +10,7 @@ use TopicCards\Interfaces\TopicMapInterface;
 class XtmExport
 {
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
 
     public function exportObjects(array $objects)
@@ -35,7 +35,7 @@ class XtmExport
 
     protected function exportTopic(TopicInterface $topic, $indent)
     {
-        $this->topicmap = $topic->getTopicMap();
+        $this->topicMap = $topic->getTopicMap();
 
         $result = sprintf
         (
@@ -62,7 +62,7 @@ class XtmExport
 
     protected function exportAssociation(AssociationInterface $association, $indent)
     {
-        $this->topicmap = $association->getTopicMap();
+        $this->topicMap = $association->getTopicMap();
 
         $result = sprintf
         (
@@ -86,19 +86,19 @@ class XtmExport
     }
 
 
-    protected function exportTopicRef($topic_id, $indent)
+    protected function exportTopicRef($topicId, $indent)
     {
-        $value = $this->topicmap->getTopicSubjectIdentifier($topic_id);
+        $value = $this->topicMap->getTopicSubjectIdentifier($topicId);
 
         if (strlen($value) > 0) {
             $tag = 'subjectIdentifierRef';
         } else {
-            $value = $this->topicmap->getTopicSubjectLocator($topic_id);
+            $value = $this->topicMap->getTopicSubjectLocator($topicId);
 
             if (strlen($value) > 0) {
                 $tag = 'subjectLocatorRef';
             } else {
-                $value = '#' . $topic_id;
+                $value = '#' . $topicId;
                 $tag = 'topicRef';
             }
         }
@@ -113,15 +113,15 @@ class XtmExport
     }
 
 
-    protected function exportSubjectLocators(array $subject_locators, $indent)
+    protected function exportSubjectLocators(array $subjectLocators, $indent)
     {
-        return $this->exportSubjects('subjectLocator', $subject_locators, $indent);
+        return $this->exportSubjects('subjectLocator', $subjectLocators, $indent);
     }
 
 
-    protected function exportSubjectIdentifiers(array $subject_identifiers, $indent)
+    protected function exportSubjectIdentifiers(array $subjectIdentifiers, $indent)
     {
-        return $this->exportSubjects('subjectIdentifier', $subject_identifiers, $indent);
+        return $this->exportSubjects('subjectIdentifier', $subjectIdentifiers, $indent);
     }
 
 
@@ -217,18 +217,18 @@ class XtmExport
             $result .= $this->exportType($occurrence->getTypeId(), ($indent + 1));
             $result .= $this->exportScope($occurrence->getScopeIds(), ($indent + 1));
 
-            $datatype = $occurrence->getDatatype();
+            $dataType = $occurrence->getDataType();
 
-            if (strlen($datatype) === 0) {
-                $datatype = '#' . $occurrence->getDatatypeId();
+            if (strlen($dataType) === 0) {
+                $dataType = '#' . $occurrence->getDataTypeId();
             }
 
             $result .= sprintf
             (
                 '%s<resourceData datatype="%s">%s</resourceData>' . "\n",
                 str_repeat('  ', ($indent + 1)),
-                htmlspecialchars($datatype),
-                DatatypeUtils::valueToXml($occurrence->getValue(), $datatype)
+                htmlspecialchars($dataType),
+                DataTypeUtils::valueToXml($occurrence->getValue(), $dataType)
             );
 
             $result .= sprintf
@@ -266,12 +266,12 @@ class XtmExport
 
         $result = '';
 
-        foreach ($types as $topic_id) {
+        foreach ($types as $topicId) {
             $result .= sprintf
             (
                 "%s<instanceOf>\n%s%s</instanceOf>\n",
                 str_repeat('  ', $indent),
-                $this->exportTopicRef($topic_id, ($indent + 1)),
+                $this->exportTopicRef($topicId, ($indent + 1)),
                 str_repeat('  ', $indent)
             );
         }
@@ -300,12 +300,12 @@ class XtmExport
     {
         $result = '';
 
-        foreach ($scope as $topic_id) {
+        foreach ($scope as $topicId) {
             $result .= sprintf
             (
                 "%s<scope>\n%s%s</scope>\n",
                 str_repeat('  ', $indent),
-                $this->exportTopicRef($topic_id, ($indent + 1)),
+                $this->exportTopicRef($topicId, ($indent + 1)),
                 str_repeat('  ', $indent)
             );
         }

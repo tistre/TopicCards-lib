@@ -15,7 +15,7 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
     public function __construct(AssociationInterface $association)
     {
         $this->association = $association;
-        $this->topicmap = $association->getTopicMap();
+        $this->topicMap = $association->getTopicMap();
     }
 
 
@@ -46,17 +46,17 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
             $result['has_player_id'][] = $role->getPlayerId();
         }
 
-        $callback_result = [];
+        $callbackResult = [];
 
-        $this->topicmap->trigger
+        $this->topicMap->trigger
         (
             AssociationInterface::EVENT_INDEXING,
             ['association' => $this->association, 'index_fields' => $result],
-            $callback_result
+            $callbackResult
         );
 
-        if (isset($callback_result['index_fields']) && is_array($callback_result['index_fields'])) {
-            $result = $callback_result['index_fields'];
+        if (isset($callbackResult['index_fields']) && is_array($callbackResult['index_fields'])) {
+            $result = $callbackResult['index_fields'];
         }
 
         return $result;

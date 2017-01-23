@@ -17,19 +17,19 @@ class Role extends Core implements RoleInterface
     protected $player = false;
     
     /** @var RoleDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
 
     /**
      * Name constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        parent::__construct($topicmap);
+        parent::__construct($topicMap);
 
-        $this->db_adapter = new RoleDbAdapter($this);
+        $this->dbAdapter = new RoleDbAdapter($this);
     }
 
 
@@ -38,7 +38,7 @@ class Role extends Core implements RoleInterface
      */
     public function getDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 
@@ -48,9 +48,9 @@ class Role extends Core implements RoleInterface
     }
 
 
-    public function setPlayerId($topic_id)
+    public function setPlayerId($topicId)
     {
-        $this->player = $topic_id;
+        $this->player = $topicId;
 
         return 1;
     }
@@ -58,19 +58,19 @@ class Role extends Core implements RoleInterface
 
     public function getPlayer()
     {
-        return $this->topicmap->getTopicSubject($this->getPlayerId());
+        return $this->topicMap->getTopicSubject($this->getPlayerId());
     }
 
 
-    public function setPlayer($topic_subject)
+    public function setPlayer($topicSubject)
     {
-        $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
+        $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-        if (strlen($topic_id) === 0) {
+        if (strlen($topicId) === 0) {
             return -1;
         }
 
-        return $this->setPlayerId($topic_id);
+        return $this->setPlayerId($topicId);
     }
 
 
@@ -125,13 +125,13 @@ class Role extends Core implements RoleInterface
     }
 
 
-    public function validate(&$msg_html)
+    public function validate(&$msgHtml)
     {
         $result = 1;
 
         if (strlen($this->getTypeId()) === 0) {
             $result = TypedInterface::ERR_TYPE_MISSING;
-            $msg_html .= 'Missing role type.';
+            $msgHtml .= 'Missing role type.';
         }
 
         return $result;

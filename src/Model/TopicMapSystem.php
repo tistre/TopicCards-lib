@@ -7,16 +7,16 @@ use TopicCards\Interfaces\TopicMapSystemInterface;
 
 class TopicMapSystem implements TopicMapSystemInterface
 {
-    protected $topicmaps = [];
+    protected $topicMaps = [];
 
 
     public function newTopicMap($key)
     {
-        $topicmap = new TopicMap();
+        $topicMap = new TopicMap();
 
-        $this->topicmaps[$key] = $topicmap;
+        $this->topicMaps[$key] = $topicMap;
 
-        return $topicmap;
+        return $topicMap;
     }
 
 
@@ -26,18 +26,18 @@ class TopicMapSystem implements TopicMapSystemInterface
             return false;
         }
 
-        return $this->topicmaps[$key];
+        return $this->topicMaps[$key];
     }
 
 
     public function hasTopicMap($key)
     {
-        return isset($this->topicmaps[$key]);
+        return isset($this->topicMaps[$key]);
     }
 
 
     public function getTopicMapKeys()
     {
-        return array_keys($this->topicmaps);
+        return array_keys($this->topicMaps);
     }
 }

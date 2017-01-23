@@ -10,31 +10,31 @@ use TopicCards\Interfaces\TopicMapDbAdapterInterface;
 class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 {
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
     
 
     public function __construct(TopicMapInterface $topicmap)
     {
-        $this->topicmap = $topicmap;
+        $this->topicMap = $topicmap;
     }
 
 
     public function selectTopics(array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
         if (! isset($filters['limit'])) {
             $filters['limit'] = 500;
         }
 
         if (isset($filters['type'])) {
-            $filters['type_id'] = $this->topicmap->getTopicIdBySubject($filters['type']);
+            $filters['type_id'] = $this->topicMap->getTopicIdBySubject($filters['type']);
         }
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -66,7 +66,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -76,7 +76,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
         $result = [];
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $result[] = $record->get('t.id');
         }
 
@@ -86,16 +86,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
     public function selectTopicBySubject($uri)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
         if (strlen($uri) === 0) {
             return false;
         }
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -105,7 +105,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -113,7 +113,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
             return -1;
         }
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             return $record->get('n.id');
         }
 
@@ -135,16 +135,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
     protected function selectTopicSubject($topic_id, $what)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
         if (strlen($topic_id) === 0) {
             return false;
         }
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return false;
         }
 
@@ -154,18 +154,18 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
             return false;
         }
 
-        if ($qresult->size() === 0) {
+        if ($qResult->size() === 0) {
             return false;
         }
 
-        $record = $qresult->firstRecord();
+        $record = $qResult->firstRecord();
 
         $values = $record->get('topic.' . $what);
 
@@ -179,28 +179,28 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
     public function selectAssociations(array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
         if (isset($filters['type'])) {
-            $filters['type_id'] = $this->topicmap->getTopicIdBySubject($filters['type']);
+            $filters['type_id'] = $this->topicMap->getTopicIdBySubject($filters['type']);
         }
 
         if (isset($filters['role_player'])) {
-            $filters['role_player_id'] = $this->topicmap->getTopicIdBySubject($filters['role_player']);
+            $filters['role_player_id'] = $this->topicMap->getTopicIdBySubject($filters['role_player']);
         }
 
         if (isset($filters['role_type'])) {
-            $filters['role_type_id'] = $this->topicmap->getTopicIdBySubject($filters['role_type']);
+            $filters['role_type_id'] = $this->topicMap->getTopicIdBySubject($filters['role_type']);
         }
 
         if (! isset($filters['limit'])) {
             $filters['limit'] = 500;
         }
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -246,7 +246,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -256,7 +256,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
         $result = [];
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $result[] = $record->get('a.id');
         }
 
@@ -289,7 +289,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
     }
 
 
-    public function selectOccurrenceDatatypes(array $filters)
+    public function selectOccurrenceDataTypes(array $filters)
     {
         return $this->selectWhat(TopicMapInterface::SUBJECT_DATATYPE, $filters);
     }
@@ -330,12 +330,12 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
     protected function selectWhat($what, array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $what_id = $this->topicmap->getTopicIdBySubject($what);
+        $whatId = $this->topicMap->getTopicIdBySubject($what);
 
-        if (strlen($what_id) === 0) {
+        if (strlen($whatId) === 0) {
             return -1;
         }
 
@@ -349,22 +349,22 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
             $filters['limit'] = 500;
         }
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
         $query = sprintf
         (
             'MATCH (t%s) RETURN t.id',
-            DbUtils::labelsString(['Topic', $what_id])
+            DbUtils::labelsString(['Topic', $whatId])
         );
 
         $logger->info($query);
 
         try {
-            $qresult = $db_conn->run($query);
+            $qResult = $dbConn->run($query);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -374,7 +374,7 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
 
         $result = [];
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $result[] = $record->get('t.id');
         }
 

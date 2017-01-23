@@ -8,14 +8,14 @@ interface ScopedInterface
     public function getScopeIds();
 
 
-    public function setScopeIds(array $topic_ids);
+    public function setScopeIds(array $topicIds);
 
 
     public function getScope();
 
 
-    public function setScope(array $topic_subjects);
+    public function setScope(array $topicSubjects);
 
 
-    public function matchesScope(array $match_topic_ids);
+    public function matchesScope(array $matchTopicIds);
 }

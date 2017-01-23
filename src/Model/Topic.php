@@ -16,8 +16,8 @@ class Topic extends Core implements TopicInterface
 {
     use Persistent;
 
-    protected $subject_identifiers = [];
-    protected $subject_locators = [];
+    protected $subjectIdentifiers = [];
+    protected $subjectLocators = [];
     protected $types = [];
 
     /** @var NameInterface[] */
@@ -26,27 +26,27 @@ class Topic extends Core implements TopicInterface
     /** @var OccurrenceInterface[] */
     protected $occurrences = [];
 
-    protected $reifies_what = '';
-    protected $reifies_id = '';
+    protected $reifiesWhat = '';
+    protected $reifiesId = '';
 
     /** @var TopicDbAdapterInterface */
-    protected $db_adapter;
+    protected $dbAdapter;
 
     /** @var PersistentSearchAdapterInterface */
-    protected $search_adapter;
+    protected $searchAdapter;
 
 
     /**
      * Topic constructor.
      *
-     * @param TopicMapInterface $topicmap
+     * @param TopicMapInterface $topicMap
      */
-    public function __construct(TopicMapInterface $topicmap)
+    public function __construct(TopicMapInterface $topicMap)
     {
-        parent::__construct($topicmap);
+        parent::__construct($topicMap);
 
-        $this->db_adapter = new TopicDbAdapter($this);
-        $this->search_adapter = new TopicSearchAdapter($this);
+        $this->dbAdapter = new TopicDbAdapter($this);
+        $this->searchAdapter = new TopicSearchAdapter($this);
     }
 
 
@@ -55,7 +55,7 @@ class Topic extends Core implements TopicInterface
      */
     public function getDbAdapter()
     {
-        return $this->db_adapter;
+        return $this->dbAdapter;
     }
 
 
@@ -64,13 +64,13 @@ class Topic extends Core implements TopicInterface
      */
     public function getSearchAdapter()
     {
-        return $this->search_adapter;
+        return $this->searchAdapter;
     }
 
 
     public function loadBySubject($uri)
     {
-        $id = $this->topicmap->getTopicIdBySubject($uri);
+        $id = $this->topicMap->getTopicIdBySubject($uri);
 
         if (strlen($id) === 0) {
             return -1;
@@ -82,13 +82,13 @@ class Topic extends Core implements TopicInterface
 
     public function getSubjectIdentifiers()
     {
-        return $this->subject_identifiers;
+        return $this->subjectIdentifiers;
     }
 
 
     public function setSubjectIdentifiers(array $strings)
     {
-        $this->subject_identifiers = $strings;
+        $this->subjectIdentifiers = $strings;
 
         return 1;
     }
@@ -96,13 +96,13 @@ class Topic extends Core implements TopicInterface
 
     public function getSubjectLocators()
     {
-        return $this->subject_locators;
+        return $this->subjectLocators;
     }
 
 
     public function setSubjectLocators(array $strings)
     {
-        $this->subject_locators = $strings;
+        $this->subjectLocators = $strings;
 
         return 1;
     }
@@ -114,9 +114,9 @@ class Topic extends Core implements TopicInterface
     }
 
 
-    public function setTypeIds(array $topic_ids)
+    public function setTypeIds(array $topicIds)
     {
-        $this->types = $topic_ids;
+        $this->types = $topicIds;
 
         return 1;
     }
@@ -126,30 +126,30 @@ class Topic extends Core implements TopicInterface
     {
         $result = [];
 
-        foreach ($this->getTypeIds() as $topic_id) {
-            $result[] = $this->topicmap->getTopicSubject($topic_id);
+        foreach ($this->getTypeIds() as $topicId) {
+            $result[] = $this->topicMap->getTopicSubject($topicId);
         }
 
         return $result;
     }
 
 
-    public function setTypes(array $topic_subjects)
+    public function setTypes(array $topicSubjects)
     {
-        $topic_ids = [];
+        $topicIds = [];
         $result = 1;
 
-        foreach ($topic_subjects as $topic_subject) {
-            $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
+        foreach ($topicSubjects as $topicSubject) {
+            $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-            if (strlen($topic_id) === 0) {
+            if (strlen($topicId) === 0) {
                 $result = -1;
             } else {
-                $topic_ids[] = $topic_id;
+                $topicIds[] = $topicId;
             }
         }
 
-        $ok = $this->setTypeIds($topic_ids);
+        $ok = $this->setTypeIds($topicIds);
 
         if ($ok < 0) {
             $result = $ok;
@@ -159,21 +159,21 @@ class Topic extends Core implements TopicInterface
     }
 
 
-    public function hasTypeId($topic_id)
+    public function hasTypeId($topicId)
     {
-        return in_array($topic_id, $this->types);
+        return in_array($topicId, $this->types);
     }
 
 
-    public function hasType($topic_subject)
+    public function hasType($topicSubject)
     {
-        return $this->hasTypeId($this->topicmap->getTopicIdBySubject($topic_subject));
+        return $this->hasTypeId($this->topicMap->getTopicIdBySubject($topicSubject));
     }
 
 
     public function newName()
     {
-        $name = new Name($this->topicmap);
+        $name = new Name($this->topicMap);
 
         $this->names[] = $name;
 
@@ -194,7 +194,7 @@ class Topic extends Core implements TopicInterface
         $result = [];
 
         if (isset($filters['type'])) {
-            $filters['type_id'] = $this->topicmap->getTopicIdBySubject($filters['type']);
+            $filters['type_id'] = $this->topicMap->getTopicIdBySubject($filters['type']);
         }
 
         foreach ($this->names as $name) {
@@ -259,30 +259,30 @@ class Topic extends Core implements TopicInterface
     }
 
 
-    public function getLabel($preferred_scopes = false)
+    public function getLabel($preferredScopes = false)
     {
-        if (! is_array($preferred_scopes)) {
-            $preferred_scopes = $this->topicmap->getPreferredLabelScopes();
+        if (! is_array($preferredScopes)) {
+            $preferredScopes = $this->topicMap->getPreferredLabelScopes();
         }
 
         // Preferred scopes in ascending order.
         // Prefer http://schema.org/name ("default"), otherwise use first name
 
-        $by_scope = array_fill_keys
+        $byScope = array_fill_keys
         (
-            array_keys($preferred_scopes),
+            array_keys($preferredScopes),
             ['default' => [], 'other' => []]
         );
 
         foreach ($this->getNames([]) as $name) {
-            $type_key =
+            $typeKey =
                 (
                 ($name->getType() === TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE)
                     ? 'default'
                     : 'other'
                 );
 
-            foreach ($preferred_scopes as $scope_key => $scope) {
+            foreach ($preferredScopes as $scopeKey => $scope) {
                 if (($scope !== '*') && (! $name->matchesScope($scope))) {
                     continue;
                 }
@@ -293,12 +293,12 @@ class Topic extends Core implements TopicInterface
                     continue;
                 }
 
-                $by_scope[$scope_key][$type_key][] = $value;
+                $byScope[$scopeKey][$typeKey][] = $value;
             }
         }
 
-        foreach ($by_scope as $scope_key => $by_type) {
-            foreach ($by_type as $values) {
+        foreach ($byScope as $scopeKey => $byType) {
+            foreach ($byType as $values) {
                 if (isset($values[0])) {
                     return $values[0];
                 }
@@ -315,7 +315,7 @@ class Topic extends Core implements TopicInterface
 
     public function newOccurrence()
     {
-        $occurrence = new Occurrence($this->topicmap);
+        $occurrence = new Occurrence($this->topicMap);
 
         $this->occurrences[] = $occurrence;
 
@@ -334,7 +334,7 @@ class Topic extends Core implements TopicInterface
         }
 
         if (isset($filters['type'])) {
-            $filters['type_id'] = $this->topicmap->getTopicIdBySubject($filters['type']);
+            $filters['type_id'] = $this->topicMap->getTopicIdBySubject($filters['type']);
         }
 
         $result = [];
@@ -400,16 +400,16 @@ class Topic extends Core implements TopicInterface
      */
     public function getReifiesWhat()
     {
-        return $this->reifies_what;
+        return $this->reifiesWhat;
     }
 
 
     /**
-     * @param string $reifies_what
+     * @param string $reifiesWhat
      */
-    public function setReifiesWhat($reifies_what)
+    public function setReifiesWhat($reifiesWhat)
     {
-        $this->reifies_what = $reifies_what;
+        $this->reifiesWhat = $reifiesWhat;
     }
 
 
@@ -418,48 +418,48 @@ class Topic extends Core implements TopicInterface
      */
     public function getReifiesId()
     {
-        return $this->reifies_id;
+        return $this->reifiesId;
     }
 
 
     /**
-     * @param string $reifies_id
+     * @param string $reifiesId
      */
-    public function setReifiesId($reifies_id)
+    public function setReifiesId($reifiesId)
     {
-        $this->reifies_id = $reifies_id;
+        $this->reifiesId = $reifiesId;
     }
 
 
-    public function isReifier(&$reifies_what, &$reifies_id)
+    public function isReifier(&$reifiesWhat, &$reifiesId)
     {
-        $reifies_what = $this->getReifiesWhat();
-        $reifies_id = $this->getReifiesId();
+        $reifiesWhat = $this->getReifiesWhat();
+        $reifiesId = $this->getReifiesId();
 
-        return (($reifies_what !== TopicInterface::REIFIES_NONE) && (strlen($reifies_id) > 0));
+        return (($reifiesWhat !== TopicInterface::REIFIES_NONE) && (strlen($reifiesId) > 0));
     }
 
 
     public function getReifiedObject()
     {
-        return $this->db_adapter->selectReifiedObject();
+        return $this->dbAdapter->selectReifiedObject();
     }
 
 
-    public function validate(&$msg_html)
+    public function validate(&$msgHtml)
     {
         $result = 1;
-        $msg_html = '';
+        $msgHtml = '';
 
         // We want unique subject identifiers, but Neo4j constraints cannot
         // uniquely index multi-valued properties. So let's check for ourselves (yes,
         // there's room for race conditions here.)
 
         if ($this->getVersion() === 0) {
-            foreach ($this->getSubjectIdentifiers() as $subject_identifier) {
-                if (strlen($this->topicmap->getTopicIdBySubject($subject_identifier)) > 0) {
+            foreach ($this->getSubjectIdentifiers() as $subjectIdentifier) {
+                if (strlen($this->topicMap->getTopicIdBySubject($subjectIdentifier)) > 0) {
                     $result = TopicInterface::ERR_SUBJECT_IDENTIFIER_EXISTS;
-                    $msg_html .= sprintf('Subject identifier "%s" already exists.', $subject_identifier);
+                    $msgHtml .= sprintf('Subject identifier "%s" already exists.', $subjectIdentifier);
                 }
             }
         }
@@ -469,7 +469,7 @@ class Topic extends Core implements TopicInterface
 
             if ($ok < 0) {
                 $result = $ok;
-                $msg_html .= $msg;
+                $msgHtml .= $msg;
             }
         }
 
@@ -532,16 +532,16 @@ class Topic extends Core implements TopicInterface
 
         $this->setNames([]);
 
-        foreach ($data['names'] as $name_data) {
+        foreach ($data['names'] as $nameData) {
             $name = $this->newName();
-            $name->setAll($name_data);
+            $name->setAll($nameData);
         }
 
         $this->setOccurrences([]);
 
-        foreach ($data['occurrences'] as $occurrence_data) {
+        foreach ($data['occurrences'] as $occurrenceData) {
             $occurrence = $this->newOccurrence();
-            $occurrence->setAll($occurrence_data);
+            $occurrence->setAll($occurrenceData);
         }
 
         $this->setReifiesWhat($data['reifies_what']);

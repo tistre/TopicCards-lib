@@ -18,7 +18,7 @@ class Db implements DbInterface
     protected $connection = false;
 
     /** @var int */
-    protected $transaction_level = 0;
+    protected $transactionLevel = 0;
 
     /** @var TransactionInterface */
     protected $transaction;
@@ -63,9 +63,9 @@ class Db implements DbInterface
         // Wrapping Neo4j driver transaction functionality because it
         // doesn't support nested transactions
 
-        $this->transaction_level++;
+        $this->transactionLevel++;
 
-        if ($this->transaction_level === 1) {
+        if ($this->transactionLevel === 1) {
             $this->getConnection();
 
             $this->transaction = $this->connection->transaction();
@@ -81,13 +81,13 @@ class Db implements DbInterface
      */
     public function commit(Transaction $transaction)
     {
-        if ($this->transaction_level <= 0) {
+        if ($this->transactionLevel <= 0) {
             return -1;
         }
 
-        $this->transaction_level--;
+        $this->transactionLevel--;
 
-        if ($this->transaction_level > 0) {
+        if ($this->transactionLevel > 0) {
             return 0;
         }
 
@@ -106,12 +106,12 @@ class Db implements DbInterface
      */
     public function rollBack(Transaction $transaction)
     {
-        if ($this->transaction_level <= 0) {
+        if ($this->transactionLevel <= 0) {
             return -1;
         }
 
         $transaction->rollback();
-        $this->transaction_level = 0;
+        $this->transactionLevel = 0;
 
         // Running into "RuntimeException: A transaction is already bound to this session",
         // trying to work around it by reconnecting

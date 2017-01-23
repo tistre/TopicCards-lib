@@ -27,7 +27,7 @@ class DbUtils
 
     public static function propertiesString(array $properties, &$bind)
     {
-        $property_strings = [];
+        $propertyStrings = [];
 
         foreach ($properties as $key => $value) {
             if (empty($value)) {
@@ -43,25 +43,25 @@ class DbUtils
                     $bind[$k] = $v;
                 }
 
-                $property_strings[] = sprintf('%s: [ %s ]', $key, implode(', ', $parts));
+                $propertyStrings[] = sprintf('%s: [ %s ]', $key, implode(', ', $parts));
             } else {
-                $property_strings[] = sprintf('%s: {%s}', $key, $key);
+                $propertyStrings[] = sprintf('%s: {%s}', $key, $key);
                 $bind[$key] = $value;
             }
         }
 
-        return implode(', ', $property_strings);
+        return implode(', ', $propertyStrings);
     }
 
 
     public static function propertiesUpdateString($node, array $properties, &$bind)
     {
-        $set_property_strings = [];
-        $remove_property_strings = [];
+        $setPropertyStrings = [];
+        $removePropertyStrings = [];
 
         foreach ($properties as $key => $value) {
             if ((is_array($value) && (count($value) === 0)) || ((! is_array($value)) && (strlen($value) === 0))) {
-                $remove_property_strings[] = sprintf('%s.%s', $node, $key);
+                $removePropertyStrings[] = sprintf('%s.%s', $node, $key);
                 continue;
             }
 
@@ -74,39 +74,39 @@ class DbUtils
                     $bind[$k] = $v;
                 }
 
-                $set_property_strings[] = sprintf('%s.%s = [ %s ]', $node, $key, implode(', ', $parts));
+                $setPropertyStrings[] = sprintf('%s.%s = [ %s ]', $node, $key, implode(', ', $parts));
             } else {
-                $set_property_strings[] = sprintf('%s.%s = {%s}', $node, $key, $key);
+                $setPropertyStrings[] = sprintf('%s.%s = {%s}', $node, $key, $key);
                 $bind[$key] = $value;
             }
         }
 
         $result = '';
 
-        if (count($remove_property_strings) > 0) {
-            $result .= sprintf(' REMOVE %s', implode(', ', $remove_property_strings));
+        if (count($removePropertyStrings) > 0) {
+            $result .= sprintf(' REMOVE %s', implode(', ', $removePropertyStrings));
         }
 
-        if (count($set_property_strings) > 0) {
-            $result .= sprintf(' SET %s', implode(', ', $set_property_strings));
+        if (count($setPropertyStrings) > 0) {
+            $result .= sprintf(' SET %s', implode(', ', $setPropertyStrings));
         }
 
         return $result;
     }
 
 
-    public static function tmConstructLabelQueries(TopicMapInterface $topicmap, array $topic_ids, $tm_construct_subject)
+    public static function tmConstructLabelQueries(TopicMapInterface $topicmap, array $topicIds, $tmConstructSubject)
     {
         $result = [];
 
-        $tm_construct_id = $topicmap->getTopicIdBySubject($tm_construct_subject);
+        $tmConstructId = $topicmap->getTopicIdBySubject($tmConstructSubject);
 
-        if (strlen($tm_construct_id) === 0) {
+        if (strlen($tmConstructId) === 0) {
             return $result;
         }
 
-        foreach ($topic_ids as $topic_id) {
-            if (strlen($topic_id) === 0) {
+        foreach ($topicIds as $topicId) {
+            if (strlen($topicId) === 0) {
                 continue;
             }
 
@@ -117,9 +117,9 @@ class DbUtils
                     'query' => sprintf
                     (
                         'MATCH (node:Topic { id: {id} }) SET node%s',
-                        self::labelsString([$tm_construct_id])
+                        self::labelsString([$tmConstructId])
                     ),
-                    'bind' => ['id' => $topic_id]
+                    'bind' => ['id' => $topicId]
                 ];
         }
 
@@ -127,25 +127,25 @@ class DbUtils
     }
 
 
-    public static function tmConstructLinkReifierQueries($reifies_what, $reifies_id, $reifier_topic_id)
+    public static function tmConstructLinkReifierQueries($reifiesWhat, $reifiesId, $reifierTopicId)
     {
         $result = [];
 
-        $property_data =
+        $propertyData =
             [
-                'reifies_what' => $reifies_what,
-                'reifies_id' => $reifies_id
+                'reifies_what' => $reifiesWhat,
+                'reifies_id' => $reifiesId
             ];
 
-        $bind = ['id' => $reifier_topic_id];
-        $property_query = self::propertiesUpdateString('node', $property_data, $bind);
+        $bind = ['id' => $reifierTopicId];
+        $propertyQuery = self::propertiesUpdateString('node', $propertyData, $bind);
 
         $result[] =
             [
                 'query' => sprintf
                 (
                     'MATCH (node:Topic { id: {id} })%s',
-                    $property_query
+                    $propertyQuery
                 ),
                 'bind' => $bind
             ];
@@ -154,25 +154,25 @@ class DbUtils
     }
 
 
-    public static function tmConstructUnlinkReifierQueries($reifies_what, $reifies_id, $reifier_topic_id)
+    public static function tmConstructUnlinkReifierQueries($reifiesWhat, $reifiesId, $reifierTopicId)
     {
         $result = [];
 
-        $property_data =
+        $propertyData =
             [
                 'reifies_what' => '',
                 'reifies_id' => ''
             ];
 
-        $bind = ['id' => $reifier_topic_id];
-        $property_query = self::propertiesUpdateString('node', $property_data, $bind);
+        $bind = ['id' => $reifierTopicId];
+        $propertyQuery = self::propertiesUpdateString('node', $propertyData, $bind);
 
         $result[] =
             [
                 'query' => sprintf
                 (
                     'MATCH (node:Topic { id: {id} })%s',
-                    $property_query
+                    $propertyQuery
                 ),
                 'bind' => $bind
             ];

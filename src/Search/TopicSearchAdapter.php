@@ -15,7 +15,7 @@ class TopicSearchAdapter extends PersistentSearchAdapter
     public function __construct(TopicInterface $topic)
     {
         $this->topic = $topic;
-        $this->topicmap = $topic->getTopicMap();
+        $this->topicMap = $topic->getTopicMap();
     }
 
 
@@ -55,17 +55,17 @@ class TopicSearchAdapter extends PersistentSearchAdapter
             $result['has_occurrence_type_id'][] = $occurrence->getTypeId();
         }
 
-        $callback_result = [];
+        $callbackResult = [];
 
-        $this->topicmap->trigger
+        $this->topicMap->trigger
         (
             TopicInterface::EVENT_INDEXING,
             ['topic' => $this->topic, 'index_fields' => $result],
-            $callback_result
+            $callbackResult
         );
 
-        if (isset($callback_result['index_fields']) && is_array($callback_result['index_fields'])) {
-            $result = $callback_result['index_fields'];
+        if (isset($callbackResult['index_fields']) && is_array($callbackResult['index_fields'])) {
+            $result = $callbackResult['index_fields'];
         }
 
         return $result;

@@ -7,8 +7,8 @@ interface OccurrenceInterface extends CoreInterface, ReifiedInterface, ScopedInt
 {
     public function getValue();
     public function setValue($str);
-    public function getDatatypeId();
-    public function setDatatypeId($topic_id);
-    public function getDatatype();
-    public function setDatatype($topic_subject);
+    public function getDataTypeId();
+    public function setDataTypeId($topic_id);
+    public function getDataType();
+    public function setDataType($topicSubject);
 }

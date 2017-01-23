@@ -19,24 +19,24 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     protected $topic;
 
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
 
     public function __construct(TopicInterface $topic)
     {
         $this->topic = $topic;
-        $this->topicmap = $topic->getTopicMap();
+        $this->topicMap = $topic->getTopicMap();
     }
 
 
     public function selectAll(array $filters)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -46,7 +46,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
@@ -58,10 +58,10 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
         $result = [];
 
-        $name = new Name($this->topicmap);
-        $occurrence = new Occurrence($this->topicmap);
+        $name = new Name($this->topicMap);
+        $occurrence = new Occurrence($this->topicMap);
 
-        foreach ($qresult->records() as $record) {
+        foreach ($qResult->records() as $record) {
             $node = $record->get('node');
 
             $row =
@@ -111,7 +111,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     public function selectReifiedObject()
     {
-        $reifies_what = $this->topic->getReifiesWhat();
+        $reifiesWhat = $this->topic->getReifiesWhat();
 
         $map =
             [
@@ -121,11 +121,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
                 TopicInterface::REIFIES_ROLE => 'Role'
             ];
 
-        if (! isset($map[$reifies_what])) {
+        if (! isset($map[$reifiesWhat])) {
             return false;
         }
 
-        $method = 'selectReifiedObject_' . $map[$reifies_what];
+        $method = 'selectReifiedObject_' . $map[$reifiesWhat];
 
         return $this->$method();
     }
@@ -133,12 +133,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     protected function selectReifiedObject_Name()
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return false;
         }
 
@@ -151,15 +151,15 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
             return false;
         }
 
-        foreach ($qresult->records() as $record) {
-            $topic = new Topic($this->topicmap);
+        foreach ($qResult->records() as $record) {
+            $topic = new Topic($this->topicMap);
             $ok = $topic->load($record->get('topic_id'));
 
             if ($ok < 0) {
@@ -181,12 +181,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     protected function selectReifiedObject_Occurrence()
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return false;
         }
 
@@ -199,15 +199,15 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
             return false;
         }
 
-        foreach ($qresult->records() as $record) {
-            $topic = new Topic($this->topicmap);
+        foreach ($qResult->records() as $record) {
+            $topic = new Topic($this->topicMap);
             $ok = $topic->load($record->get('topic_id'));
 
             if ($ok < 0) {
@@ -229,12 +229,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     protected function selectReifiedObject_Association()
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return false;
         }
 
@@ -247,15 +247,15 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
             return false;
         }
 
-        foreach ($qresult->records() as $record) {
-            $association = $this->topicmap->newAssociation();
+        foreach ($qResult->records() as $record) {
+            $association = $this->topicMap->newAssociation();
             $association->load($record->get('association_id'));
 
             return
@@ -270,12 +270,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     protected function selectReifiedObject_Role()
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return false;
         }
 
@@ -288,15 +288,15 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $logger->info($query, $bind);
 
         try {
-            $qresult = $db_conn->run($query, $bind);
+            $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
 
             return false;
         }
 
-        foreach ($qresult->records() as $record) {
-            $association = new Association($this->topicmap);
+        foreach ($qResult->records() as $record) {
+            $association = new Association($this->topicMap);
             $ok = $association->load($record->get('association_id'));
 
             if ($ok < 0) {
@@ -318,12 +318,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     public function insertAll(array $data)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -332,7 +332,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $data['created'] = $data['updated'] = $now;
         $data['version'] = 1;
 
-        $property_data = [];
+        $propertyData = [];
 
         foreach ([
                      'created',
@@ -344,11 +344,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
                      'updated',
                      'version'
                  ] as $key) {
-            $property_data[$key] = $data[$key];
+            $propertyData[$key] = $data[$key];
         }
 
         $bind = [];
-        $property_query = DbUtils::propertiesString($property_data, $bind);
+        $propertyQuery = DbUtils::propertiesString($propertyData, $bind);
 
         $classes = array_merge(['Topic'], $data['types']);
 
@@ -358,7 +358,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         (
             'CREATE (n%s { %s })',
             DbUtils::labelsString($classes),
-            $property_query
+            $propertyQuery
         );
 
         $logger->info($query, $bind);
@@ -367,16 +367,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
         // Mark type topics
 
-        $type_queries = DbUtils::tmConstructLabelQueries
+        $typeQueries = DbUtils::tmConstructLabelQueries
         (
-            $this->topicmap,
+            $this->topicMap,
             $data['types'],
             TopicMapInterface::SUBJECT_TOPIC_TYPE
         );
 
-        foreach ($type_queries as $type_query) {
-            $logger->info($type_query['query'], $type_query['bind']);
-            $transaction->push($type_query['query'], $type_query['bind']);
+        foreach ($typeQueries as $typeQuery) {
+            $logger->info($typeQuery['query'], $typeQuery['bind']);
+            $transaction->push($typeQuery['query'], $typeQuery['bind']);
         }
 
         // TODO: Error handling
@@ -384,12 +384,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $ok = 1;
 
         if ($ok >= 0) {
-            $name = new Name($this->topicmap);
+            $name = new Name($this->topicMap);
             $ok = $name->getDbAdapter()->insertAll($data['id'], $data['names'], $transaction);
         }
 
         if ($ok >= 0) {
-            $occurrence = new Occurrence($this->topicmap);
+            $occurrence = new Occurrence($this->topicMap);
             $ok = $occurrence->getDbAdapter()->insertAll($data['id'], $data['occurrences'], $transaction);
         }
 
@@ -404,17 +404,17 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         // TODO: Error handling
 
         if ($ok >= 0) {
-            $callback_result = [];
+            $callbackResult = [];
 
-            $ok = $this->topicmap->trigger
+            $ok = $this->topicMap->trigger
             (
                 TopicInterface::EVENT_SAVING,
                 ['topic' => $this->topic, 'dml' => 'insert'],
-                $callback_result
+                $callbackResult
             );
 
-            if (isset($callback_result['index_related'])) {
-                $this->topic->getSearchAdapter()->addIndexRelated($callback_result['index_related']);
+            if (isset($callbackResult['index_related'])) {
+                $this->topic->getSearchAdapter()->addIndexRelated($callbackResult['index_related']);
             }
         }
 
@@ -424,20 +424,20 @@ class TopicDbAdapter implements TopicDbAdapterInterface
 
     public function updateAll(array $data)
     {
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
         $data['updated'] = date('c');
         $data['version']++;
 
-        $previous_data = $this->topic->getPreviousData();
-        $property_data = [];
+        $previousData = $this->topic->getPreviousData();
+        $propertyData = [];
 
         foreach ([
                      'created',
@@ -452,60 +452,60 @@ class TopicDbAdapter implements TopicDbAdapterInterface
             // Skip unmodified values
 
             // TODO previous_data must reference topic
-            if (isset($previous_data[$key]) && (serialize($previous_data[$key]) === serialize($data[$key]))) {
+            if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {
                 continue;
             }
 
-            $property_data[$key] = $data[$key];
+            $propertyData[$key] = $data[$key];
         }
 
         $transaction = $db->beginTransaction();
 
         $bind = ['id' => $data['id']];
-        $property_query = DbUtils::propertiesUpdateString('node', $property_data, $bind);
+        $propertyQuery = DbUtils::propertiesUpdateString('node', $propertyData, $bind);
 
         $query = sprintf
         (
             'MATCH (node:Topic { id: {id} })%s',
-            $property_query
+            $propertyQuery
         );
 
-        if (isset($previous_data['types']) && is_array($previous_data['types'])) {
-            $previous_types = $previous_data['types'];
+        if (isset($previousData['types']) && is_array($previousData['types'])) {
+            $previousTypes = $previousData['types'];
         } else {
-            $previous_types = [];
+            $previousTypes = [];
         }
 
-        $added_types = array_diff($data['types'], $previous_types);
-        $removed_types = array_diff($previous_types, $data['types']);
+        $addedTypes = array_diff($data['types'], $previousTypes);
+        $removedTypes = array_diff($previousTypes, $data['types']);
 
-        if (count($removed_types) > 0) {
+        if (count($removedTypes) > 0) {
             $query .= sprintf
             (
                 ' REMOVE node%s',
-                DbUtils::labelsString($removed_types)
+                DbUtils::labelsString($removedTypes)
             );
         }
 
-        if (count($added_types) > 0) {
+        if (count($addedTypes) > 0) {
             $query .= sprintf
             (
                 ' SET node%s',
-                DbUtils::labelsString($added_types)
+                DbUtils::labelsString($addedTypes)
             );
 
             // Mark type topics
 
-            $type_queries = DbUtils::tmConstructLabelQueries
+            $typeQueries = DbUtils::tmConstructLabelQueries
             (
-                $this->topicmap,
-                $added_types,
+                $this->topicMap,
+                $addedTypes,
                 TopicMapInterface::SUBJECT_TOPIC_TYPE
             );
 
-            foreach ($type_queries as $type_query) {
-                $logger->info($type_query['query'], $type_query['bind']);
-                $transaction->push($type_query['query'], $type_query['bind']);
+            foreach ($typeQueries as $typeQuery) {
+                $logger->info($typeQuery['query'], $typeQuery['bind']);
+                $transaction->push($typeQuery['query'], $typeQuery['bind']);
             }
         }
 
@@ -516,26 +516,26 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $ok = 1;
 
         if ($ok >= 0) {
-            $name = new Name($this->topicmap);
+            $name = new Name($this->topicMap);
 
             $ok = $name->getDbAdapter()->updateAll
             (
                 $data['id'],
                 $data['names'],
-                $previous_data['names'],
+                $previousData['names'],
                 // Collect an array of queries instead of passing the transaction?
                 $transaction
             );
         }
 
         if ($ok >= 0) {
-            $occurrence = new Occurrence($this->topicmap);
+            $occurrence = new Occurrence($this->topicMap);
 
             $occurrence->getDbAdapter()->updateAll
             (
                 $data['id'],
                 $data['occurrences'],
-                $previous_data['occurrences'],
+                $previousData['occurrences'],
                 // Collect an array of queries instead of passing the transaction?
                 $transaction
             );
@@ -552,17 +552,17 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         }
 
         if ($ok >= 0) {
-            $callback_result = [];
+            $callbackResult = [];
 
-            $ok = $this->topicmap->trigger
+            $ok = $this->topicMap->trigger
             (
                 TopicInterface::EVENT_SAVING,
                 ['topic' => $this->topic, 'dml' => 'update'],
-                $callback_result
+                $callbackResult
             );
 
-            if (isset($callback_result['index_related'])) {
-                $this->addIndexRelated($callback_result['index_related']);
+            if (isset($callbackResult['index_related'])) {
+                $this->addIndexRelated($callbackResult['index_related']);
             }
         }
 
@@ -574,12 +574,12 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     {
         // TODO: Implement $version
 
-        $logger = $this->topicmap->getLogger();
-        $db = $this->topicmap->getDb();
+        $logger = $this->topicMap->getLogger();
+        $db = $this->topicMap->getDb();
 
-        $db_conn = $db->getConnection();
+        $dbConn = $db->getConnection();
 
-        if ($db_conn === null) {
+        if ($dbConn === null) {
             return -1;
         }
 
@@ -596,7 +596,7 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $ok = 1;
 
         try {
-            $db_conn->run($query, $bind);
+            $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
             $logger->error($exception->getMessage());
             // TODO: Error handling
@@ -606,17 +606,17 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         // TODO: error handling
 
         if ($ok >= 0) {
-            $callback_result = [];
+            $callbackResult = [];
 
-            $this->topicmap->trigger
+            $this->topicMap->trigger
             (
                 TopicInterface::EVENT_DELETING,
                 ['topic_id' => $id],
-                $callback_result
+                $callbackResult
             );
 
-            if (isset($callback_result['index_related'])) {
-                $this->addIndexRelated($callback_result['index_related']);
+            if (isset($callbackResult['index_related'])) {
+                $this->addIndexRelated($callbackResult['index_related']);
             }
         }
 

@@ -10,8 +10,8 @@ interface RoleDbAdapterInterface
     public function selectAll(array $filters);
 
 
-    public function insertAll($association_id, array $data, Transaction $transaction);
+    public function insertAll($associationId, array $data, Transaction $transaction);
 
 
-    public function updateAll($association_id, array $data, array $previous_data, Transaction $transaction);
+    public function updateAll($associationId, array $data, array $previousData, Transaction $transaction);
 }

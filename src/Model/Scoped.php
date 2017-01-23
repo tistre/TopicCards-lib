@@ -14,9 +14,9 @@ trait Scoped
     }
 
 
-    public function setScopeIds(array $topic_ids)
+    public function setScopeIds(array $topicIds)
     {
-        $this->scope = $topic_ids;
+        $this->scope = $topicIds;
 
         return 1;
     }
@@ -26,30 +26,30 @@ trait Scoped
     {
         $result = [];
 
-        foreach ($this->getScopeIds() as $topic_id) {
-            $result[] = $this->topicmap->getTopicSubject($topic_id);
+        foreach ($this->getScopeIds() as $topicId) {
+            $result[] = $this->topicMap->getTopicSubject($topicId);
         }
 
         return $result;
     }
 
 
-    public function setScope(array $topic_subjects)
+    public function setScope(array $topicSubjects)
     {
-        $topic_ids = [];
+        $topicIds = [];
         $result = 1;
 
-        foreach ($topic_subjects as $topic_subject) {
-            $topic_id = $this->topicmap->getTopicIdBySubject($topic_subject, true);
+        foreach ($topicSubjects as $topicSubject) {
+            $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-            if (strlen($topic_id) === 0) {
+            if (strlen($topicId) === 0) {
                 $result = -1;
             } else {
-                $topic_ids[] = $topic_id;
+                $topicIds[] = $topicId;
             }
         }
 
-        $ok = $this->setScopeIds($topic_ids);
+        $ok = $this->setScopeIds($topicIds);
 
         if ($ok < 0) {
             $result = $ok;
@@ -79,16 +79,16 @@ trait Scoped
     }
 
 
-    public function matchesScope(array $match_topic_ids)
+    public function matchesScope(array $matchTopicIds)
     {
-        $my_topic_ids = $this->getScopeIds();
+        $myTopicIds = $this->getScopeIds();
 
-        $my_count = count($my_topic_ids);
-        $match_count = count($match_topic_ids);
+        $myCount = count($myTopicIds);
+        $matchCount = count($matchTopicIds);
 
         // Short cut: If counts differ, scopes cannot match
 
-        if ($my_count !== $match_count) {
+        if ($myCount !== $matchCount) {
             return false;
         }
 
@@ -96,8 +96,8 @@ trait Scoped
 
         return
             (
-                (count(array_diff($my_topic_ids, $match_topic_ids)) === 0)
-                && (count(array_diff($match_topic_ids, $my_topic_ids)) === 0)
+                (count(array_diff($myTopicIds, $matchTopicIds)) === 0)
+                && (count(array_diff($matchTopicIds, $myTopicIds)) === 0)
             );
     }
 }

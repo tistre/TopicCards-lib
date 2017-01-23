@@ -8,24 +8,24 @@ use TopicCards\Interfaces\TopicMapInterface;
 class XtmReader implements \Iterator
 {
     /** @var TopicMapInterface */
-    protected $topicmap;
+    protected $topicMap;
 
-    protected $filename;
+    protected $fileName;
 
     /** @var \XMLReader */
-    protected $xmlreader;
+    protected $xmlReader;
 
     protected $importer;
     protected $cnt;
 
 
-    public function __construct($filename, TopicMapInterface $topicmap)
+    public function __construct($fileName, TopicMapInterface $topicMap)
     {
-        $this->filename = $filename;
-        $this->topicmap = $topicmap;
+        $this->fileName = $fileName;
+        $this->topicMap = $topicMap;
 
-        $this->xmlreader = new \XMLReader();
-        $this->importer = new XtmImport($topicmap);
+        $this->xmlReader = new \XMLReader();
+        $this->importer = new XtmImport($topicMap);
 
         $this->cnt = -1;
     }
@@ -33,16 +33,16 @@ class XtmReader implements \Iterator
 
     public function rewind()
     {
-        if (! file_exists($this->filename)) {
+        if (! file_exists($this->fileName)) {
             return;
         }
 
-        $ok = $this->xmlreader->open($this->filename);
+        $ok = $this->xmlReader->open($this->fileName);
 
         // Go to the root node
 
         if ($ok) {
-            $ok = $this->xmlreader->read();
+            $ok = $this->xmlReader->read();
         }
 
         if (! $ok) {
@@ -52,13 +52,13 @@ class XtmReader implements \Iterator
         // Go to the first child node
 
         while (true) {
-            $ok = $this->xmlreader->read();
+            $ok = $this->xmlReader->read();
 
             if (! $ok) {
                 return;
             }
 
-            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT) {
+            if ($this->xmlReader->nodeType === \XMLReader::ELEMENT) {
                 $this->cnt = 0;
 
                 return;
@@ -71,7 +71,7 @@ class XtmReader implements \Iterator
     {
         /** @var \DOMElement $node */
 
-        $node = $this->xmlreader->expand();
+        $node = $this->xmlReader->expand();
 
         if ($node === false) {
             return false;
@@ -100,7 +100,7 @@ class XtmReader implements \Iterator
     public function next()
     {
         while (true) {
-            $ok = $this->xmlreader->next();
+            $ok = $this->xmlReader->next();
 
             if (! $ok) {
                 $this->cnt = -1;
@@ -108,7 +108,7 @@ class XtmReader implements \Iterator
                 return;
             }
 
-            if ($this->xmlreader->nodeType === \XMLReader::ELEMENT) {
+            if ($this->xmlReader->nodeType === \XMLReader::ELEMENT) {
                 $this->cnt++;
 
                 return;
