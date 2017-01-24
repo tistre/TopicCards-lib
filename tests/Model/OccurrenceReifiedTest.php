@@ -9,32 +9,32 @@ use TopicCards\Utils\DatatypeUtils;
 class OccurrenceReifiedTest extends TestCase
 {
     /** @var TopicMapInterface */
-    protected static $topicmap;
+    protected static $topicMap;
 
 
     public static function setUpBeforeClass()
     {
-        global $topicmap;
+        global $topicMap;
 
-        self::$topicmap = $topicmap;
+        self::$topicMap = $topicMap;
     }
 
 
     public function testNewReifierTopic()
     {
-        $occurrence_type = 'http://schema.org/description';
+        $occurrenceType = 'http://schema.org/description';
 
         // Create topic, reify occurrence
 
-        $topic = self::$topicmap->newTopic();
+        $topic = self::$topicMap->newTopic();
 
         $occurrence = $topic->newOccurrence();
-        $occurrence->setType($occurrence_type);
-        $occurrence->setDatatype(DatatypeUtils::DATATYPE_STRING);
+        $occurrence->setType($occurrenceType);
+        $occurrence->setDataType(DatatypeUtils::DATATYPE_STRING);
         $occurrence->setValue('hello world');
 
-        $reifier_topic = $occurrence->newReifierTopic();
-        $ok = $reifier_topic->save();
+        $reifierTopic = $occurrence->newReifierTopic();
+        $ok = $reifierTopic->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Reifier save failed');
 
         $ok = $topic->save();
@@ -45,25 +45,26 @@ class OccurrenceReifiedTest extends TestCase
         $ok = $topic->load($topic->getId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
 
-        $ok = $reifier_topic->load($reifier_topic->getId());
+        $ok = $reifierTopic->load($reifierTopic->getId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Reifier load after save failed');
 
         // Verify 
 
-        $occurrence = $topic->getFirstOccurrence(['type' => $occurrence_type]);
+        $occurrence = $topic->getFirstOccurrence(['type' => $occurrenceType]);
 
-        $this->assertEquals($occurrence->getId(), $reifier_topic->getReifiesId(),
+        $this->assertEquals($occurrence->getId(), $reifierTopic->getReifiesId(),
             'Reifier topic ID is not the occurrence ID');
-        $this->assertEquals(TopicInterface::REIFIES_OCCURRENCE, $reifier_topic->getReifiesWhat(),
+        $this->assertEquals(TopicInterface::REIFIES_OCCURRENCE, $reifierTopic->getReifiesWhat(),
             'Reifier "what" is not "occurrence"');
 
-        $this->assertEquals($reifier_topic->getId(), $occurrence->getReifierId(),
+        $this->assertEquals($reifierTopic->getId(), $occurrence->getReifierId(),
             'Occurrence reifier ID is not the reifier topic ID');
 
-        $reified_object = $reifier_topic->getReifiedObject();
-        $this->assertEquals($occurrence->getId(), $reified_object['occurrence']->getId(),
+        $reifiedObject = $reifierTopic->getReifiedObject();
+        
+        $this->assertEquals($occurrence->getId(), $reifiedObject['occurrence']->getId(),
             'Reified occurrence object ID is not the occurrence ID');
-        $this->assertEquals($topic->getId(), $reified_object['topic']->getId(),
+        $this->assertEquals($topic->getId(), $reifiedObject['topic']->getId(),
             'Reified topic object ID is not the topic ID');
 
         // Remove reification
@@ -77,22 +78,22 @@ class OccurrenceReifiedTest extends TestCase
         $ok = $topic->load($topic->getId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
 
-        $ok = $reifier_topic->load($reifier_topic->getId());
+        $ok = $reifierTopic->load($reifierTopic->getId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Reifier load after save failed');
 
         // Verify 
 
-        $occurrence = $topic->getFirstOccurrence(['type' => $occurrence_type]);
+        $occurrence = $topic->getFirstOccurrence(['type' => $occurrenceType]);
 
-        $this->assertEquals('', $reifier_topic->getReifiesId(), 'Reifier topic ID is not empty');
-        $this->assertEquals(TopicInterface::REIFIES_NONE, $reifier_topic->getReifiesWhat(),
+        $this->assertEquals('', $reifierTopic->getReifiesId(), 'Reifier topic ID is not empty');
+        $this->assertEquals(TopicInterface::REIFIES_NONE, $reifierTopic->getReifiesWhat(),
             'Reifier "what" is not "none"');
 
         $this->assertEquals('', $occurrence->getReifierId(), 'Occurrence reifier ID is not empty');
 
         // Cleanup
 
-        $reifier_topic->delete();
+        $reifierTopic->delete();
         $topic->delete();
     }
 }

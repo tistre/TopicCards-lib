@@ -8,7 +8,7 @@ spl_autoload_register(function($class)
     $prefix = 'TopicCards\\';
 
     // base directory for the namespace prefix
-    $base_dir = dirname(__DIR__) . '/src/';
+    $baseDir = dirname(__DIR__) . '/src/';
 
     // does the class use the namespace prefix?
     $len = strlen($prefix);
@@ -20,21 +20,21 @@ spl_autoload_register(function($class)
     }
 
     // get the relative class name
-    $relative_class = substr($class, $len);
+    $relativeClass = substr($class, $len);
 
     // replace the namespace prefix with the base directory, replace namespace
     // separators with directory separators in the relative class name, append
     // with .php
-    $filename = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+    $fileName = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
 
     // if the file exists, require it
-    if (file_exists($filename))
+    if (file_exists($fileName))
     {
-        require $filename;
+        require $fileName;
     }
 });
 
-$db_params =
+$dbParams =
     [
         'connections' =>
             [
@@ -43,7 +43,7 @@ $db_params =
             ]
     ];
 
-$search_params =
+$searchParams =
     [
         'connection' => [ ],
         'index' => 'xddb'
@@ -52,13 +52,13 @@ $search_params =
 $logger = new \Monolog\Logger('TopicCards');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('/var/log/topiccards.log', \Monolog\Logger::DEBUG));
 
-$db = new TopicCards\Db\Db($db_params);
-$search = new TopicCards\Search\Search($search_params);
+$db = new TopicCards\Db\Db($dbParams);
+$search = new TopicCards\Search\Search($searchParams);
 
-$tm_system = new TopicCards\Model\TopicMapSystem();
-$topicmap = $tm_system->newTopicMap('default');
+$tmSystem = new TopicCards\Model\TopicMapSystem();
+$topicMap = $tmSystem->newTopicMap('default');
 
-$topicmap->setSearch($search);
-$topicmap->setDb($db);
-$topicmap->setLogger($logger);
-$topicmap->setUrl('http://www.strehle.de/tim/topicmaps/xddb');
+$topicMap->setSearch($search);
+$topicMap->setDb($db);
+$topicMap->setLogger($logger);
+$topicMap->setUrl('http://www.strehle.de/tim/topicmaps/xddb');

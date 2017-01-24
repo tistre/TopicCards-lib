@@ -7,28 +7,28 @@ use TopicCards\Interfaces\TopicMapInterface;
 class OccurrenceTest extends TestCase
 {
     /** @var TopicMapInterface */
-    protected static $topicmap;
+    protected static $topicMap;
 
 
     public static function setUpBeforeClass()
     {
-        global $topicmap;
+        global $topicMap;
 
-        self::$topicmap = $topicmap;
+        self::$topicMap = $topicMap;
     }
 
 
     public function testNewTypeAndDatatype()
     {
-        $occurrence_type = 'http://example.com/schema/occurrenceType' . __FILE__;
-        $datatype = 'http://example.com/schema/datatype' . __FILE__;
+        $occurrenceType = 'http://example.com/schema/occurrenceType' . __FILE__;
+        $dataType = 'http://example.com/schema/datatype' . __FILE__;
 
-        $topic = self::$topicmap->newTopic();
+        $topic = self::$topicMap->newTopic();
 
         $occurrence = $topic->newOccurrence();
 
-        $occurrence->setType($occurrence_type);
-        $occurrence->setDatatype($datatype);
+        $occurrence->setType($occurrenceType);
+        $occurrence->setDataType($dataType);
         $occurrence->setValue('hello world');
 
         $ok = $topic->save();
@@ -39,7 +39,7 @@ class OccurrenceTest extends TestCase
 
         $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
 
-        $occurrence = $topic->getFirstOccurrence(['type' => $occurrence_type]);
+        $occurrence = $topic->getFirstOccurrence(['type' => $occurrenceType]);
 
         $expected =
             [
@@ -48,34 +48,34 @@ class OccurrenceTest extends TestCase
                 'scope' => []
             ];
 
-        $occurrence_data = $occurrence->getAll();
+        $occurrenceData = $occurrence->getAll();
 
-        $this->assertArraySubset($expected, $occurrence_data);
+        $this->assertArraySubset($expected, $occurrenceData);
 
-        $occurrence_type_topic = self::$topicmap->newTopic();
-        $ok = $occurrence_type_topic->load($occurrence->getTypeId());
+        $occurrenceTypeTopic = self::$topicMap->newTopic();
+        $ok = $occurrenceTypeTopic->load($occurrence->getTypeId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Occurrence type topic load failed');
 
         $this->assertContains
         (
             TopicMapInterface::SUBJECT_OCCURRENCE_TYPE,
-            $occurrence_type_topic->getTypes(),
+            $occurrenceTypeTopic->getTypes(),
             'New occurrence type topic has not been marked as occurrence type.'
         );
 
-        $datatype_topic = self::$topicmap->newTopic();
-        $ok = $datatype_topic->load($occurrence->getDatatypeId());
+        $dataTypeTopic = self::$topicMap->newTopic();
+        $ok = $dataTypeTopic->load($occurrence->getDataTypeId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Datatype topic load failed');
 
         $this->assertContains
         (
             TopicMapInterface::SUBJECT_DATATYPE,
-            $datatype_topic->getTypes(),
+            $dataTypeTopic->getTypes(),
             'New datatype has not been marked as datatype.'
         );
 
         $topic->delete();
-        $datatype_topic->delete();
-        $occurrence_type_topic->delete();
+        $dataTypeTopic->delete();
+        $occurrenceTypeTopic->delete();
     }
 }

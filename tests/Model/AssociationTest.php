@@ -14,28 +14,28 @@ class AssociationTest extends TestCase
     const TOPIC_B = 'http://example.com/topic/b' . __FILE__;
 
     /** @var TopicMapInterface */
-    protected static $topicmap;
+    protected static $topicMap;
 
 
     public static function setUpBeforeClass()
     {
-        global $topicmap;
+        global $topicMap;
 
-        self::$topicmap = $topicmap;
+        self::$topicMap = $topicMap;
     }
 
 
     protected function setUp()
     {
-        self::$topicmap->clearCache();
+        self::$topicMap->clearCache();
 
-        $topic_a = self::$topicmap->newTopic();
-        $topic_a->setSubjectIdentifiers([self::TOPIC_A]);
-        $topic_a->save();
+        $topicA = self::$topicMap->newTopic();
+        $topicA->setSubjectIdentifiers([self::TOPIC_A]);
+        $topicA->save();
 
-        $topic_b = self::$topicmap->newTopic();
-        $topic_b->setSubjectIdentifiers([self::TOPIC_B]);
-        $topic_b->save();
+        $topicB = self::$topicMap->newTopic();
+        $topicB->setSubjectIdentifiers([self::TOPIC_B]);
+        $topicB->save();
     }
 
 
@@ -50,18 +50,18 @@ class AssociationTest extends TestCase
             ];
 
         foreach ($subjects as $subject) {
-            $topic = self::$topicmap->newTopic();
+            $topic = self::$topicMap->newTopic();
             $ok = $topic->loadBySubject($subject);
 
             if ($ok < 0) {
                 continue;
             }
 
-            $association_ids = self::$topicmap->getAssociationIds(['role_player_id' => $topic->getId()]);
+            $associationIds = self::$topicMap->getAssociationIds(['role_player_id' => $topic->getId()]);
 
-            foreach ($association_ids as $association_id) {
-                $association = self::$topicmap->newAssociation();
-                $association->load($association_id);
+            foreach ($associationIds as $associationId) {
+                $association = self::$topicMap->newAssociation();
+                $association->load($associationId);
                 $ok = $association->delete();
             }
 
@@ -72,13 +72,13 @@ class AssociationTest extends TestCase
 
     public function testTypeRequired()
     {
-        $association = self::$topicmap->newAssociation();
+        $association = self::$topicMap->newAssociation();
 
-        $role_a = $association->newRole();
-        $role_a->setPlayer(self::TOPIC_A);
+        $roleA = $association->newRole();
+        $roleA->setPlayer(self::TOPIC_A);
 
-        $role_b = $association->newRole();
-        $role_b->setPlayer(self::TOPIC_B);
+        $roleB = $association->newRole();
+        $roleB->setPlayer(self::TOPIC_B);
 
         $this->expectException(TopicCardsException::class);
         $this->expectExceptionCode(TypedInterface::ERR_TYPE_MISSING);
@@ -89,14 +89,14 @@ class AssociationTest extends TestCase
 
     public function testRoleTypeRequired()
     {
-        $association = self::$topicmap->newAssociation();
+        $association = self::$topicMap->newAssociation();
         $association->setType(self::ASSOCIATION_TYPE);
 
-        $role_a = $association->newRole();
-        $role_a->setPlayer(self::TOPIC_A);
+        $roleA = $association->newRole();
+        $roleA->setPlayer(self::TOPIC_A);
 
-        $role_b = $association->newRole();
-        $role_b->setPlayer(self::TOPIC_B);
+        $roleB = $association->newRole();
+        $roleB->setPlayer(self::TOPIC_B);
 
         $this->expectException(TopicCardsException::class);
         $this->expectExceptionCode(TypedInterface::ERR_TYPE_MISSING);
@@ -107,16 +107,16 @@ class AssociationTest extends TestCase
 
     public function testRoleTypePresent()
     {
-        $association = self::$topicmap->newAssociation();
+        $association = self::$topicMap->newAssociation();
         $association->setType(self::ASSOCIATION_TYPE);
 
-        $role_a = $association->newRole();
-        $role_a->setPlayer(self::TOPIC_A);
-        $role_a->setType(self::ROLE_TYPE);
+        $roleA = $association->newRole();
+        $roleA->setPlayer(self::TOPIC_A);
+        $roleA->setType(self::ROLE_TYPE);
 
-        $role_b = $association->newRole();
-        $role_b->setPlayer(self::TOPIC_B);
-        $role_b->setType(self::ROLE_TYPE);
+        $roleB = $association->newRole();
+        $roleB->setPlayer(self::TOPIC_B);
+        $roleB->setType(self::ROLE_TYPE);
 
         $ok = $association->save();
         $this->assertGreaterThanOrEqual(0, $ok, 'Association save failed');

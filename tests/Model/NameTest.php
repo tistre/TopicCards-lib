@@ -7,20 +7,20 @@ use TopicCards\Interfaces\TopicMapInterface;
 class NameTest extends TestCase
 {
     /** @var TopicMapInterface */
-    protected static $topicmap;
+    protected static $topicMap;
 
 
     public static function setUpBeforeClass()
     {
-        global $topicmap;
+        global $topicMap;
 
-        self::$topicmap = $topicmap;
+        self::$topicMap = $topicMap;
     }
 
 
     public function testNewTypeAndDatatype()
     {
-        $topic = self::$topicmap->newTopic();
+        $topic = self::$topicMap->newTopic();
 
         $name = $topic->newName();
         $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
@@ -43,18 +43,18 @@ class NameTest extends TestCase
                 'scope' => false
             ];
 
-        $name_data = $name->getAll();
+        $nameData = $name->getAll();
 
-        $this->assertArraySubset($expected, $name_data);
+        $this->assertArraySubset($expected, $nameData);
 
-        $name_type_topic = self::$topicmap->newTopic();
-        $ok = $name_type_topic->load($name->getTypeId());
+        $nameTypeTopic = self::$topicMap->newTopic();
+        $ok = $nameTypeTopic->load($name->getTypeId());
         $this->assertGreaterThanOrEqual(0, $ok, 'Name type topic load failed');
 
         $this->assertContains
         (
             TopicMapInterface::SUBJECT_TOPIC_NAME_TYPE,
-            $name_type_topic->getTypes(),
+            $nameTypeTopic->getTypes(),
             'New name type topic has not been marked as name type.'
         );
 

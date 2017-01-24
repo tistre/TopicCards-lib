@@ -7,20 +7,20 @@ use TopicCards\Interfaces\TopicMapInterface;
 class TopicTest extends TestCase
 {
     /** @var TopicMapInterface */
-    protected static $topicmap;
+    protected static $topicMap;
 
 
     public static function setUpBeforeClass()
     {
-        global $topicmap;
+        global $topicMap;
 
-        self::$topicmap = $topicmap;
+        self::$topicMap = $topicMap;
     }
     
 
     public function testCleanGetAll()
     {
-        $topic = self::$topicmap->newTopic();
+        $topic = self::$topicMap->newTopic();
 
         $expected =
             [
@@ -43,7 +43,7 @@ class TopicTest extends TestCase
 
     public function testCreateBlank()
     {
-        $topic = self::$topicmap->newTopic();
+        $topic = self::$topicMap->newTopic();
 
         $ok = $topic->save();
 
