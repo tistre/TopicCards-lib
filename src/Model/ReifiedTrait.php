@@ -10,7 +10,7 @@ use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
-trait Reified
+trait ReifiedTrait
 {
     protected $reifier = false;
 

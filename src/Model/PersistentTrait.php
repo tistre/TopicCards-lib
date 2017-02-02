@@ -8,7 +8,7 @@ use TopicCards\Interfaces\PersistentSearchAdapterInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
 
-trait Persistent
+trait PersistentTrait
 {
     protected $created = false;
     protected $updated = false;

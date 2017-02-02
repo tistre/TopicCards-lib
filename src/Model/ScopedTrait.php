@@ -3,7 +3,7 @@
 namespace TopicCards\Model;
 
 
-trait Scoped
+trait ScopedTrait
 {
     protected $scope = [];
 

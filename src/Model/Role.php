@@ -11,8 +11,7 @@ use TopicCards\Interfaces\TypedInterface;
 
 class Role extends Core implements RoleInterface
 {
-    // TODO use , RoleDbAdapter
-    use Reified, Typed;
+    use ReifiedTrait, TypedTrait;
 
     protected $player = false;
     

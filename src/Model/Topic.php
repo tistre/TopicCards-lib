@@ -14,7 +14,7 @@ use TopicCards\Search\TopicSearchAdapter;
 
 class Topic extends Core implements TopicInterface
 {
-    use Persistent;
+    use PersistentTrait;
 
     protected $subjectIdentifiers = [];
     protected $subjectLocators = [];

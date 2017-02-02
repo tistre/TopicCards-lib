@@ -3,11 +3,8 @@
 namespace TopicCards\Model;
 
 
-trait Typed
+trait TypedTrait
 {
-    // TODO
-    // use TypedDbAdapter;
-
     protected $type = false;
 
 

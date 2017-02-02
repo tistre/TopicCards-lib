@@ -14,7 +14,7 @@ use TopicCards\Search\AssociationSearchAdapter;
 
 class Association extends Core implements AssociationInterface
 {
-    use Persistent, Reified, Scoped, Typed;
+    use PersistentTrait, ReifiedTrait, ScopedTrait, TypedTrait;
     
     /** @var RoleInterface[] */
     protected $roles = [ ];

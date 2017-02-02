@@ -10,7 +10,7 @@ use TopicCards\Interfaces\TopicMapInterface;
 
 class Name extends Core implements NameInterface
 {
-    use Reified, Scoped, Typed;
+    use ReifiedTrait, ScopedTrait, TypedTrait;
 
     protected $value = false;
 
