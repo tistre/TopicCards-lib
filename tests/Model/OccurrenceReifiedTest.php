@@ -3,7 +3,7 @@
 use PHPUnit\Framework\TestCase;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
-use TopicCards\Utils\DatatypeUtils;
+use TopicCards\Utils\DataTypeUtils;
 
 
 class OccurrenceReifiedTest extends TestCase
@@ -30,7 +30,7 @@ class OccurrenceReifiedTest extends TestCase
 
         $occurrence = $topic->newOccurrence();
         $occurrence->setType($occurrenceType);
-        $occurrence->setDataType(DatatypeUtils::DATATYPE_STRING);
+        $occurrence->setDataType(DataTypeUtils::DATATYPE_STRING);
         $occurrence->setValue('hello world');
 
         $reifierTopic = $occurrence->newReifierTopic();
