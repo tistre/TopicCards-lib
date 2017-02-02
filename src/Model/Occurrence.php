@@ -15,6 +15,7 @@ class Occurrence extends Core implements OccurrenceInterface
 
     protected $value = false;
     protected $dataType = false;
+    protected $language = false;
 
     /** @var OccurrenceDbAdapterInterface */
     protected $dbAdapter;
@@ -88,6 +89,18 @@ class Occurrence extends Core implements OccurrenceInterface
     }
 
 
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
+
+
     public function validate(&$msgHtml)
     {
         $ok = DataTypeUtils::validate
@@ -108,7 +121,8 @@ class Occurrence extends Core implements OccurrenceInterface
         $result =
             [
                 'value' => $this->getValue(),
-                'datatype' => $this->getDataTypeId()
+                'datatype' => $this->getDataTypeId(),
+                'language' => $this->getLanguage()
             ];
 
         $result = array_merge($result, $this->getAllId());
@@ -128,11 +142,19 @@ class Occurrence extends Core implements OccurrenceInterface
         $data = array_merge(
             [
                 'value' => false,
-                'datatype' => false
+                'datatype' => false,
+                'language' => false
             ], $data);
 
         $ok = $this->setValue($data['value']);
-        $ok = $this->setDataTypeId($data['datatype']);
+
+        if ($ok >= 0) {
+            $ok = $this->setDataTypeId($data['datatype']);
+        }
+
+        if ($ok >= 0) {
+            $ok = $this->setLanguage($data['language']);
+        }
 
         if ($ok >= 0) {
             $ok = $this->setAllId($data);

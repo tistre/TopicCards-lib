@@ -13,6 +13,7 @@ class Name extends Core implements NameInterface
     use ReifiedTrait, ScopedTrait, TypedTrait;
 
     protected $value = false;
+    protected $language = false;
 
     /** @var NameDbAdapterInterface */
     protected $dbAdapter;
@@ -54,11 +55,24 @@ class Name extends Core implements NameInterface
     }
 
 
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+    }
+    
+    
     public function getAll()
     {
         $result =
             [
-                'value' => $this->getValue()
+                'value' => $this->getValue(),
+                'language' => $this->getLanguage()
             ];
 
         $result = array_merge($result, $this->getAllId());
@@ -77,11 +91,16 @@ class Name extends Core implements NameInterface
     {
         $data = array_merge(
             [
-                'value' => false
+                'value' => false,
+                'language' => false
             ], $data);
 
         $ok = $this->setValue($data['value']);
 
+        if ($ok >= 0) {
+            $ok = $this->setLanguage($data['language']);
+        }
+        
         if ($ok >= 0) {
             $ok = $this->setAllId($data);
         }

@@ -70,6 +70,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
                     'id' => ($node->hasValue('id') ? $node->value('id') : false),
                     'value' => ($node->hasValue('value') ? $node->value('value') : false),
                     'datatype' => ($node->hasValue('datatype') ? $node->value('datatype') : false),
+                    'language' => ($node->hasValue('language') ? $node->value('language') : false),
                     'scope' => [],
                     'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false)
                 ];
@@ -186,6 +187,10 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
             $data['scope'] = [$data['scope']];
         }
 
+        if (! isset($data['language'])) {
+            $data['language'] = false;
+        }
+
         if (! isset($data['reifier'])) {
             $data['reifier'] = false;
         }
@@ -195,6 +200,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
                 'id' => $data['id'],
                 'value' => $data['value'],
                 'datatype' => $data['datatype'],
+                'language' => $data['language'],
                 'scope' => $data['scope'],
                 'reifier' => $data['reifier']
             ];
@@ -294,7 +300,7 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
 
         $propertyData = [];
 
-        foreach (['value', 'datatype', 'scope', 'reifier'] as $key) {
+        foreach (['value', 'datatype', 'language', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
             if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {

@@ -2,6 +2,7 @@
 
 use PHPUnit\Framework\TestCase;
 use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Utils\DataTypeUtils;
 
 
 class OccurrenceTest extends TestCase
@@ -77,5 +78,44 @@ class OccurrenceTest extends TestCase
         $topic->delete();
         $dataTypeTopic->delete();
         $occurrenceTypeTopic->delete();
+    }
+    
+    
+    public function testLanguage()
+    {
+        $occurrenceType = 'http://schema.org/text';
+        
+        $topic = self::$topicMap->newTopic();
+
+        $occurrence = $topic->newOccurrence();
+
+        $occurrence->setType($occurrenceType);
+        $occurrence->setDataType(DataTypeUtils::DATATYPE_STRING);
+        $occurrence->setValue('hello world');
+        $occurrence->setLanguage('en');
+
+        $ok = $topic->save();
+
+        $this->assertGreaterThanOrEqual(0, $ok, 'Topic save failed');
+
+        $ok = $topic->load($topic->getId());
+
+        $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
+
+        $occurrence = $topic->getFirstOccurrence(['type' => $occurrenceType]);
+
+        $expected =
+            [
+                'value' => 'hello world',
+                'language' => 'en',
+                'reifier' => false,
+                'scope' => []
+            ];
+
+        $occurrenceData = $occurrence->getAll();
+
+        $this->assertArraySubset($expected, $occurrenceData);
+
+        $topic->delete();
     }
 }

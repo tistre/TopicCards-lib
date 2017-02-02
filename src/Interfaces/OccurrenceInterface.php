@@ -11,4 +11,6 @@ interface OccurrenceInterface extends CoreInterface, ReifiedInterface, ScopedInt
     public function setDataTypeId($topic_id);
     public function getDataType();
     public function setDataType($topicSubject);
+    public function getLanguage();
+    public function setLanguage($language);
 }

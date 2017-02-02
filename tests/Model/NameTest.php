@@ -60,4 +60,39 @@ class NameTest extends TestCase
 
         $topic->delete();
     }
+    
+    
+    public function testLanguage()
+    {
+        $topic = self::$topicMap->newTopic();
+
+        $name = $topic->newName();
+        $name->setType(TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE);
+        $name->setValue('hello world');
+        $name->setLanguage('en');
+
+        $ok = $topic->save();
+
+        $this->assertGreaterThanOrEqual(0, $ok, 'Topic save failed');
+
+        $ok = $topic->load($topic->getId());
+
+        $this->assertGreaterThanOrEqual(0, $ok, 'Topic load after save failed');
+
+        $name = $topic->getFirstName(['type' => TopicMapInterface::SUBJECT_DEFAULT_NAME_TYPE]);
+
+        $expected =
+            [
+                'value' => 'hello world',
+                'language' => 'en',
+                'reifier' => false,
+                'scope' => false
+            ];
+
+        $nameData = $name->getAll();
+
+        $this->assertArraySubset($expected, $nameData);
+
+        $topic->delete();
+    }
 }

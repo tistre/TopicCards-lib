@@ -7,4 +7,6 @@ interface NameInterface extends CoreInterface, ReifiedInterface, ScopedInterface
 {
     public function getValue();
     public function setValue($str);
+    public function getLanguage();
+    public function setLanguage($language);
 }

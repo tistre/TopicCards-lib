@@ -69,6 +69,7 @@ class NameDbAdapter implements NameDbAdapterInterface
                 [
                     'id' => ($node->hasValue('id') ? $node->value('id') : false),
                     'value' => ($node->hasValue('value') ? $node->value('value') : false),
+                    'language' => ($node->hasValue('language') ? $node->value('language') : false),
                     'scope' => [],
                     'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false),
                 ];
@@ -183,6 +184,10 @@ class NameDbAdapter implements NameDbAdapterInterface
             $data['id'] = $this->topicMap->createId();
         }
 
+        if (empty($data['language'])) {
+            $data['language'] = false;
+        }
+
         if (empty($data['scope'])) {
             $data['scope'] = [];
         } elseif (! is_array($data['scope'])) {
@@ -197,6 +202,7 @@ class NameDbAdapter implements NameDbAdapterInterface
             [
                 'id' => $data['id'],
                 'value' => $data['value'],
+                'language' => $data['language'],
                 'scope' => $data['scope'],
                 'reifier' => $data['reifier']
             ];
@@ -289,7 +295,7 @@ class NameDbAdapter implements NameDbAdapterInterface
 
         $propertyData = [];
 
-        foreach (['value', 'scope', 'reifier'] as $key) {
+        foreach (['value', 'language', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
             if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {
