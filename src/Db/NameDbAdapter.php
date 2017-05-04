@@ -69,6 +69,7 @@ class NameDbAdapter implements NameDbAdapterInterface
                 [
                     'id' => ($node->hasValue('id') ? $node->value('id') : false),
                     'value' => ($node->hasValue('value') ? $node->value('value') : false),
+                    'datatype' => ($node->hasValue('datatype') ? $node->value('datatype') : false),
                     'language' => ($node->hasValue('language') ? $node->value('language') : false),
                     'scope' => [],
                     'reifier' => ($node->hasValue('reifier') ? $node->value('reifier') : false),
@@ -202,6 +203,7 @@ class NameDbAdapter implements NameDbAdapterInterface
             [
                 'id' => $data['id'],
                 'value' => $data['value'],
+                'datatype' => $data['datatype'],
                 'language' => $data['language'],
                 'scope' => $data['scope'],
                 'reifier' => $data['reifier']
@@ -239,6 +241,13 @@ class NameDbAdapter implements NameDbAdapterInterface
             $this->topicMap,
             $data['scope'],
             TopicMapInterface::SUBJECT_SCOPE
+        ));
+
+        $typeQueries = array_merge($typeQueries, DbUtils::tmConstructLabelQueries
+        (
+            $this->topicMap,
+            [$data['datatype']],
+            TopicMapInterface::SUBJECT_DATATYPE
         ));
 
         foreach ($typeQueries as $typeQuery) {
@@ -295,7 +304,7 @@ class NameDbAdapter implements NameDbAdapterInterface
 
         $propertyData = [];
 
-        foreach (['value', 'language', 'scope', 'reifier'] as $key) {
+        foreach (['value', 'datatype', 'language', 'scope', 'reifier'] as $key) {
             // Skip unmodified values
 
             if (isset($previousData[$key]) && (serialize($previousData[$key]) === serialize($data[$key]))) {

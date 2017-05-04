@@ -10,10 +10,9 @@ use TopicCards\Interfaces\TopicMapInterface;
 
 class Name extends Core implements NameInterface
 {
-    use ReifiedTrait, ScopedTrait, TypedTrait;
+    use DataTypeTrait, LanguageTrait, ReifiedTrait, ScopedTrait, TypedTrait;
 
     protected $value = false;
-    protected $language = false;
 
     /** @var NameDbAdapterInterface */
     protected $dbAdapter;
@@ -55,27 +54,24 @@ class Name extends Core implements NameInterface
     }
 
 
-    public function getLanguage()
+    public function validate(&$msgHtml)
     {
-        return $this->language;
+        return $this->validateDataType($msgHtml);
     }
 
 
-    public function setLanguage($language)
-    {
-        $this->language = $language;
-    }
-    
-    
     public function getAll()
     {
         $result =
             [
-                'value' => $this->getValue(),
-                'language' => $this->getLanguage()
+                'value' => $this->getValue()
             ];
 
         $result = array_merge($result, $this->getAllId());
+
+        $result = array_merge($result, $this->getAllLanguage());
+
+        $result = array_merge($result, $this->getAllDataType());
 
         $result = array_merge($result, $this->getAllTyped());
 
@@ -91,18 +87,21 @@ class Name extends Core implements NameInterface
     {
         $data = array_merge(
             [
-                'value' => false,
-                'language' => false
+                'value' => false
             ], $data);
 
         $ok = $this->setValue($data['value']);
 
         if ($ok >= 0) {
-            $ok = $this->setLanguage($data['language']);
-        }
-        
-        if ($ok >= 0) {
             $ok = $this->setAllId($data);
+        }
+
+        if ($ok >= 0) {
+            $ok = $this->setAllLanguage($data);
+        }
+
+        if ($ok >= 0) {
+            $ok = $this->setAllDataType($data);
         }
 
         if ($ok >= 0) {

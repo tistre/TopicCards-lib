@@ -90,7 +90,6 @@ class OccurrenceTest extends TestCase
         $occurrence = $topic->newOccurrence();
 
         $occurrence->setType($occurrenceType);
-        $occurrence->setDataType(DataTypeUtils::DATATYPE_STRING);
         $occurrence->setValue('hello world');
         $occurrence->setLanguage('en');
 
@@ -107,6 +106,7 @@ class OccurrenceTest extends TestCase
         $expected =
             [
                 'value' => 'hello world',
+                'datatype' => self::$topicMap->getTopicIdBySubject(DataTypeUtils::DATATYPE_STRING),
                 'language' => 'en',
                 'reifier' => false,
                 'scope' => []
