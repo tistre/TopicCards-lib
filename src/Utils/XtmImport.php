@@ -147,7 +147,30 @@ class XtmImport
             $name->setScopeIds($this->getScope($node));
 
             foreach ($node->getElementsByTagName('value') as $subNode) {
+                /** @var \DOMElement $subNode */
+                $value = $subNode->nodeValue;
+
+                if (strlen($value) === 0) {
+                    continue 2;
+                }
+
                 $name->setValue($subNode->nodeValue);
+                
+                if ($subNode->hasAttribute('datatype')) {
+                    $dataType = $subNode->getAttribute('datatype');
+                    
+                    if (strlen($dataType) > 0) {
+                        $name->setDataType($dataType);
+                    }
+                }
+
+                if ($subNode->hasAttribute('xml:lang')) {
+                    $language = $subNode->getAttribute('xml:lang');
+                    
+                    if (strlen($language) > 0) {
+                        $name->setLanguage($language);
+                    }
+                }
             }
 
             $names[] = $name;
@@ -173,7 +196,11 @@ class XtmImport
             foreach ($node->getElementsByTagName('resourceData') as $subNode) {
                 /** @var \DOMElement $subNode */
 
-                $dataType = $subNode->getAttribute('datatype');
+                if ($subNode->hasAttribute('datatype')) {
+                    $dataType = $subNode->getAttribute('datatype');
+                } else {
+                    $dataType = DataTypeUtils::DATATYPE_STRING;
+                }
 
                 $value = DataTypeUtils::getValueFromDomNode($subNode, $dataType);
 
@@ -184,6 +211,14 @@ class XtmImport
                 $occurrence->setValue($value);
                 $occurrence->setDataType($dataType);
 
+                if ($subNode->hasAttribute('xml:lang')) {
+                    $language = $subNode->getAttribute('xml:lang');
+
+                    if (strlen($language) > 0) {
+                        $occurrence->setLanguage($language);
+                    }
+                }
+                
                 break;
             }
 
