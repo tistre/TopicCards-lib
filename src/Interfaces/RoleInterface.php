@@ -16,7 +16,6 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
      *
      * @return string Topic ID
      */
-
     public function getPlayerId();
 
 
@@ -26,7 +25,6 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
      * @param string $topicId Topic ID
      * @return int Zero or greater on success
      */
-
     public function setPlayerId($topicId);
 
 
@@ -35,7 +33,6 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
      *
      * @return string Topic subject
      */
-
     public function getPlayer();
 
 
@@ -45,6 +42,5 @@ interface RoleInterface extends CoreInterface, ReifiedInterface, TypedInterface
      * @param string $topicSubject Topic subject
      * @return int Zero or greater on success
      */
-
     public function setPlayer($topicSubject);
 }

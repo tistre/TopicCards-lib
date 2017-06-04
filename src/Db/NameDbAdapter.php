@@ -4,6 +4,8 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\NameInterface;
 use TopicCards\Interfaces\NameDbAdapterInterface;
 use TopicCards\Interfaces\TopicInterface;
@@ -19,6 +21,11 @@ class NameDbAdapter implements NameDbAdapterInterface
     protected $topicMap;
 
 
+    /**
+     * NameDbAdapter constructor.
+     *
+     * @param NameInterface $name
+     */
     public function __construct(NameInterface $name)
     {
         $this->name = $name;
@@ -26,6 +33,10 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return array|int Negative number on error
+     */
     public function selectAll(array $filters)
     {
         $logger = $this->topicMap->getLogger();
@@ -34,16 +45,25 @@ class NameDbAdapter implements NameDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         if (! empty($filters['reifier'])) {
-            // TODO to be implemented
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: "reifier" filter not implemented yet.', __METHOD__)
+            );
         }
 
         if (! isset($filters['topic'])) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: Required "topic" filter is empty.', __METHOD__)
+            );
         }
 
         $query = 'MATCH (t:Topic { id: {id} })-[:hasName]->(node:Name) RETURN node';
@@ -54,10 +74,16 @@ class NameDbAdapter implements NameDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];
@@ -102,33 +128,36 @@ class NameDbAdapter implements NameDbAdapterInterface
     }
 
 
+    /**
+     * @param string $topic_id
+     * @param array $data
+     * @param Transaction $transaction
+     * @return void
+     */
     public function insertAll($topicId, array $data, Transaction $transaction)
     {
         foreach ($data as $nameData) {
             $this->insertName($topicId, $nameData, $transaction);
         }
-
-        // TODO: error handling
-
-        return 1;
     }
 
 
+    /**
+     * @param string $topic_id
+     * @param array $data
+     * @param array $previous_data
+     * @param Transaction $transaction
+     * @return void
+     */
     public function updateAll($topicId, array $data, array $previousData, Transaction $transaction)
     {
-        $ok = 1;
         $previousNameData = [];
 
         foreach ($data as $nameData) {
             // No ID? Must be a new name
 
             if (empty($nameData['id'])) {
-                $ok = $this->insertName($topicId, $nameData, $transaction);
-
-                if ($ok < 0) {
-                    return $ok;
-                }
-
+                $this->insertName($topicId, $nameData, $transaction);
                 continue;
             }
 
@@ -144,41 +173,40 @@ class NameDbAdapter implements NameDbAdapterInterface
             }
 
             if (! $found) {
-                $ok = $this->insertName($topicId, $nameData, $transaction);
-
-                if ($ok < 0) {
-                    return $ok;
-                }
-
+                $this->insertName($topicId, $nameData, $transaction);
                 continue;
             }
 
             // It's an updated name...
 
-            $ok = $this->updateName($topicId, $nameData, $previousNameData, $transaction);
-
-            if ($ok < 0) {
-                return $ok;
-            }
+            $this->updateName($topicId, $nameData, $previousNameData, $transaction);
 
             // TODO: handle name deletion, or empty value
         }
-
-        // TODO: error handling
-        return $ok;
     }
 
 
+    /**
+     * @param $topicId
+     * @param array $data
+     * @param Transaction $transaction
+     * @return void
+     * @throws TopicCardsLogicException
+     */
     protected function insertName($topicId, array $data, Transaction $transaction)
     {
         $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['value'])) || (strlen($data['value']) === 0)) {
-            return 0;
+            return;
         }
 
         if (empty($data['type'])) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                '%s: Cannot add name to topic <%s>, required "type" data is empty.',
+                __METHOD__, $topicId
+            );
         }
 
         if (empty($data['id'])) {
@@ -270,12 +298,16 @@ class NameDbAdapter implements NameDbAdapterInterface
                 $transaction->push($query['query'], $query['bind']);
             }
         }
-
-        // TODO: error handling
-        return 1;
     }
 
 
+    /**
+     * @param $topicId
+     * @param array $data
+     * @param array $previousData
+     * @param Transaction $transaction
+     * @return void
+     */
     protected function updateName($topicId, array $data, array $previousData, Transaction $transaction)
     {
         $logger = $this->topicMap->getLogger();
@@ -288,8 +320,7 @@ class NameDbAdapter implements NameDbAdapterInterface
 
             $transaction->push($query, $bind);
 
-            // TODO: error handling
-            return 1;
+            return;
         }
 
         if (empty($data['scope'])) {
@@ -401,8 +432,5 @@ class NameDbAdapter implements NameDbAdapterInterface
                 $transaction->push($query['query'], $query['bind']);
             }
         }
-        
-        // TODO: error handling
-        return 1;
     }
 }

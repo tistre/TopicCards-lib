@@ -107,12 +107,16 @@ class Association extends Core implements AssociationInterface
         
         return $result;
     }
-    
-    
+
+
+    /**
+     * @param RoleInterface[] $roles
+     * @return self
+     */
     public function setRoles(array $roles)
     {
         $this->roles = $roles;
-        return 1;
+        return $this;
     }
 
 
@@ -205,8 +209,12 @@ class Association extends Core implements AssociationInterface
 
         return $result;
     }
-    
-    
+
+
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAll(array $data)
     {
         $data = array_merge(
@@ -215,15 +223,10 @@ class Association extends Core implements AssociationInterface
         ], $data);
         
         $this->setAllId($data);
-        
         $this->setAllPersistent($data);
-        
         $this->setAllTyped($data);
-            
         $this->setAllReified($data);
-            
         $this->setAllScoped($data);
-        
         $this->setRoles([ ]);
         
         foreach ($data[ 'roles' ] as $role_data)
@@ -232,6 +235,6 @@ class Association extends Core implements AssociationInterface
             $role->setAll($role_data);
         }
         
-        return 1;
+        return $this;
     }
 }

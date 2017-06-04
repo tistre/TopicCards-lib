@@ -5,6 +5,7 @@ namespace TopicCards\Utils;
 use TopicCards\Interfaces\AssociationInterface;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
+use TopicCards\Model\Name;
 
 
 class XtmExport
@@ -143,10 +144,16 @@ class XtmExport
     }
 
 
+    /**
+     * @param Name[] $names
+     * @param int $indent
+     * @return string
+     */
     protected function exportNames(array $names, $indent)
     {
         $result = '';
 
+        /** @var Name $name */
         foreach ($names as $name) {
             $result .= sprintf
             (
@@ -158,11 +165,31 @@ class XtmExport
             $result .= $this->exportType($name->getTypeId(), ($indent + 1));
             $result .= $this->exportScope($name->getScopeIds(), ($indent + 1));
 
+            // ToDo: Add datatype, xml:lang
+            
+            $valueAttribs = '';
+            $dataType = $name->getDataType();
+            
+            $valueAttribs .= sprintf
+            (
+                ' datatype="%s"',
+                htmlspecialchars($dataType)
+            );
+            
+            if (strlen($name->getLanguage()) > 0) {
+                $valueAttribs .= sprintf
+                (
+                    ' xml:lang="%s"', 
+                    htmlspecialchars($name->getLanguage())
+                );
+            }
+
             $result .= sprintf
             (
-                "%s<value>%s</value>\n",
+                "%s<value%s>%s</value>\n",
                 str_repeat('  ', ($indent + 1)),
-                htmlspecialchars($name->getValue())
+                $valueAttribs,
+                DataTypeUtils::valueToXml($name->getValue(), $dataType)
             );
 
             $result .= sprintf
@@ -223,6 +250,8 @@ class XtmExport
                 $dataType = '#' . $occurrence->getDataTypeId();
             }
 
+            // ToDo: Add xml:lang
+            
             $result .= sprintf
             (
                 '%s<resourceData datatype="%s">%s</resourceData>' . "\n",

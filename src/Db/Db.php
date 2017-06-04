@@ -6,6 +6,7 @@ use GraphAware\Common\Transaction\TransactionInterface;
 use GraphAware\Neo4j\Client\ClientBuilder;
 use GraphAware\Neo4j\Client\ClientInterface;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
+use TopicCards\Exception\TopicCardsLogicException;
 use TopicCards\Interfaces\DbInterface;
 
 
@@ -77,37 +78,49 @@ class Db implements DbInterface
 
     /**
      * @param Transaction $transaction
-     * @return int
+     * @return void
      */
     public function commit(Transaction $transaction)
     {
         if ($this->transactionLevel <= 0) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf
+                (
+                    '%s: Transaction level is less than zero (%s).',
+                    __METHOD__,$this->transactionLevel
+                )
+            );
         }
 
         $this->transactionLevel--;
 
         if ($this->transactionLevel > 0) {
-            return 0;
+            return;
         }
 
         $transaction->commit();
 
         // We intentionally don't reset $this->transaction here
         // since the caller might still want to read from the transaction
-
-        return 1;
     }
 
 
     /**
      * @param Transaction $transaction
-     * @return int
+     * @return void
      */
     public function rollBack(Transaction $transaction)
     {
         if ($this->transactionLevel <= 0) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf
+                (
+                    '%s: Transaction level is less than zero (%s).', 
+                    __METHOD__,$this->transactionLevel
+                )
+            );
         }
 
         $transaction->rollback();
@@ -118,7 +131,5 @@ class Db implements DbInterface
 
         $this->connection = false;
         $this->getConnection();
-
-        return -1;
     }
 }

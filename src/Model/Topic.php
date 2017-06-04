@@ -3,6 +3,8 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\TopicDbAdapter;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\NameInterface;
 use TopicCards\Interfaces\OccurrenceInterface;
 use TopicCards\Interfaces\PersistentSearchAdapterInterface;
@@ -68,12 +70,16 @@ class Topic extends Core implements TopicInterface
     }
 
 
-    public function loadBySubject($uri)
+    /**
+     * @param string $topicSubject
+     * @return bool
+     */
+    public function loadBySubject($topicSubject)
     {
-        $id = $this->topicMap->getTopicIdBySubject($uri);
+        $id = $this->topicMap->getTopicIdBySubject($topicSubject);
 
         if (strlen($id) === 0) {
-            return -1;
+            return false;
         }
 
         return $this->load($id);
@@ -86,42 +92,63 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param string[] $strings
+     * @return self
+     */
     public function setSubjectIdentifiers(array $strings)
     {
         $this->subjectIdentifiers = $strings;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string[]
+     */
     public function getSubjectLocators()
     {
         return $this->subjectLocators;
     }
 
 
+    /**
+     * @param string[] $strings
+     * @return self
+     */
     public function setSubjectLocators(array $strings)
     {
         $this->subjectLocators = $strings;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string[]
+     */
     public function getTypeIds()
     {
         return $this->types;
     }
 
 
+    /**
+     * @param string[] $topicIds
+     * @return self
+     */
     public function setTypeIds(array $topicIds)
     {
         $this->types = $topicIds;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string[]
+     */
     public function getTypes()
     {
         $result = [];
@@ -134,43 +161,60 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param string[] $topicSubjects
+     * @return self
+     */
     public function setTypes(array $topicSubjects)
     {
         $topicIds = [];
-        $result = 1;
 
         foreach ($topicSubjects as $topicSubject) {
             $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
             if (strlen($topicId) === 0) {
-                $result = -1;
-            } else {
-                $topicIds[] = $topicId;
+                $errorMsg = sprintf
+                (
+                    '%s: Failed to get topic ID by subject <%s>.',
+                    __METHOD__,
+                    $topicSubject
+                );
+
+                throw new TopicCardsRuntimeException($errorMsg);
             }
+
+            $topicIds[] = $topicId;
         }
 
-        $ok = $this->setTypeIds($topicIds);
+        $this->setTypeIds($topicIds);
 
-        if ($ok < 0) {
-            $result = $ok;
-        }
-
-        return $result;
+        return $this;
     }
 
 
+    /**
+     * @param string $topicId
+     * @return bool
+     */
     public function hasTypeId($topicId)
     {
         return in_array($topicId, $this->types);
     }
 
 
+    /**
+     * @param string $topicSubject
+     * @return bool
+     */
     public function hasType($topicSubject)
     {
         return $this->hasTypeId($this->topicMap->getTopicIdBySubject($topicSubject));
     }
 
 
+    /**
+     * @return NameInterface
+     */
     public function newName()
     {
         $name = new Name($this->topicMap);
@@ -229,6 +273,10 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return NameInterface
+     */
     public function getFirstName(array $filters = [])
     {
         $names = $this->getNames($filters);
@@ -251,14 +299,21 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param NameInterface[] $names
+     * @return self
+     */
     public function setNames(array $names)
     {
         $this->names = $names;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string
+     */
     public function getLabel($preferredScopes = false)
     {
         if (! is_array($preferredScopes)) {
@@ -313,6 +368,9 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @return OccurrenceInterface
+     */
     public function newOccurrence()
     {
         $occurrence = new Occurrence($this->topicMap);
@@ -365,6 +423,10 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return OccurrenceInterface
+     */
     public function getFirstOccurrence(array $filters = [])
     {
         $occurrences = $this->getOccurrences($filters);
@@ -387,11 +449,15 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param OccurrenceInterface[] $occurrences
+     * @return self
+     */
     public function setOccurrences(array $occurrences)
     {
         $this->occurrences = $occurrences;
 
-        return 1;
+        return $this;
     }
 
 
@@ -406,10 +472,13 @@ class Topic extends Core implements TopicInterface
 
     /**
      * @param string $reifiesWhat
+     * @return self
      */
     public function setReifiesWhat($reifiesWhat)
     {
         $this->reifiesWhat = $reifiesWhat;
+        
+        return $this;
     }
 
 
@@ -424,13 +493,21 @@ class Topic extends Core implements TopicInterface
 
     /**
      * @param string $reifiesId
+     * @return self
      */
     public function setReifiesId($reifiesId)
     {
         $this->reifiesId = $reifiesId;
+        
+        return $this;
     }
 
 
+    /**
+     * @param string $reifiesWhat
+     * @param string $reifiesId
+     * @return bool
+     */
     public function isReifier(&$reifiesWhat, &$reifiesId)
     {
         $reifiesWhat = $this->getReifiesWhat();
@@ -440,6 +517,9 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @return mixed
+     */
     public function getReifiedObject()
     {
         return $this->dbAdapter->selectReifiedObject();
@@ -507,6 +587,10 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAll(array $data)
     {
         $data = array_merge(
@@ -521,15 +605,10 @@ class Topic extends Core implements TopicInterface
             ], $data);
 
         $this->setAllId($data);
-
         $this->setAllPersistent($data);
-
         $this->setTypeIds($data['types']);
-
         $this->setSubjectIdentifiers($data['subject_identifiers']);
-
         $this->setSubjectLocators($data['subject_locators']);
-
         $this->setNames([]);
 
         foreach ($data['names'] as $nameData) {
@@ -547,7 +626,7 @@ class Topic extends Core implements TopicInterface
         $this->setReifiesWhat($data['reifies_what']);
         $this->setReifiesId($data['reifies_id']);
 
-        return 1;
+        return $this;
     }
 
 

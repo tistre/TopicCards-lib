@@ -3,13 +3,14 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicDbAdapterInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Model\Association;
 use TopicCards\Model\Name;
 use TopicCards\Model\Occurrence;
-use TopicCards\Model\Role;
 use TopicCards\Model\Topic;
 
 
@@ -29,6 +30,10 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return array
+     */
     public function selectAll(array $filters)
     {
         $logger = $this->topicMap->getLogger();
@@ -37,7 +42,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query = 'MATCH (node:Topic { id: {id} }) RETURN node';
@@ -48,10 +57,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ), 
+                0, 
+                $exception
+            );
         }
 
         // TODO add error handling
@@ -109,6 +124,9 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     }
 
 
+    /**
+     * @return object
+     */
     public function selectReifiedObject()
     {
         $reifiesWhat = $this->topic->getReifiesWhat();
@@ -122,7 +140,15 @@ class TopicDbAdapter implements TopicDbAdapterInterface
             ];
 
         if (! isset($map[$reifiesWhat])) {
-            return false;
+            throw new TopicCardsLogicException
+            (
+                sprintf
+                (
+                    '%s: reifiesWhat value <%s> not supported.',
+                    __METHOD__,
+                    $reifiesWhat
+                )
+            );
         }
 
         $method = 'selectReifiedObject_' . $map[$reifiesWhat];
@@ -139,7 +165,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return false;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -153,9 +183,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            return false;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         foreach ($qResult->records() as $record) {
@@ -187,7 +224,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return false;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -201,9 +242,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            return false;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         foreach ($qResult->records() as $record) {
@@ -235,7 +283,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return false;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -249,9 +301,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            return false;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         foreach ($qResult->records() as $record) {
@@ -276,7 +335,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return false;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -290,9 +353,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            return false;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         foreach ($qResult->records() as $record) {
@@ -316,6 +386,10 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return int
+     */
     public function insertAll(array $data)
     {
         $logger = $this->topicMap->getLogger();
@@ -324,7 +398,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $now = date('c');
@@ -396,9 +474,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $db->commit($transaction);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j commit failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         // TODO: Error handling
@@ -422,6 +507,10 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return int
+     */
     public function updateAll(array $data)
     {
         $logger = $this->topicMap->getLogger();
@@ -430,7 +519,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $data['updated'] = date('c');
@@ -546,9 +639,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $db->commit($transaction);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j commit failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         if ($ok >= 0) {
@@ -570,6 +670,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
     }
 
 
+    /**
+     * @param string $id
+     * @param int $version
+     * @return int
+     */
     public function deleteById($id, $version)
     {
         // TODO: Implement $version
@@ -580,7 +685,11 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -598,9 +707,16 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         try {
             $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         // TODO: error handling

@@ -7,9 +7,13 @@ use TopicCards\Utils\DataTypeUtils;
 
 trait DataTypeTrait
 {
-    protected $dataType = false;
+    /** @var string */
+    protected $dataType = '';
 
 
+    /**
+     * @return string
+     */
     public function getDataTypeId()
     {
         $this->setDefaultDataType();
@@ -18,34 +22,49 @@ trait DataTypeTrait
     }
 
 
+    /**
+     * @param string $topic_id
+     * @return self
+     */
     public function setDataTypeId($topic_id)
     {
         $this->dataType = $topic_id;
         
         $this->setDefaultDataType();
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string
+     */
     public function getDataType()
     {
         return $this->topicMap->getTopicSubject($this->getDataTypeId());
     }
 
 
+    /**
+     * @param string $topicSubject
+     * @return self
+     */
     public function setDataType($topicSubject)
     {
         $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
-        if (strlen($topicId) === 0) {
-            return -1;
+        if (strlen($topicId) > 0) {
+            $this->setDataTypeId($topicId);
         }
 
-        return $this->setDataTypeId($topicId);
+        return $this;
     }
 
 
+    /**
+     * @param string $msgHtml
+     * @return int
+     */
     public function validateDataType(&$msgHtml)
     {
         $ok = DataTypeUtils::validate
@@ -61,6 +80,9 @@ trait DataTypeTrait
     }
 
 
+    /**
+     * @return array
+     */
     public function getAllDataType()
     {
         return
@@ -70,6 +92,10 @@ trait DataTypeTrait
     }
 
 
+    /**
+     * @param array $data
+     * @return int
+     */
     public function setAllDataType(array $data)
     {
         $data = array_merge(
@@ -77,10 +103,15 @@ trait DataTypeTrait
                 'datatype' => false
             ], $data);
 
-        return $this->setDataTypeId($data['datatype']);
+        $this->setDataTypeId($data['datatype']);
+        
+        return 1;
     }
 
 
+    /**
+     * @return void
+     */
     protected function setDefaultDataType()
     {
         if (strlen($this->dataType) === 0) {

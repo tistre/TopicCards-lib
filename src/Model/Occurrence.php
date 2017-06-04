@@ -40,17 +40,24 @@ class Occurrence extends Core implements OccurrenceInterface
     }
 
 
+    /**
+     * @return string
+     */
     public function getValue()
     {
         return $this->value;
     }
 
 
+    /**
+     * @param string $str
+     * @return self
+     */
     public function setValue($str)
     {
         $this->value = $str;
 
-        return 1;
+        return $this;
     }
 
 
@@ -83,6 +90,10 @@ class Occurrence extends Core implements OccurrenceInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAll(array $data)
     {
         $data = array_merge(
@@ -90,33 +101,15 @@ class Occurrence extends Core implements OccurrenceInterface
                 'value' => false
             ], $data);
 
-        $ok = $this->setValue($data['value']);
+        $this->setValue($data['value']);
+        $this->setAllId($data);
+        $this->setAllLanguage($data);
+        $this->setAllDataType($data);
+        $this->setAllTyped($data);
+        $this->setAllReified($data);
+        $this->setAllScoped($data);
 
-        if ($ok >= 0) {
-            $ok = $this->setAllId($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllLanguage($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllDataType($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllTyped($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllReified($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllScoped($data);
-        }
-
-        return $ok;
+        return $this;
     }
 
 

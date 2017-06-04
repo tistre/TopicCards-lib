@@ -5,23 +5,34 @@ namespace TopicCards\Model;
 
 trait ScopedTrait
 {
+    /** @var string[] */
     protected $scope = [];
 
 
+    /**
+     * @return string[]
+     */
     public function getScopeIds()
     {
         return $this->scope;
     }
 
 
+    /**
+     * @param string[] $topicIds
+     * @return self
+     */
     public function setScopeIds(array $topicIds)
     {
         $this->scope = $topicIds;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string[]
+     */
     public function getScope()
     {
         $result = [];
@@ -34,31 +45,35 @@ trait ScopedTrait
     }
 
 
+    /**
+     * @param string[] $topicSubjects
+     * @return self
+     */
     public function setScope(array $topicSubjects)
     {
         $topicIds = [];
-        $result = 1;
+        $ok = 1;
 
         foreach ($topicSubjects as $topicSubject) {
             $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
             if (strlen($topicId) === 0) {
-                $result = -1;
+                // TODO Add error handling
+                $ok = -1;
             } else {
                 $topicIds[] = $topicId;
             }
         }
 
-        $ok = $this->setScopeIds($topicIds);
+        $this->setScopeIds($topicIds);
 
-        if ($ok < 0) {
-            $result = $ok;
-        }
-
-        return $result;
+        return $this;
     }
 
 
+    /**
+     * @return array
+     */
     public function getAllScoped()
     {
         return
@@ -68,6 +83,10 @@ trait ScopedTrait
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAllScoped(array $data)
     {
         $data = array_merge(
@@ -75,10 +94,16 @@ trait ScopedTrait
                 'scope' => []
             ], $data);
 
-        return $this->setScopeIds($data['scope']);
+        $this->setScopeIds($data['scope']);
+        
+        return $this;
     }
 
 
+    /**
+     * @param string[] $matchTopicIds
+     * @return bool
+     */
     public function matchesScope(array $matchTopicIds)
     {
         $myTopicIds = $this->getScopeIds();

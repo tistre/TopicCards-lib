@@ -5,6 +5,7 @@ namespace TopicCards\Utils;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use TopicCards\Exception\TopicCardsException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 
@@ -19,9 +20,11 @@ class InstallationUtils
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            $logger->emergency('Database connection failed.');
-
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $ok = 0;
@@ -133,9 +136,11 @@ class InstallationUtils
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            $logger->emergency('Database connection failed.');
-
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $queries =
@@ -150,10 +155,16 @@ class InstallationUtils
             try {
                 $dbConn->run($query);
             } catch (Neo4jException $exception) {
-                $logger->error($exception->getMessage());
-
-                // TODO: Error handling
-                return -1;
+                throw new TopicCardsRuntimeException
+                (
+                    sprintf
+                    (
+                        '%s: Neo4j run failed.',
+                        __METHOD__
+                    ),
+                    0,
+                    $exception
+                );
             }
         }
     }
@@ -167,9 +178,11 @@ class InstallationUtils
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            $logger->emergency('Database connection failed.');
-
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $queries =
@@ -183,10 +196,16 @@ class InstallationUtils
             try {
                 $dbConn->run($query);
             } catch (Neo4jException $exception) {
-                $logger->error($exception->getMessage());
-
-                // TODO: Error handling
-                return -1;
+                throw new TopicCardsRuntimeException
+                (
+                    sprintf
+                    (
+                        '%s: Neo4j run failed.',
+                        __METHOD__
+                    ),
+                    0,
+                    $exception
+                );
             }
         }
     }

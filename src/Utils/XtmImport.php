@@ -154,7 +154,7 @@ class XtmImport
                     continue 2;
                 }
 
-                $name->setValue($subNode->nodeValue);
+                $name->setValue($value);
                 
                 if ($subNode->hasAttribute('datatype')) {
                     $dataType = $subNode->getAttribute('datatype');

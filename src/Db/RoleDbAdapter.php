@@ -4,6 +4,8 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\RoleInterface;
 use TopicCards\Interfaces\RoleDbAdapterInterface;
 use TopicCards\Interfaces\TopicInterface;
@@ -19,6 +21,11 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     protected $topicMap;
 
 
+    /**
+     * RoleDbAdapter constructor.
+     *
+     * @param RoleInterface $role
+     */
     public function __construct(RoleInterface $role)
     {
         $this->role = $role;
@@ -26,6 +33,10 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return array|int
+     */
     public function selectAll(array $filters)
     {
         $logger = $this->topicMap->getLogger();
@@ -34,16 +45,25 @@ class RoleDbAdapter implements RoleDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         if (! empty($filters['reifier'])) {
-            // TODO to be implemented
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: "reifier" filter not implemented yet.', __METHOD__)
+            );
         }
 
         if (! isset($filters['association'])) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: "association" filter not implemented yet.', __METHOD__)
+            );
         }
 
         $query = 'MATCH (assoc:Association { id: {id} })-[rel]-(node:Topic) RETURN assoc, rel, node';
@@ -54,10 +74,16 @@ class RoleDbAdapter implements RoleDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];
@@ -88,6 +114,12 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     }
 
 
+    /**
+     * @param string $associationId
+     * @param array $data
+     * @param Transaction $transaction
+     * @return int
+     */
     public function insertAll($associationId, array $data, Transaction $transaction)
     {
         foreach ($data as $roleData) {
@@ -100,6 +132,13 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     }
 
 
+    /**
+     * @param string $associationId
+     * @param array $data
+     * @param array $previousData
+     * @param Transaction $transaction
+     * @return int
+     */
     public function updateAll($associationId, array $data, array $previousData, Transaction $transaction)
     {
         $ok = 1;
@@ -155,16 +194,27 @@ class RoleDbAdapter implements RoleDbAdapterInterface
     }
 
 
+    /**
+     * @param string $associationId
+     * @param array $data
+     * @param Transaction $transaction
+     * @return void
+     * @throws TopicCardsLogicException
+     */
     protected function insertRole($associationId, array $data, Transaction $transaction)
     {
         $logger = $this->topicMap->getLogger();
 
         if ((! isset($data['player'])) || (strlen($data['player']) === 0)) {
-            return 0;
+            return;
         }
 
         if (empty($data['type'])) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                '%s: Cannot add role to association <%s>, required "type" data is empty.',
+                __METHOD__, $associationId
+            );
         }
 
         if (empty($data['id'])) {
@@ -233,18 +283,20 @@ class RoleDbAdapter implements RoleDbAdapterInterface
                 $transaction->push($query['query'], $query['bind']);
             }
         }
-
-        // TODO: error handling
-        return 1;
     }
 
 
+    /**
+     * @param string $associationId
+     * @param array $data
+     * @param array $previousData
+     * @param Transaction $transaction
+     */
     protected function updateRole($associationId, array $data, array $previousData, Transaction $transaction)
     {
         $logger = $this->topicMap->getLogger();
 
         $doDelete = $doInsert = false;
-        $ok = 0;
 
         if (! isset($data['reifier'])) {
             $data['reifier'] = false;
@@ -285,15 +337,10 @@ class RoleDbAdapter implements RoleDbAdapterInterface
             $logger->info($query, $bind);
 
             $transaction->push($query, $bind);
-
-            // TODO: error handling
-            $ok = 1;
         }
 
         if ($doInsert) {
-            $ok = $this->insertRole($associationId, $data, $transaction);
+            $this->insertRole($associationId, $data, $transaction);
         }
-
-        return $ok;
     }
 }

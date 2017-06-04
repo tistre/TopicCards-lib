@@ -8,6 +8,11 @@ use GraphAware\Neo4j\Client\Transaction\Transaction;
 
 interface DbInterface
 {
+    /**
+     * DbInterface constructor.
+     *
+     * @param array $params
+     */
     public function __construct(array $params);
 
 

@@ -3,7 +3,8 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
-use \TopicCards\Interfaces\AssociationInterface;
+use TopicCards\Exception\TopicCardsRuntimeException;
+use TopicCards\Interfaces\AssociationInterface;
 use TopicCards\Interfaces\TopicInterface;
 use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Interfaces\PersistentDbAdapterInterface;
@@ -26,6 +27,10 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return array|int
+     */
     public function selectAll(array $filters)
     {
         $logger = $this->topicMap->getLogger();
@@ -34,7 +39,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $propertyData = [];
@@ -59,10 +68,16 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         // TODO add error handling
@@ -113,6 +128,10 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return int
+     */
     public function insertAll(array $data)
     {
         $logger = $this->topicMap->getLogger();
@@ -121,7 +140,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $now = date('c');
@@ -206,11 +229,18 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         try {
             $db->commit($transaction);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
             $db->rollBack($transaction);
 
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j commit failed, performed rollback.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         if ($ok >= 0) {
@@ -232,6 +262,10 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return int
+     */
     public function updateAll(array $data)
     {
         $logger = $this->topicMap->getLogger();
@@ -240,7 +274,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $data['updated'] = date('c');
@@ -374,9 +412,16 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         try {
             $db->commit($transaction);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j commit failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         if ($ok >= 0) {
@@ -398,6 +443,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
     }
 
 
+    /**
+     * @param string $id
+     * @param int $version
+     * @return int
+     */
     public function deleteById($id, $version)
     {
         // TODO: Implement $version
@@ -408,7 +458,11 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query =
@@ -425,9 +479,16 @@ class AssociationDbAdapter implements PersistentDbAdapterInterface
         try {
             $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-            // TODO: Error handling
-            $ok = -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         // TODO: error handling

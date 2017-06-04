@@ -17,12 +17,20 @@ class Search implements SearchInterface
     protected $connection;
 
 
+    /**
+     * Search constructor.
+     *
+     * @param array $params
+     */
     public function __construct(array $params)
     {
         $this->params = $params;
     }
 
 
+    /**
+     * @return array
+     */
     public function getParams()
     {
         return $this->params;
@@ -46,30 +54,51 @@ class Search implements SearchInterface
     }
 
 
+    /**
+     * @param array $params
+     * @return array|bool
+     */
     public function search(array $params)
     {
         return $this->run('search', $params);
     }
 
 
+    /**
+     * @param array $params
+     * @return array|bool
+     */
     public function index(array $params)
     {
         return $this->run('index', $params);
     }
 
 
+    /**
+     * @param array $params
+     * @return array|bool
+     */
     public function get(array $params)
     {
         return $this->run('get', $params);
     }
 
 
+    /**
+     * @param array $params
+     * @return array|bool
+     */
     public function delete(array $params)
     {
         return $this->run('delete', $params);
     }
 
 
+    /**
+     * @param string $method
+     * @param array $params
+     * @return array|bool
+     */
     public function run($method, array $params)
     {
         $this->getConnection();
@@ -94,12 +123,20 @@ class Search implements SearchInterface
     }
 
 
+    /**
+     * @return string
+     */
     public function getIndexName()
     {
         return $this->params['index'];
     }
 
 
+    /**
+     * @param TopicMapInterface $topicMap
+     * @param string $index
+     * @return array
+     */
     public function getIndexParams(TopicMapInterface $topicMap, $index)
     {
         $params =
@@ -230,6 +267,12 @@ class Search implements SearchInterface
     }
 
 
+    /**
+     * @param TopicMapInterface $topicMap
+     * @param string $index
+     * @param array $params
+     * @return int
+     */
     public function recreateIndex(TopicMapInterface $topicMap, $index, array $params)
     {
         $connection = $this->getConnection();
@@ -248,6 +291,10 @@ class Search implements SearchInterface
     }
 
 
+    /**
+     * @param TopicMapInterface $topicMap
+     * @return int
+     */
     public function reindexAllTopics(TopicMapInterface $topicMap)
     {
         $limit = 0;
@@ -274,6 +321,10 @@ class Search implements SearchInterface
     }
 
 
+    /**
+     * @param TopicMapInterface $topicMap
+     * @return int
+     */
     public function reindexAllAssociations(TopicMapInterface $topicMap)
     {
         $limit = 0;

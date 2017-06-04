@@ -12,6 +12,11 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
     protected $association;
 
 
+    /**
+     * AssociationSearchAdapter constructor.
+     *
+     * @param AssociationInterface $association
+     */
     public function __construct(AssociationInterface $association)
     {
         $this->association = $association;
@@ -19,18 +24,27 @@ class AssociationSearchAdapter extends PersistentSearchAdapter
     }
 
 
+    /**
+     * @return string
+     */
     public function getSearchType()
     {
         return 'association';
     }
 
 
+    /**
+     * @return string
+     */
     protected function getId()
     {
         return $this->association->getId();
     }
 
 
+    /**
+     * @return array
+     */
     protected function getIndexFields()
     {
         $result =

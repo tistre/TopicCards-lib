@@ -11,18 +11,31 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
     /** @var TopicMapInterface */
     protected $topicMap;
 
+    /** @var array|bool */
     protected $indexRelated = false;
 
 
+    /**
+     * @return string
+     */
     abstract public function getSearchType();
 
 
+    /**
+     * @return string
+     */
     abstract protected function getId();
 
 
+    /**
+     * @return array
+     */
     abstract protected function getIndexFields();
 
 
+    /**
+     * @return int
+     */
     public function index()
     {
         $response = $this->topicMap->getSearch()->index
@@ -42,6 +55,9 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
     }
 
 
+    /**
+     * @return int
+     */
     public function removeFromIndex()
     {
         $response = $this->topicMap->getSearch()->delete
@@ -60,6 +76,10 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
     }
 
 
+    /**
+     * @param array $params
+     * @return array|bool
+     */
     public function getIndexedData()
     {
         return $this->topicMap->getSearch()->get
@@ -72,12 +92,19 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
     }
 
 
+    /**
+     * @return void
+     */
     public function resetIndexRelated()
     {
         $this->indexRelated = ['topic_id' => [], 'association_id' => []];
     }
 
 
+    /**
+     * @param mixed $add
+     * @return int
+     */
     public function addIndexRelated($add)
     {
         if (! is_array($this->indexRelated)) {
@@ -102,6 +129,9 @@ abstract class PersistentSearchAdapter implements PersistentSearchAdapterInterfa
     }
 
 
+    /**
+     * @return int
+     */
     public function indexRelated()
     {
         // TODO to be implemented

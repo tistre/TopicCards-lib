@@ -2,7 +2,8 @@
 
 namespace TopicCards\Model;
 
-use TopicCards\Exception\TopicCardsException;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\PersistentDbAdapterInterface;
 use TopicCards\Interfaces\PersistentSearchAdapterInterface;
 use TopicCards\Interfaces\TopicMapInterface;
@@ -10,57 +11,88 @@ use TopicCards\Interfaces\TopicMapInterface;
 
 trait PersistentTrait
 {
-    protected $created = false;
-    protected $updated = false;
+    /** @var string */
+    protected $created = '';
+
+    /** @var string */
+    protected $updated = '';
+
+    /** @var int */
     protected $version = 0;
+
+    /** @var bool */
     protected $loaded = false;
 
     /** @var array Copy of the data as it was on load (needed for label removal) */
     protected $previousData = [];
 
 
+    /**
+     * @return string ISO datetime
+     */
     public function getCreated()
     {
         return $this->created;
     }
 
 
+    /**
+     * @param string $date ISO datetime
+     * @return self
+     */
     public function setCreated($date)
     {
         $this->created = $date;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return string ISO datetime
+     */
     public function getUpdated()
     {
         return $this->updated;
     }
 
 
+    /**
+     * @param string $date ISO datetime
+     * @return self
+     */
     public function setUpdated($date)
     {
         $this->updated = $date;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return int
+     */
     public function getVersion()
     {
         return $this->version;
     }
 
 
+    /**
+     * @param int $version
+     * @return self
+     */
     public function setVersion($version)
     {
         $this->version = intval($version);
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return array
+     */
     public function getAllPersistent()
     {
         return
@@ -72,6 +104,10 @@ trait PersistentTrait
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAllPersistent(array $data)
     {
         $data = array_merge(
@@ -85,7 +121,7 @@ trait PersistentTrait
         $this->setUpdated($data['updated']);
         $this->setVersion($data['version']);
 
-        return 1;
+        return $this;
     }
 
 
@@ -98,37 +134,42 @@ trait PersistentTrait
     }
 
 
+    /**
+     * @param string $id
+     * @return bool
+     */
     public function load($id)
     {
         $this->previousData = [];
 
         $rows = $this->getPersistentDbAdapter()->selectAll(['id' => $id]);
 
-        if (! is_array($rows)) {
-            return $rows;
-        }
-
         if (count($rows) === 0) {
-            return -1;
+            return false;
         }
 
-        $ok = $this->setAll($rows[0]);
+        $this->setAll($rows[0]);
 
-        if ($ok >= 0) {
-            $this->previousData = $this->getAll();
-            $this->loaded = true;
-        }
+        $this->previousData = $this->getAll();
+        $this->loaded = true;
 
-        return $ok;
+        return $this->loaded;
     }
 
 
+    /**
+     * @return bool
+     */
     public function isLoaded()
     {
         return $this->loaded;
     }
 
 
+    /**
+     * @throws TopicCardsRuntimeException
+     * @return void
+     */
     public function save()
     {
         /** @var TopicMapInterface $topicMap */
@@ -142,15 +183,15 @@ trait PersistentTrait
         if ($ok < 0) {
             $errorMsg = sprintf
             (
-                '%s <%s> save cancelled because the validation failed (<%s> %s).',
+                '%s (%s): <%s> save cancelled because the validation failed (<%s> %s).',
+                __METHOD__,
                 get_class($this),
                 $this->getId(),
                 $msgHtml,
                 $ok
             );
 
-            $topicMap->getLogger()->error($errorMsg);
-            throw new TopicCardsException($errorMsg, $ok);
+            throw new TopicCardsRuntimeException($errorMsg, $ok);
         }
 
         $searchAdapter->resetIndexRelated();
@@ -160,18 +201,34 @@ trait PersistentTrait
                 $this->setId($topicMap->createId());
             }
 
-            $ok = $this->getPersistentDbAdapter()->insertAll($this->getAll());
-
-            if ($ok < 0) {
-                $topicMap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
-                    $ok));
+            try {
+                $this->getPersistentDbAdapter()->insertAll($this->getAll());
+            } catch (\Exception $exception) {
+                throw new TopicCardsRuntimeException
+                (
+                    sprintf
+                    (
+                        '%s: %s <%s> insert failed.',
+                        __METHOD__, get_class($this), $this->getId()
+                    ),
+                    0,
+                    $exception
+                );
             }
         } else {
-            $ok = $this->getPersistentDbAdapter()->updateAll($this->getAll());
-
-            if ($ok < 0) {
-                $topicMap->getLogger()->error(sprintf('%s <%s> save failed (%s).', get_class($this), $this->getId(),
-                    $ok));
+            try {
+                $this->getPersistentDbAdapter()->updateAll($this->getAll());
+            } catch (\Exception $exception) {
+                throw new TopicCardsRuntimeException
+                (
+                    sprintf
+                    (
+                        '%s: %s <%s> update failed.',
+                        __METHOD__, get_class($this), $this->getId()
+                    ),
+                    0,
+                    $exception
+                );
             }
         }
 
@@ -184,33 +241,39 @@ trait PersistentTrait
 
             $this->addHistoryItem(($this->getVersion() <= 1 ? 'i' : 'u'));
         }
-
-        return $ok;
     }
 
 
+    /**
+     * @return void
+     */
     public function delete()
     {
         if ($this->getVersion() === 0) {
-            return 0;
+            throw new TopicCardsLogicException
+            (
+                sprintf
+                (
+                    '%s: Cannot delete an object that has not been saved yet.',
+                    __METHOD__
+                )
+            );
         }
 
         $this->getSearchAdapter()->removeFromIndex();
 
         $this->getSearchAdapter()->resetIndexRelated();
 
-        $ok = $this->getPersistentDbAdapter()->deleteById($this->getId(), $this->getVersion());
-
-        // Sort of manual rollback: If deletion failed, re-add to index
-
-        if ($ok < 0) {
+        try {
+            $this->getPersistentDbAdapter()->deleteById($this->getId(), $this->getVersion());
+        } catch (\Exception $exception) {
+            // Sort of manual rollback: If deletion failed, re-add to index
             $this->getSearchAdapter()->index();
-        } else {
-            $this->getSearchAdapter()->indexRelated();
-            $this->addHistoryItem('d');
+            return;
         }
-
-        return $ok;
+        
+        $this->getSearchAdapter()->indexRelated();
+        $this->addHistoryItem('d');
     }
 
 
@@ -223,6 +286,10 @@ trait PersistentTrait
     }
 
 
+    /**
+     * @param string $dmlType
+     * @return int
+     */
     protected function addHistoryItem($dmlType)
     {
         /** @var TopicMapInterface $topicMap */
@@ -249,6 +316,9 @@ trait PersistentTrait
     }
 
 
+    /**
+     * @return array
+     */
     public function getHistoryItems()
     {
         /** @var TopicMapInterface $topicMap */

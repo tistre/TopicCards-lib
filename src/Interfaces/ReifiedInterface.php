@@ -10,7 +10,7 @@ namespace TopicCards\Interfaces;
  * topic that contains additional data. This interface defines the methods for
  * handling reification.
  */
- 
+
 interface ReifiedInterface
 {
     /**
@@ -18,20 +18,18 @@ interface ReifiedInterface
      *
      * @return string Topic ID
      */
-     
     public function getReifierId();
-    
-    
+
+
     /**
      * Set the reifier topic by its ID
      *
      * @param string $topic_id
      * @return int Zero or greater on success
      */
-     
     public function setReifierId($topic_id);
-    
-    
+
+
     /**
      * Create a new reifier topic
      *
@@ -41,6 +39,5 @@ interface ReifiedInterface
      *
      * @return TopicInterface New topic
      */
-     
     public function newReifierTopic();
 }

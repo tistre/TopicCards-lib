@@ -3,6 +3,8 @@
 namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\TopicMapInterface;
 use TopicCards\Interfaces\TopicMapDbAdapterInterface;
 
@@ -35,7 +37,11 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $classes = ['Topic'];
@@ -68,10 +74,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];
@@ -96,7 +108,11 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query = 'MATCH (n:Topic) WHERE {uri} in n.subject_identifiers RETURN n.id';
@@ -107,10 +123,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         foreach ($qResult->records() as $record) {
@@ -145,7 +167,11 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return false;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query = 'MATCH (topic { id: {id} }) RETURN topic.' . $what;
@@ -156,9 +182,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            return false;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         if ($qResult->size() === 0) {
@@ -201,7 +234,11 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $classes = ['Association'];
@@ -248,10 +285,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];
@@ -336,7 +379,10 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $whatId = $this->topicMap->getTopicIdBySubject($what);
 
         if (strlen($whatId) === 0) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: Topic subject <%s> not found.', __METHOD__, $what)
+            );
         }
 
         // TODO: Implement both "all" and "recent"; currently it's only "all"
@@ -352,7 +398,11 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         $query = sprintf
@@ -366,10 +416,16 @@ class TopicMapDbAdapter implements TopicMapDbAdapterInterface
         try {
             $qResult = $dbConn->run($query);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];

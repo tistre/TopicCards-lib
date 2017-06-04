@@ -21,11 +21,15 @@ trait ReifiedTrait
     }
 
 
+    /**
+     * @param string $topicId
+     * @return self
+     */
     public function setReifierId($topicId)
     {
         $this->reifier = $topicId;
 
-        return 1;
+        return $this;
     }
 
 

@@ -12,6 +12,11 @@ class TopicSearchAdapter extends PersistentSearchAdapter
     protected $topic;
 
 
+    /**
+     * TopicSearchAdapter constructor.
+     *
+     * @param TopicInterface $topic
+     */
     public function __construct(TopicInterface $topic)
     {
         $this->topic = $topic;
@@ -19,18 +24,27 @@ class TopicSearchAdapter extends PersistentSearchAdapter
     }
 
 
+    /**
+     * @return string
+     */
     public function getSearchType()
     {
         return 'topic';
     }
 
 
+    /**
+     * @return string
+     */
     protected function getId()
     {
         return $this->topic->getId();
     }
 
 
+    /**
+     * @return array
+     */
     protected function getIndexFields()
     {
         $result =

@@ -3,6 +3,7 @@
 namespace TopicCards\Model;
 
 use TopicCards\Db\RoleDbAdapter;
+use TopicCards\Exception\TopicCardsLogicException;
 use TopicCards\Interfaces\RoleInterface;
 use TopicCards\Interfaces\RoleDbAdapterInterface;
 use TopicCards\Interfaces\TopicMapInterface;
@@ -13,7 +14,8 @@ class Role extends Core implements RoleInterface
 {
     use ReifiedTrait, TypedTrait;
 
-    protected $player = false;
+    /** @var string */
+    protected $player = '';
     
     /** @var RoleDbAdapterInterface */
     protected $dbAdapter;
@@ -41,38 +43,72 @@ class Role extends Core implements RoleInterface
     }
 
 
+    /**
+     * Get the player topic's ID
+     *
+     * @return string Topic ID
+     */
     public function getPlayerId()
     {
         return $this->player;
     }
 
 
+    /**
+     * Set the player topic by its ID
+     *
+     * @param string $topicId Topic ID
+     * @return self
+     */
     public function setPlayerId($topicId)
     {
         $this->player = $topicId;
 
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * Get the player topic's subject
+     *
+     * @return string Topic subject
+     */
     public function getPlayer()
     {
         return $this->topicMap->getTopicSubject($this->getPlayerId());
     }
 
 
+    /**
+     * Set the player topic by its subject
+     *
+     * @param string $topicSubject Topic subject
+     * @return self
+     */
     public function setPlayer($topicSubject)
     {
         $topicId = $this->topicMap->getTopicIdBySubject($topicSubject, true);
 
         if (strlen($topicId) === 0) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf
+                (
+                    '%s: Player topic with subject <%s> not found.',
+                    __METHOD__, $topicSubject
+                )
+            );
         }
 
-        return $this->setPlayerId($topicId);
+        $this->setPlayerId($topicId);
+        
+        return $this;
     }
 
 
+    /**
+     * @return array
+     */
     public function getAll()
     {
         $result =
@@ -90,6 +126,10 @@ class Role extends Core implements RoleInterface
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAll(array $data)
     {
         $data = array_merge(
@@ -97,26 +137,19 @@ class Role extends Core implements RoleInterface
                 'player' => false
             ], $data);
 
-        $ok = $this->setPlayerId($data['player']);
+        $this->setPlayerId($data['player']);
+        $this->setAllId($data);
+        $this->setAllTyped($data);
+        $this->setAllReified($data);
 
-        if ($ok >= 0) {
-            $ok = $this->setAllId($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllTyped($data);
-        }
-
-        if ($ok >= 0) {
-            $ok = $this->setAllReified($data);
-        }
-
-        return $ok;
+        return $this;
     }
 
 
     /**
      * Mark an existing (saved) role for removal on association save
+     * 
+     * @return void
      */
     public function remove()
     {
@@ -124,6 +157,10 @@ class Role extends Core implements RoleInterface
     }
 
 
+    /**
+     * @param string $msgHtml
+     * @return int
+     */
     public function validate(&$msgHtml)
     {
         $result = 1;

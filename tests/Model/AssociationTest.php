@@ -51,9 +51,9 @@ class AssociationTest extends TestCase
 
         foreach ($subjects as $subject) {
             $topic = self::$topicMap->newTopic();
-            $ok = $topic->loadBySubject($subject);
+            $loaded = $topic->loadBySubject($subject);
 
-            if ($ok < 0) {
+            if (! $loaded) {
                 continue;
             }
 
@@ -62,10 +62,10 @@ class AssociationTest extends TestCase
             foreach ($associationIds as $associationId) {
                 $association = self::$topicMap->newAssociation();
                 $association->load($associationId);
-                $ok = $association->delete();
+                $association->delete();
             }
 
-            $ok = $topic->delete();
+            $topic->delete();
         }
     }
 

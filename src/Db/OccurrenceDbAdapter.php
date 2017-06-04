@@ -4,6 +4,8 @@ namespace TopicCards\Db;
 
 use GraphAware\Neo4j\Client\Exception\Neo4jException;
 use GraphAware\Neo4j\Client\Transaction\Transaction;
+use TopicCards\Exception\TopicCardsLogicException;
+use TopicCards\Exception\TopicCardsRuntimeException;
 use TopicCards\Interfaces\OccurrenceInterface;
 use TopicCards\Interfaces\OccurrenceDbAdapterInterface;
 use TopicCards\Interfaces\TopicInterface;
@@ -26,6 +28,10 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
+    /**
+     * @param array $filters
+     * @return array|int
+     */
     public function selectAll(array $filters)
     {
         $logger = $this->topicMap->getLogger();
@@ -34,16 +40,25 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
         $dbConn = $db->getConnection();
 
         if ($dbConn === null) {
-            return -1;
+            throw new TopicCardsRuntimeException(sprintf
+            (
+                '%s: Failed to get db connection.',
+                __METHOD__
+            ));
         }
 
         if (! empty($filters['reifier'])) {
-            // TODO to be implemented
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: "reifier" filter not implemented yet.', __METHOD__)
+            );
         }
 
         if (! isset($filters['topic'])) {
-            return -1;
+            throw new TopicCardsLogicException
+            (
+                sprintf('%s: Required "topic" filter is empty.', __METHOD__)
+            );
         }
 
         $query = 'MATCH (t:Topic { id: {id} })-[:hasOccurrence]->(node:Occurrence) RETURN node';
@@ -54,10 +69,16 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
         try {
             $qResult = $dbConn->run($query, $bind);
         } catch (Neo4jException $exception) {
-            $logger->error($exception->getMessage());
-
-            // TODO: Error handling
-            return -1;
+            throw new TopicCardsRuntimeException
+            (
+                sprintf
+                (
+                    '%s: Neo4j run failed.',
+                    __METHOD__
+                ),
+                0,
+                $exception
+            );
         }
 
         $result = [];
@@ -102,6 +123,12 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
+    /**
+     * @param string $topic_id
+     * @param array $data
+     * @param Transaction $transaction
+     * @return int
+     */
     public function insertAll($topicId, array $data, Transaction $transaction)
     {
         foreach ($data as $occurrenceData) {
@@ -114,6 +141,13 @@ class OccurrenceDbAdapter implements OccurrenceDbAdapterInterface
     }
 
 
+    /**
+     * @param string $topic_id
+     * @param array $data
+     * @param array $previous_data
+     * @param Transaction $transaction
+     * @return int
+     */
     public function updateAll($topicId, array $data, array $previousData, Transaction $transaction)
     {
         $ok = 0;

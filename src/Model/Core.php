@@ -58,12 +58,13 @@ abstract class Core implements CoreInterface
 
     /**
      * @param string $id
-     * @return int
+     * @return self
      */
     public function setId($id)
     {
         $this->id = $id;
-        return 1;
+        
+        return $this;
     }
 
 
@@ -81,7 +82,7 @@ abstract class Core implements CoreInterface
 
     /**
      * @param array $data
-     * @return int
+     * @return self
      */
     public function setAllId(array $data)
     {
@@ -92,7 +93,7 @@ abstract class Core implements CoreInterface
 
         $this->setId($data[ 'id' ]);
 
-        return 1;
+        return $this;
     }
 
 

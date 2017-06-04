@@ -37,6 +37,7 @@ EOT;
         
         $this->assertEquals(1, count($objects), 'XTM import failed');
         
+        /** @var \TopicCards\Interfaces\TopicInterface $topic */
         $topic = $objects[0];
 
         $expected =
@@ -57,8 +58,6 @@ EOT;
         $topicData = $topic->getAll();
 
         $this->assertEquals($expected, $topicData);
-
-        $topic->delete();
     }
 
 
@@ -77,7 +76,7 @@ EOT;
       <type>
         <subjectIdentifierRef href="http://schema.org/name"/>
       </type>
-      <value xml:lang="de">München</value>
+      <value>München</value>
     </name>
     <name>
       <type>
@@ -101,7 +100,7 @@ EOT;
       <type>
         <subjectIdentifierRef href="http://schema.org/description"/>
       </type>
-      <resourceData datatype="http://www.w3.org/1999/xhtml" xml:lang="en">
+      <resourceData datatype="http://www.w3.org/1999/xhtml">
         <div xmlns="http://www.w3.org/1999/xhtml"><b>Munich</b> (/ˈmjuːnɪk/; German: <i>München</i>, pronounced [ˈmʏnçn̩] ( listen),[2] Bavarian: <i>Minga</i> [ˈmɪŋ(ː)ɐ]) is the capital and largest city of the German state of Bavaria, on the banks of River Isar north of the Bavarian Alps.</div>
       </resourceData>
     </occurrence>
@@ -116,6 +115,7 @@ EOT;
 
         $this->assertEquals(1, count($objects), 'XTM import failed');
 
+        /** @var \TopicCards\Interfaces\TopicInterface $topic */
         $topic = $objects[0];
 
         $expected =
@@ -127,7 +127,7 @@ EOT;
                         [
                             'datatype' => self::$topicMap->getTopicIdBySubject(DataTypeUtils::DATATYPE_STRING),
                             'id' => '',
-                            'language' => 'de',
+                            'language' => '',
                             'reifier' => false,
                             'scope' => [],
                             'type' => self::$topicMap->getTopicIdBySubject('http://schema.org/name'),
@@ -166,7 +166,7 @@ EOT;
                         [
                             'datatype' => self::$topicMap->getTopicIdBySubject(DataTypeUtils::DATATYPE_XHTML),
                             'id' => '',
-                            'language' => 'en',
+                            'language' => '',
                             'reifier' => false,
                             'scope' => [],
                             'type' => self::$topicMap->getTopicIdBySubject('http://schema.org/description'),
@@ -189,7 +189,5 @@ EOT;
         $topicData = $topic->getAll();
 
         $this->assertEquals($expected, $topicData);
-
-        $topic->delete();
     }
 }

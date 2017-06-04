@@ -5,23 +5,34 @@ namespace TopicCards\Model;
 
 trait LanguageTrait
 {
-    protected $language = false;
+    /** @var string */
+    protected $language = '';
 
 
+    /**
+     * @return string
+     */
     public function getLanguage()
     {
         return $this->language;
     }
 
 
+    /**
+     * @param string $language
+     * @return self
+     */
     public function setLanguage($language)
     {
         $this->language = $language;
         
-        return 1;
+        return $this;
     }
 
 
+    /**
+     * @return array
+     */
     public function getAllLanguage()
     {
         return
@@ -31,6 +42,10 @@ trait LanguageTrait
     }
 
 
+    /**
+     * @param array $data
+     * @return self
+     */
     public function setAllLanguage(array $data)
     {
         $data = array_merge(
@@ -38,6 +53,8 @@ trait LanguageTrait
                 'language' => false
             ], $data);
 
-        return $this->setLanguage($data['language']);
+        $this->setLanguage($data['language']);
+        
+        return $this;
     }
 }
