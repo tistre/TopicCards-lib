@@ -18,8 +18,21 @@ interface TopicMapInterface
 
 
     /**
+     * @param string $id
+     * @return self
+     */
+    public function setId($id);
+
+
+    /**
+     * @return string
+     */
+    public function getId();
+
+
+    /**
      * @param LoggerInterface $logger
-     * @return mixed
+     * @return self
      */
     public function setLogger(LoggerInterface $logger);
 
@@ -32,7 +45,7 @@ interface TopicMapInterface
 
     /**
      * @param SearchInterface $search
-     * @return mixed
+     * @return self
      */
     public function setSearch(SearchInterface $search);
 
@@ -45,7 +58,7 @@ interface TopicMapInterface
 
     /**
      * @param DbInterface $db
-     * @return mixed
+     * @return self
      */
     public function setDb(DbInterface $db);
 
@@ -64,6 +77,10 @@ interface TopicMapInterface
     public function trigger($event, array $params, array &$result);
 
 
+    /**
+     * @param string $url
+     * @return self
+     */
     public function setUrl($url);
 
 
@@ -100,7 +117,19 @@ interface TopicMapInterface
     public function getTopicIds(array $filters);
 
 
+    /**
+     * @param string $uri
+     * @param bool $createTopic
+     * @return string
+     */
     public function getTopicIdBySubject($uri, $createTopic = false);
+
+
+    /**
+     * @param string $identifier
+     * @return string
+     */
+    public function getTopicIdByIdentifier($identifier);
 
 
     public function getTopicSubject($topicId);
@@ -116,6 +145,28 @@ interface TopicMapInterface
 
 
     public function getAssociationIds(array $filters);
+
+
+    /**
+     * @param string $type
+     * @param string $id
+     * @return string
+     */
+    public function generateIdentifier($type, $id);
+    
+
+    /**
+     * @param string $identifier
+     * @return bool
+     */
+    public function isAssociationIdentifier($identifier);
+
+
+    /**
+     * @param string $identifier
+     * @return string
+     */
+    public function getAssociationIdByIdentifier($identifier);
 
 
     public function getTopicTypeIds(array $filters);

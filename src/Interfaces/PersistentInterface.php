@@ -6,6 +6,12 @@ namespace TopicCards\Interfaces;
 interface PersistentInterface extends CoreInterface
 {
     /**
+     * @return string
+     */
+    public function getIdentifier();
+
+
+    /**
      * @param string $id
      * @return bool
      */
@@ -13,7 +19,7 @@ interface PersistentInterface extends CoreInterface
 
 
     /**
-     * @return int
+     * @return void
      */
     public function save();
 

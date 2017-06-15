@@ -18,7 +18,9 @@ class Topic extends Core implements TopicInterface
 {
     use PersistentTrait;
 
+    /** @var string[] */
     protected $subjectIdentifiers = [];
+    
     protected $subjectLocators = [];
     protected $types = [];
 
@@ -71,6 +73,21 @@ class Topic extends Core implements TopicInterface
 
 
     /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        $subjects = $this->getSubjectIdentifiers();
+        
+        if (isset($subjects[0])) {
+            return $subjects[0];
+        }
+        
+        return $this->topicMap->generateIdentifier('topic', $this->getId());
+    }
+
+
+    /**
      * @param string $topicSubject
      * @return bool
      */
@@ -86,6 +103,9 @@ class Topic extends Core implements TopicInterface
     }
 
 
+    /**
+     * @return string[]
+     */
     public function getSubjectIdentifiers()
     {
         return $this->subjectIdentifiers;

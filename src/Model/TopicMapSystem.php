@@ -13,6 +13,7 @@ class TopicMapSystem implements TopicMapSystemInterface
     public function newTopicMap($key)
     {
         $topicMap = new TopicMap();
+        $topicMap->setId($key);
 
         $this->topicMaps[$key] = $topicMap;
 

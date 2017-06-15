@@ -59,6 +59,15 @@ class Association extends Core implements AssociationInterface
 
 
     /**
+     * @return string
+     */
+    public function getIdentifier()
+    {
+        return $this->topicMap->generateIdentifier('association', $this->getId());
+    }
+
+
+    /**
      * @return RoleInterface
      */
     public function newRole()
