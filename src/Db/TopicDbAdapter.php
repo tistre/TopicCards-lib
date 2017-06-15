@@ -489,6 +489,8 @@ class TopicDbAdapter implements TopicDbAdapterInterface
         // TODO: Error handling
 
         if ($ok >= 0) {
+            // TODO: Create language topics here?
+            
             $callbackResult = [];
 
             $ok = $this->topicMap->trigger
