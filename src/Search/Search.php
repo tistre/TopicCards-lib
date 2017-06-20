@@ -3,6 +3,7 @@
 namespace TopicCards\Search;
 
 use Elasticsearch\Client;
+use Elasticsearch\ClientBuilder;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use TopicCards\Interfaces\SearchInterface;
 use TopicCards\Interfaces\TopicMapInterface;
@@ -47,7 +48,9 @@ class Search implements SearchInterface
                 $this->params['connection'] = [];
             }
 
-            $this->connection = new Client($this->params['connection']);
+            $this->connection = ClientBuilder::create()
+                ->setHosts($this->params['connection'])
+                ->build();
         }
 
         return $this->connection;
