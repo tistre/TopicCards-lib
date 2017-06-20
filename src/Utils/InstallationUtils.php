@@ -82,6 +82,7 @@ class InstallationUtils
     {
         self::initDbConstraints($topicMap);
         self::initDbTopics($topicMap);
+        self::initDbIndexes($topicMap);
 
         // $this->importXtmFile(TOPICBANK_BASE_DIR . '/install/schema_00_datatypes.xtm');
     }
