@@ -15,6 +15,7 @@
         "elasticsearch/elasticsearch": "~5.0",
         "graphaware/neo4j-php-client": "^4.0",
         "phpunit/phpunit": "5.*",
+        "symfony/yaml": "^3.3",
         "monolog/monolog": "^1.23"
     },
     "autoload": {

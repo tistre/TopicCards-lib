@@ -44,12 +44,12 @@ class Search implements SearchInterface
     public function getConnection()
     {
         if (! $this->connection) {
-            if (! isset($this->params['connection'])) {
-                $this->params['connection'] = [];
+            if (! isset($this->params['connections'])) {
+                $this->params['connections'] = [];
             }
 
             $this->connection = ClientBuilder::create()
-                ->setHosts($this->params['connection'])
+                ->setHosts($this->params['connections'])
                 ->build();
         }
 

@@ -1,0 +1,12 @@
+neo4j:
+    connections:
+        default: "http://neo4j:secret@localhost:7474"
+        bolt: "bolt://neo4j:secret@localhost:7687"
+elasticsearch:
+    connections:
+    - "localhost:9200"
+    index: topiccardstest
+logger:
+    path: "/var/log/topiccards.log"
+topicmap:
+    url: "http://example.com/TopicCards/test"

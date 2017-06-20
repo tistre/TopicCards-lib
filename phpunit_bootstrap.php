@@ -34,26 +34,13 @@ spl_autoload_register(function($class)
     }
 });
 
-$dbParams =
-    [
-        'connections' =>
-            [
-                'default' => 'http://neo4j:secret@localhost:7474',
-                'bolt' => 'bolt://neo4j:secret@localhost:7687'
-            ]
-    ];
-
-$searchParams =
-    [
-        'connection' => ['localhost:9200'],
-        'index' => 'topiccardstest'
-    ];
+$config = Symfony\Component\Yaml\Yaml::parse(file_get_contents(__DIR__ . '/phpunit_bootstrap.yaml'));
 
 $logger = new \Monolog\Logger('TopicCards');
-$logger->pushHandler(new \Monolog\Handler\StreamHandler('/var/log/topiccards.log', \Monolog\Logger::DEBUG));
+$logger->pushHandler(new \Monolog\Handler\StreamHandler($config['logger']['path'], \Monolog\Logger::DEBUG));
 
-$db = new TopicCards\Db\Db($dbParams);
-$search = new TopicCards\Search\Search($searchParams);
+$db = new TopicCards\Db\Db($config['neo4j']);
+$search = new TopicCards\Search\Search($config['elasticsearch']);
 
 $tmSystem = new TopicCards\Model\TopicMapSystem();
 $topicMap = $tmSystem->newTopicMap('default');
@@ -61,4 +48,4 @@ $topicMap = $tmSystem->newTopicMap('default');
 $topicMap->setSearch($search);
 $topicMap->setDb($db);
 $topicMap->setLogger($logger);
-$topicMap->setUrl('http://example.com/TopicCards/test');
+$topicMap->setUrl($config['topicmap']['url']);
