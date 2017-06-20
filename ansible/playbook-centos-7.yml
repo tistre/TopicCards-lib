@@ -1,0 +1,122 @@
+# Install TopicCards on a blank test CentOS server
+#
+# Assumptions:
+# - CentOS 7 is installed (CentOS-7-x86_64-Minimal-1611.iso will do)
+# - Your SSH key is in .ssh/authorized_keys (for Ansible to work)
+# - You can run sudo without password
+---
+- hosts: topiccards-test.example.com
+  vars_prompt:
+  - name: "remote_user"
+    prompt: "Remote user"
+  remote_user: "{{ remote_user }}"
+  become: yes
+  tasks:
+  # Must manually reboot aber disabling SELinux?
+  # And I keep forgetting why I disable SELinux at all...
+  - name: Disable SELinux
+    selinux:
+      state: disabled
+  # Install Apache
+  - name: Install Apache
+    yum: 
+      state: present 
+      name: httpd
+  - name: Start Apache, and restart after boot
+    systemd:
+      name: httpd
+      enabled: yes
+      state: started
+  - name: Open port 80 in the firewall
+    firewalld:
+      service: http
+      permanent: true
+      immediate: true
+      state: enabled
+  # Install PHP
+  - name: Add Remi repository (for PHP 7)
+    yum:
+      name: http://remi.schlundtech.de/enterprise/remi-release-7.rpm
+      state: present
+  - name: Enable PHP 7.1 from the Remi repository
+    ini_file:
+      dest: /etc/yum.repos.d/remi-php71.repo
+      section: remi-php71
+      option: enabled
+      value: 1
+  - name: Install PHP 7.1
+    yum: 
+      state: present 
+      name: "{{ item }}"
+    with_items:
+      - php
+      - php-bcmath
+      - composer
+      - php-phpunit-PHPUnit
+  - name: Restart Apache
+    systemd:
+      name: httpd
+      state: restarted
+  # Install Elasticsearch
+  # See https://www.elastic.co/guide/en/elasticsearch/reference/current/rpm.html
+  - name: Import the Elasticsearch PGP Key
+    rpm_key:
+      state: present
+      key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  - name: Add the Elasticsearch repository
+    yum_repository:
+      name: elasticsearch
+      description: "Elasticsearch repository for 5.x packages"
+      baseurl: https://artifacts.elastic.co/packages/5.x/yum
+      gpgcheck: yes
+      gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  - name: Install Java
+    yum: 
+      state: present 
+      name: java-1.8.0-openjdk
+  - name: Install Elasticsearch
+    yum: 
+      state: present 
+      name: elasticsearch
+  - name: Start Elasticsearch, and restart after boot
+    systemd:
+      name: elasticsearch
+      enabled: yes
+      state: started
+  # Install Neo4j
+  # See https://neo4j.com/docs/operations-manual/current/installation/linux/rpm/
+  - name: Import the Neo4j PGP Key
+    rpm_key:
+      state: present
+      key: http://debian.neo4j.org/neotechnology.gpg.key
+  - name: Add the Neo4j repository
+    yum_repository:
+      name: neo4j
+      description: "Neo4j RPM Repository"
+      baseurl: http://yum.neo4j.org/stable
+      gpgcheck: yes
+      gpgkey: http://debian.neo4j.org/neotechnology.gpg.key
+  - name: Install Neo4j
+    yum: 
+      state: present 
+      name: neo4j
+  - name: Start Neo4j, and restart after boot
+    systemd:
+      name: neo4j
+      enabled: yes
+      state: started
+  # Install TopicCards
+  - name: Install git
+    yum: 
+      state: present 
+      name: git
+  - name: Check out TopicCards-lib from Github
+    become: no
+    git:
+      repo: 'https://github.com/tistre/TopicCards-lib.git'
+      dest: /home/tim/TopicCards-lib
+  - name: Install TopicCards-lib
+    become: no
+    composer:
+      command: install
+      working_dir: /home/tim/TopicCards-lib
