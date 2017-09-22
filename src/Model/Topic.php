@@ -21,7 +21,10 @@ class Topic extends Core implements TopicInterface
     /** @var string[] */
     protected $subjectIdentifiers = [];
     
+    /** @var string[] */
     protected $subjectLocators = [];
+    
+    /** @var string[] */
     protected $types = [];
 
     /** @var NameInterface[] */
@@ -69,21 +72,6 @@ class Topic extends Core implements TopicInterface
     public function getSearchAdapter()
     {
         return $this->searchAdapter;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getIdentifier()
-    {
-        $subjects = $this->getSubjectIdentifiers();
-        
-        if (isset($subjects[0])) {
-            return $subjects[0];
-        }
-        
-        return $this->topicMap->generateIdentifier('topic', $this->getId());
     }
 
 

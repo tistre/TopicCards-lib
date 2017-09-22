@@ -4,7 +4,6 @@ namespace TopicCards\Model;
 
 use Psr\Log\LoggerInterface;
 use TopicCards\Db\TopicMapDbAdapter;
-use TopicCards\Exception\TopicCardsLogicException;
 use TopicCards\Interfaces\DbInterface;
 use TopicCards\Interfaces\SearchInterface;
 use TopicCards\Interfaces\TopicMapInterface;
@@ -14,12 +13,7 @@ use TopicCards\Utils\StringUtils;
 
 class TopicMap implements TopicMapInterface
 {
-    /** @var string */
-    protected $id;
-    
-    /** @var string */
     protected $url;
-    
     protected $listeners = [];
     protected $searchIndex;
     protected $cache = [];
@@ -40,27 +34,6 @@ class TopicMap implements TopicMapInterface
     public function __construct()
     {
         $this->dbAdapter = new TopicMapDbAdapter($this);
-    }
-
-
-    /**
-     * @param string $id
-     * @return self
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-        
-        return $this;
-    }
-
-
-    /**
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
 
@@ -250,30 +223,6 @@ class TopicMap implements TopicMapInterface
     }
 
 
-    /**
-     * @param string $identifier
-     * @return string
-     */
-    public function getTopicIdByIdentifier($identifier)
-    {
-        $result = $this->parseIdentifier($identifier);
-
-        if ($result['type'] !== 'topic') {
-            return '';
-        }
-
-        if (! empty($result['id'])) {
-            return $result['id'];
-        }
-
-        if (! empty($result['subject'])) {
-            return $this->getTopicIdBySubject($result['subject']);
-        }
-
-        return '';
-    }
-
-
     public function getTopicSubject($topicId)
     {
         $cacheKey = __METHOD__ . "($topicId)";
@@ -373,6 +322,26 @@ class TopicMap implements TopicMapInterface
     }
 
 
+    /**
+     * @param string $subject
+     * @return bool
+     */
+    public function isAssociationSubject($subject)
+    {
+        // TODO: Implement isAssociationSubject() method.
+    }
+
+
+    /**
+     * @param string $uri
+     * @return string
+     */
+    public function getAssociationIdBySubject($uri)
+    {
+        // TODO: Implement getAssociationIdBySubject() method.
+    }
+
+
     public function getAssociationIds(array $filters)
     {
         return $this->dbAdapter->selectAssociations($filters);
@@ -412,34 +381,6 @@ class TopicMap implements TopicMapInterface
     public function getOccurrenceScopeIds(array $filters)
     {
         return $this->dbAdapter->selectOccurrenceScopes($filters);
-    }
-
-
-    /**
-     * @param string $identifier
-     * @return bool
-     */
-    public function isAssociationIdentifier($identifier)
-    {
-        $result = $this->parseIdentifier($identifier);
-        
-        return ($result['type'] === 'association');
-    }
-
-
-    /**
-     * @param string $identifier
-     * @return string
-     */
-    public function getAssociationIdByIdentifier($identifier)
-    {
-        $result = $this->parseIdentifier($identifier);
-
-        if ($result['type'] === 'association') {
-            return $result['id'];
-        }
-        
-        return '';
     }
 
 
@@ -530,66 +471,5 @@ class TopicMap implements TopicMapInterface
     {
         // TODO to be implemented
         return [[], '*'];
-    }
-    
-    
-    /**
-     * @param string $identifier
-     * @return array
-     */
-    protected function parseIdentifier($identifier)
-    {
-        // Dynamic local subject URIs (for associations, and topics without subject):
-        // /TopicCards/TOPICMAPID/topic|association/OBJECTID
-
-        $result = ['type' => 'topic', 'subject' => $identifier];
-
-        $parts = explode('/', $identifier);
-
-        if (count($parts) !== 5) {
-            return $result;
-        }
-
-        list(, $prefix, $topicMapId, $type, $id) = $parts;
-        
-        // ToDo: Verify $topicMapId?
-        // ToDo: Make prefix a constant
-        
-        if ($prefix !== 'TopicCards') {
-            return $result;
-        }
-
-        if (! in_array($type, ['topic', 'association'])) {
-            throw new TopicCardsLogicException
-            (
-                sprintf('%s: Unsupported type <%s>.', __METHOD__, $type)
-            );
-        }
-
-        return ['type' => $type, 'id' => $id];
-    }
-
-
-    /**
-     * @param string $type
-     * @param string $id
-     * @return string
-     */
-    public function generateIdentifier($type, $id)
-    {
-        if (! in_array($type, ['topic', 'association'])) {
-            throw new TopicCardsLogicException
-            (
-                sprintf('%s: Unsupported type <%s>.', __METHOD__, $type)
-            );
-        }
-        
-        return sprintf
-        (
-            '/TopicCards/%s/%s/%s',
-            urlencode($this->getId()),
-            $type,
-            urlencode($id)
-        );
     }
 }

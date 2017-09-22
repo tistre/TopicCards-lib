@@ -18,19 +18,6 @@ interface TopicMapInterface
 
 
     /**
-     * @param string $id
-     * @return self
-     */
-    public function setId($id);
-
-
-    /**
-     * @return string
-     */
-    public function getId();
-
-
-    /**
      * @param LoggerInterface $logger
      * @return self
      */
@@ -108,6 +95,7 @@ interface TopicMapInterface
     public function newAssociation();
 
 
+    // ToDo: Outdated?
     public function newFileTopic($filename);
 
 
@@ -125,13 +113,6 @@ interface TopicMapInterface
     public function getTopicIdBySubject($uri, $createTopic = false);
 
 
-    /**
-     * @param string $identifier
-     * @return string
-     */
-    public function getTopicIdByIdentifier($identifier);
-
-
     public function getTopicSubject($topicId);
 
 
@@ -144,29 +125,21 @@ interface TopicMapInterface
     public function getTopicLabel($topicId);
 
 
-    public function getAssociationIds(array $filters);
-
-
     /**
-     * @param string $type
-     * @param string $id
-     * @return string
-     */
-    public function generateIdentifier($type, $id);
-    
-
-    /**
-     * @param string $identifier
+     * @param string $subject
      * @return bool
      */
-    public function isAssociationIdentifier($identifier);
+    public function isAssociationSubject($subject);
 
 
     /**
-     * @param string $identifier
+     * @param string $uri
      * @return string
      */
-    public function getAssociationIdByIdentifier($identifier);
+    public function getAssociationIdBySubject($uri);
+
+    
+    public function getAssociationIds(array $filters);
 
 
     public function getTopicTypeIds(array $filters);
