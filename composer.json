@@ -1,22 +1,22 @@
 {
     "name": "tistre/topiccards-lib",
     "type": "library",
-    "description": "The TopicCards PHP Topic Maps engine backend",
-    "homepage": "http://www.topiccards.net/",
+    "description": "The TopicCards backend",
+    "homepage": "https://topiccards.net/",
     "license": "MIT",
     "authors": [
         {
             "name": "Tim Strehle",
-            "email": "tim@strehle.de"
+            "email": "tim.strehle@mailbox.org"
         }
     ],
     "require": 
     {
-        "elasticsearch/elasticsearch": "~5.0",
-        "graphaware/neo4j-php-client": "^4.0",
-        "phpunit/phpunit": "5.*",
-        "symfony/yaml": "^3.3",
-        "monolog/monolog": "^1.23"
+        "php": "^8.0",
+        "ext-json": "*",
+        "ext-bcmath": "*",
+        "monolog/monolog": "^2.3",
+        "laudis/neo4j-php-client": "^2.3"
     },
     "autoload": {
         "psr-4": {
