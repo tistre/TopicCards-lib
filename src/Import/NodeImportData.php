@@ -3,11 +3,8 @@
 namespace TopicCards\Import;
 
 
-class NodeImportData
+class NodeImportData extends ImportData
 {
     public string $id = '';
     public array $labels = [];
-
-    /** @var PropertyImportData[] */
-    public array $properties = [];
 }

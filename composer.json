@@ -18,7 +18,8 @@
         "ext-dom": "*",
         "ext-xmlreader": "*",
         "monolog/monolog": "^2.3",
-        "laudis/neo4j-php-client": "^2.3"
+        "laudis/neo4j-php-client": "^2.3",
+        "ramsey/uuid": "^4.2"
     },
     "autoload": {
         "psr-4": {

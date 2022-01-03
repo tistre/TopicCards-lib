@@ -3,7 +3,11 @@
 namespace TopicCards\Import;
 
 
+use DateTimeImmutable;
 use DOMElement;
+use Laudis\Neo4j\Types\Date;
+use Laudis\Neo4j\Types\DateTime;
+use Laudis\Neo4j\Types\Time;
 
 class GraphXmlImporter
 {
@@ -36,7 +40,7 @@ class GraphXmlImporter
 
         // Labels
 
-        foreach ($this->getChildrenByTagName($domNode,'label') as $domSubNode) {
+        foreach ($this->getChildrenByTagName($domNode, 'label') as $domSubNode) {
             $label = trim($domSubNode->nodeValue);
 
             if (strlen($label) === 0) {
@@ -48,7 +52,7 @@ class GraphXmlImporter
 
         // Properties
 
-        foreach ($this->getChildrenByTagName($domNode,'property') as $domSubNode) {
+        foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
             if ((strlen($propertyData->name) === 0) || (count($propertyData->values) === 0)) {
@@ -89,13 +93,13 @@ class GraphXmlImporter
 
         // Type
 
-        foreach ($this->getChildrenByTagName($domNode,'type') as $domSubNode) {
+        foreach ($this->getChildrenByTagName($domNode, 'type') as $domSubNode) {
             $relationshipData->type = trim($domSubNode->nodeValue);
         }
 
         // Properties
 
-        foreach ($this->getChildrenByTagName($domNode,'property') as $domSubNode) {
+        foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
             if ((strlen($propertyData->name) === 0) || (count($propertyData->values) === 0)) {
@@ -108,15 +112,15 @@ class GraphXmlImporter
         // Start node
 
         foreach ($this->getChildrenByTagName($domNode, 'start') as $domSubNode) {
-            foreach ($this->getChildrenByTagName($domSubNode,'node') as $nodeNode) {
+            foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
                 $relationshipData->startNode = $this->getNodeData($nodeNode);
             }
         }
 
         // End node
 
-        foreach ($this->getChildrenByTagName($domNode,'end') as $domSubNode) {
-            foreach ($this->getChildrenByTagName($domSubNode,'node') as $nodeNode) {
+        foreach ($this->getChildrenByTagName($domNode, 'end') as $domSubNode) {
+            foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
                 $relationshipData->endNode = $this->getNodeData($nodeNode);
             }
         }
@@ -150,8 +154,37 @@ class GraphXmlImporter
             $propertyData->type = trim($domNode->getAttribute('type'));
         }
 
-        foreach ($this->getChildrenByTagName($domNode,'value') as $domSubNode) {
-            $propertyData->values[] = trim($domSubNode->nodeValue);
+        foreach ($this->getChildrenByTagName($domNode, 'value') as $domSubNode) {
+            $value = trim($domSubNode->nodeValue);
+
+            // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
+
+            switch (strtolower($propertyData->type)) {
+                case 'integer':
+                    $value = intval($value);
+                    break;
+                case 'float':
+                    $value = floatval($value);
+                    break;
+                case 'boolean':
+                    $value = boolval($value);
+                    break;
+                case 'date':
+                    // Date objects need days since Unix epoch
+                    $interval = (new DateTimeImmutable('1970-01-01'))->diff(new DateTimeImmutable($value));
+                    $value = new Date(intval($interval->format('%a')));
+                    break;
+                case 'time':
+                    // Time objects need seconds since Unix epoch
+                    $value = new Time((new DateTimeImmutable($value))->format('U'));
+                    break;
+                case 'datetime':
+                    $dt = new DateTimeImmutable($value);
+                    $value = new DateTime($dt->format('U'), $dt->format('u') * 1000, $dt->format('Z'));
+                    break;
+            }
+
+            $propertyData->values[] = $value;
         }
 
         return $propertyData;
