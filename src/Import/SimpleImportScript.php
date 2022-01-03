@@ -6,6 +6,9 @@ use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Contracts\TransactionInterface;
 use Ramsey\Uuid\Uuid;
 use TopicCards\Cypher\CypherStatement;
+use TopicCards\Cypher\CypherUtils;
+use TopicCards\Cypher\MergeNodeCypherStatement;
+use TopicCards\Cypher\MergeRelationshipCypherStatement;
 
 
 class SimpleImportScript
@@ -37,20 +40,8 @@ class SimpleImportScript
     {
         $uuid = $this->getUuid($nodeData);
 
-        // TODO Move labels to SET statements so that a change in labels does not lead to duplicate nodes
-        // TODO Remove outdated labels and properties (optionally)
-
-        $statement = new CypherStatement(
-            sprintf(
-                'MERGE (n%s {uuid: $uuid})',
-                CypherStatement::labelsString($nodeData->labels)
-            ),
-            ['uuid' => $uuid]
-        );
-
-        $statement->addProperties('n.', $nodeData->properties);
-
-        $statement->append(' RETURN n.uuid');
+        $statement = new MergeNodeCypherStatement($nodeData);
+        print_r($statement->getStatement()); echo "\n";
 
         $this->client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
@@ -64,24 +55,8 @@ class SimpleImportScript
     {
         $uuid = $this->getUuid($relationshipData);
 
-        // TODO Move type to SET statements so that a change in type does not lead to duplicate relationships
-        // TODO Remove outdated properties (optionally)
-
-        $statement = new CypherStatement(
-            sprintf(
-                'MATCH (startNode {uuid: $startUuid}) MATCH (endNode {uuid: $endUuid})' .
-                ' MERGE (startNode)-[r%s {uuid: $uuid}]->(endNode)',
-                CypherStatement::labelsString([$relationshipData->type])
-            ),
-            [
-                'startUuid' => $relationshipData->startNode->getProperty('uuid')->values[0] ?? '',
-                'endUuid' => $relationshipData->endNode->getProperty('uuid')->values[0] ?? ''
-            ]
-        );
-
-        $statement->addProperties('r.', $relationshipData->properties);
-
-        $statement->append(' RETURN r.uuid');
+        $statement = new MergeRelationshipCypherStatement($relationshipData);
+        print_r($statement->getStatement()); echo "\n";
 
         $this->client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
