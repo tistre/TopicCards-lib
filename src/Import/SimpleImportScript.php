@@ -52,8 +52,6 @@ class SimpleImportScript
 
         $statement->append(' RETURN n.uuid');
 
-        print_r($statement);
-
         $this->client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
         });
@@ -84,8 +82,6 @@ class SimpleImportScript
         $statement->addProperties('r.', $relationshipData->properties);
 
         $statement->append(' RETURN r.uuid');
-
-        print_r($statement);
 
         $this->client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());

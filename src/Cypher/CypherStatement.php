@@ -126,13 +126,13 @@ class CypherStatement
     {
         if ($parameterValue instanceof \Laudis\Neo4j\Types\DateTime) {
             $fragment = sprintf('%s%s = datetime($%s)', $prefix, $propertyData->name, $propertyData->name);
-            $parameterValue = $parameterValue->toDateTime()->format('c');
+            $parameterValue = Converter::neo4jDateTimeToString($parameterValue);
         } elseif ($parameterValue instanceof \Laudis\Neo4j\Types\Date) {
             $fragment = sprintf('%s%s = date($%s)', $prefix, $propertyData->name, $propertyData->name);
-            $parameterValue = $parameterValue->toDateTime()->format('Y-m-d');
+            $parameterValue = Converter::neo4jDateToString($parameterValue);
         } elseif ($parameterValue instanceof \Laudis\Neo4j\Types\Time) {
             $fragment = sprintf('%s%s = time($%s)', $prefix, $propertyData->name, $propertyData->name);
-            $parameterValue = (new DateTimeImmutable('@' . $parameterValue->getSeconds()))->format('H:i:s');
+            $parameterValue = Converter::neo4jTimeToString($parameterValue);
         } else {
             $fragment = sprintf('%s%s = $%s', $prefix, $propertyData->name, $propertyData->name);
         }

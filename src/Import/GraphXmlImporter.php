@@ -8,6 +8,7 @@ use DOMElement;
 use Laudis\Neo4j\Types\Date;
 use Laudis\Neo4j\Types\DateTime;
 use Laudis\Neo4j\Types\Time;
+use TopicCards\Cypher\Converter;
 
 class GraphXmlImporter
 {
@@ -170,17 +171,13 @@ class GraphXmlImporter
                     $value = boolval($value);
                     break;
                 case 'date':
-                    // Date objects need days since Unix epoch
-                    $interval = (new DateTimeImmutable('1970-01-01'))->diff(new DateTimeImmutable($value));
-                    $value = new Date(intval($interval->format('%a')));
+                    $value = Converter::stringToNeo4jDate($value);
                     break;
                 case 'time':
-                    // Time objects need seconds since Unix epoch
-                    $value = new Time((new DateTimeImmutable($value))->format('U'));
+                    $value = Converter::stringToNeo4jTime($value);
                     break;
                 case 'datetime':
-                    $dt = new DateTimeImmutable($value);
-                    $value = new DateTime($dt->format('U'), $dt->format('u') * 1000, $dt->format('Z'));
+                    $value = Converter::stringToNeo4jDateTime($value);
                     break;
             }
 
