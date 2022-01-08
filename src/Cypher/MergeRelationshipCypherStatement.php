@@ -25,12 +25,17 @@ class MergeRelationshipCypherStatement implements CypherStatementInterface
             return;
         }
 
+        $startNodeLabelsStatement = new LabelsCypherStatement($this->relationshipData->startNode->labels);
+        $endNodeLabelsStatement = new LabelsCypherStatement($this->relationshipData->endNode->labels);
+
         $startNodePropertiesStatement = new PropertiesCypherStatement($this->relationshipData->startNode->properties, 'start_');
         $endNodePropertiesStatement = new PropertiesCypherStatement($this->relationshipData->endNode->properties, 'end_');
 
         $this->statement = sprintf(
-            'MATCH (startNode %s) MATCH (endNode %s) MERGE (startNode)-[r%s {uuid: $uuid}]->(endNode)',
+            'MATCH (startNode%s %s) MATCH (endNode%s %s) MERGE (startNode)-[r%s {uuid: $uuid}]->(endNode)',
+            $startNodeLabelsStatement->getStatement(),
             $startNodePropertiesStatement->getStatement(),
+            $endNodeLabelsStatement->getStatement(),
             $endNodePropertiesStatement->getStatement(),
             (new LabelsCypherStatement([$this->relationshipData->type]))->getStatement()
         );
