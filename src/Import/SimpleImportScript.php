@@ -5,8 +5,6 @@ namespace TopicCards\Import;
 use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Contracts\TransactionInterface;
 use Ramsey\Uuid\Uuid;
-use TopicCards\Cypher\CypherStatement;
-use TopicCards\Cypher\CypherUtils;
 use TopicCards\Cypher\MergeNodeCypherStatement;
 use TopicCards\Cypher\MergeRelationshipCypherStatement;
 
