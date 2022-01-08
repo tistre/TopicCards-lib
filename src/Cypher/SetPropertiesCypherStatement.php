@@ -2,8 +2,6 @@
 
 namespace TopicCards\Cypher;
 
-use TopicCards\Import\PropertyImportData;
-
 
 class SetPropertiesCypherStatement implements CypherStatementInterface
 {
@@ -56,64 +54,17 @@ class SetPropertiesCypherStatement implements CypherStatementInterface
             return;
         }
 
-        $first = true;
+        $propertiesStatement = new PropertiesCypherStatement($this->properties);
 
-        foreach ($this->properties as $propertyData) {
-            if ($first) {
-                $this->statement .= sprintf(
-                    ' SET %s %s {',
-                    $this->variable,
-                    ($this->replaceAll ? '=' : '+=')
-                );
+        $this->statement = sprintf(
+            ' SET %s %s %s',
+            $this->variable,
+            ($this->replaceAll ? '=' : '+='),
+            $propertiesStatement->getStatement()
+        );
 
-                $first = false;
-            } else {
-                $this->statement .= ', ';
-            }
-
-            $this->addProperty($propertyData);
-        }
-
-        $this->statement .= '}';
+        $this->parameters = $propertiesStatement->getParameters();
 
         $this->isGenerated = true;
-    }
-
-
-    public function addProperty(PropertyImportData $propertyData): void
-    {
-        if (count($propertyData->values) === 0) {
-            return;
-        }
-
-        $parameterValue = $propertyData->values;
-
-        // To Cypher, a single-element array is different from a scalar value
-        if (count($parameterValue) === 1) {
-            $parameterValue = array_pop($parameterValue);
-        }
-
-        $fragment = $this->getFragment($propertyData, $parameterValue);
-        $this->statement .= $fragment;
-        $this->parameters[$propertyData->name] = $parameterValue;
-    }
-
-
-    protected function getFragment(PropertyImportData $propertyData, &$parameterValue): string
-    {
-        if ($parameterValue instanceof \Laudis\Neo4j\Types\DateTime) {
-            $fragment = sprintf('%s: datetime($%s)', $propertyData->name, $propertyData->name);
-            $parameterValue = Converter::neo4jDateTimeToString($parameterValue);
-        } elseif ($parameterValue instanceof \Laudis\Neo4j\Types\Date) {
-            $fragment = sprintf('%s: date($%s)', $propertyData->name, $propertyData->name);
-            $parameterValue = Converter::neo4jDateToString($parameterValue);
-        } elseif ($parameterValue instanceof \Laudis\Neo4j\Types\Time) {
-            $fragment = sprintf('%s: time($%s)', $propertyData->name, $propertyData->name);
-            $parameterValue = Converter::neo4jTimeToString($parameterValue);
-        } else {
-            $fragment = sprintf('%s: $%s', $propertyData->name, $propertyData->name);
-        }
-
-        return $fragment;
     }
 }

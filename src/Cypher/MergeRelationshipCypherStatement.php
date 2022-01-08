@@ -25,19 +25,21 @@ class MergeRelationshipCypherStatement implements CypherStatementInterface
             return;
         }
 
-        // TODO Move type to SET statements so that a change in type does not lead to duplicate relationships
+        $startNodePropertiesStatement = new PropertiesCypherStatement($this->relationshipData->startNode->properties, 'start_');
+        $endNodePropertiesStatement = new PropertiesCypherStatement($this->relationshipData->endNode->properties, 'end_');
 
         $this->statement = sprintf(
-            'MATCH (startNode {uuid: $startUuid}) MATCH (endNode {uuid: $endUuid})' .
-            ' MERGE (startNode)-[r%s {uuid: $uuid}]->(endNode)',
+            'MATCH (startNode %s) MATCH (endNode %s) MERGE (startNode)-[r%s {uuid: $uuid}]->(endNode)',
+            $startNodePropertiesStatement->getStatement(),
+            $endNodePropertiesStatement->getStatement(),
             (new LabelsCypherStatement([$this->relationshipData->type]))->getStatement()
         );
 
-        $this->parameters = [
-            'endUuid' => $this->relationshipData->endNode->getProperty('uuid')->values[0] ?? '',
-            'startUuid' => $this->relationshipData->startNode->getProperty('uuid')->values[0] ?? '',
-            'uuid' => $this->relationshipData->getProperty('uuid')
-        ];
+        $this->parameters = array_merge(
+            ['uuid' => $this->relationshipData->getProperty('uuid')],
+            $startNodePropertiesStatement->getParameters(),
+            $endNodePropertiesStatement->getParameters()
+        );
 
         $setPropertiesStatement = new SetPropertiesCypherStatement('r', $this->relationshipData->properties, true);
 
