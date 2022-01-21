@@ -3,7 +3,7 @@
 namespace TopicCards\Cypher;
 
 
-class LabelsCypherStatement implements CypherStatementInterface
+class LabelsCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     /** @var string[] */
     protected array $labels;
@@ -15,24 +15,18 @@ class LabelsCypherStatement implements CypherStatementInterface
     }
 
 
-    public function getStatement(): string
+    public function getCypherStatement(): CypherStatement
     {
-        $statement = '';
+        $cypherStatement = new CypherStatement();
 
         foreach ($this->labels as $label) {
             if (strlen($label) === 0) {
                 continue;
             }
 
-            $statement .= sprintf(':`%s`', $label);
+            $cypherStatement->append(sprintf(':`%s`', $label));
         }
 
-        return $statement;
-    }
-
-
-    public function getParameters(): array
-    {
-        return [];
+        return $cypherStatement;
     }
 }
