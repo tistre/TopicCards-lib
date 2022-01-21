@@ -31,11 +31,11 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
         $cypherStatement
             ->setStatement(sprintf(
                 'MATCH (startNode%s %s) MATCH (endNode%s %s) MERGE (startNode)-[r%s {uuid: {{ uuid }}}]->(endNode)',
-                $startNodeLabelsStatement->getStatement(),
-                $startNodePropertiesStatement->getStatement(),
-                $endNodeLabelsStatement->getStatement(),
-                $endNodePropertiesStatement->getStatement(),
-                (new LabelsCypherStatementBuilder([$this->relationshipData->type]))->getCypherStatement()->getStatement()
+                $startNodeLabelsStatement->getUnrenderedStatement(),
+                $startNodePropertiesStatement->getUnrenderedStatement(),
+                $endNodeLabelsStatement->getUnrenderedStatement(),
+                $endNodePropertiesStatement->getUnrenderedStatement(),
+                (new LabelsCypherStatementBuilder([$this->relationshipData->type]))->getCypherStatement()->getUnrenderedStatement()
             ))
             ->setParameter('uuid', $this->relationshipData->getProperty('uuid'))
             ->mergeParameters($startNodePropertiesStatement->getParameters())
@@ -45,7 +45,7 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
             true))->getCypherStatement();
 
         $cypherStatement
-            ->append($setPropertiesStatement->getStatement())
+            ->append($setPropertiesStatement->getUnrenderedStatement())
             ->mergeParameters($setPropertiesStatement->getParameters());
 
         $cypherStatement->append(' RETURN r.uuid');

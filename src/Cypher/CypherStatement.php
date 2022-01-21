@@ -15,9 +15,18 @@ class CypherStatement
     /**
      * @return string
      */
-    public function getStatement(): string
+    public function getStatement(bool $useParameters = true): string
     {
-        return $this->renderStatement();
+        return $this->renderStatement($useParameters);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getUnrenderedStatement(): string
+    {
+        return $this->statement;
     }
 
 
@@ -82,17 +91,36 @@ class CypherStatement
     }
 
 
-    protected function renderStatement(): string
+    protected function renderStatement(bool $useParameters = true): string
     {
-        $twig = new Environment(new ArrayLoader());
-        $template = $twig->createTemplate($this->statement);
+        $twig = new Environment(
+            new ArrayLoader(),
+            ['cache' => false, 'autoescape' => false]
+        );
 
+        $template = $twig->createTemplate($this->statement);
+        $vars = $this->getTemplateVariables($useParameters);
+
+        $res = $template->render($vars);
+
+        return $res;
+    }
+
+
+    protected function getTemplateVariables(bool $useParameters = true): array
+    {
         $templateVariables = [];
 
-        foreach (array_keys($this->parameters) as $name) {
-            $templateVariables[$name] = '$' . $name;
+        if ($useParameters) {
+            foreach (array_keys($this->parameters) as $name) {
+                $templateVariables[$name] = '$' . $name;
+            }
+        } else {
+            foreach ($this->parameters as $name => $value) {
+                $templateVariables[$name] = '"' . $value . '"';
+            }
         }
 
-        return $twig->render($template, $templateVariables);
+        return $templateVariables;
     }
 }

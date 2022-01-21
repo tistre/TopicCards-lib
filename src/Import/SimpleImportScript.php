@@ -52,7 +52,7 @@ class SimpleImportScript
         $uuid = $this->getUuid($nodeData);
 
         $statement = (new MergeNodeCypherStatementBuilder($nodeData))->getCypherStatement();
-        print_r($statement->getStatement()); echo "\n";
+        print_r($statement->getStatement(false)); echo "\n";
 
         $client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
@@ -67,7 +67,7 @@ class SimpleImportScript
         $uuid = $this->getUuid($relationshipData);
 
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
-        print_r($statement->getStatement()); echo "\n";
+        print_r($statement->getStatement(false)); echo "\n";
 
         $client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());

@@ -34,7 +34,7 @@ class SetPropertiesCypherStatementBuilder implements CypherStatementBuilderInter
             ' SET %s %s %s',
             $this->variable,
             ($this->replaceAll ? '=' : '+='),
-            $propertiesStatement->getStatement()
+            $propertiesStatement->getUnrenderedStatement()
         ));
 
         return $cypherStatement;
