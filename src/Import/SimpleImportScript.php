@@ -32,7 +32,7 @@ class SimpleImportScript
     }
 
 
-    public function importAllFromFile(string $filename): void
+    public function importFile(string $filename): void
     {
         $client = $this->createClient();
         $importDataObjects = new GraphXmlReader($filename);
@@ -42,6 +42,21 @@ class SimpleImportScript
                 $this->importNode($client, $importData);
             } elseif ($importData instanceof RelationshipImportData) {
                 $this->importRelationship($client, $importData);
+            }
+        }
+    }
+
+
+    public function convertFileToCypher(string $filename): void
+    {
+        $client = $this->createClient();
+        $importDataObjects = new GraphXmlReader($filename);
+
+        foreach ($importDataObjects as $importData) {
+            if ($importData instanceof NodeImportData) {
+                echo $this->nodeToCypher($client, $importData);
+            } elseif ($importData instanceof RelationshipImportData) {
+                echo $this->relationshipToCypher($client, $importData);
             }
         }
     }
@@ -74,6 +89,28 @@ class SimpleImportScript
         });
 
         printf("Imported relationship <%s>\n", $uuid);
+    }
+
+
+    protected function nodeToCypher(ClientInterface $client, NodeImportData $nodeData): string
+    {
+        $uuid = $this->getUuid($nodeData);
+
+        $statement = (new MergeNodeCypherStatementBuilder($nodeData))->getCypherStatement();
+        $cypher = $statement->getStatement(false);
+
+        return $cypher ? $cypher . ";\n" : '';
+    }
+
+
+    protected function relationshipToCypher(ClientInterface $client, RelationshipImportData $relationshipData): string
+    {
+        $uuid = $this->getUuid($relationshipData);
+
+        $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
+        $cypher = $statement->getStatement(false);
+
+        return $cypher ? $cypher . ";\n" : '';
     }
 
 

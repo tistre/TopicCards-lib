@@ -20,6 +20,10 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
     {
         $cypherStatement = new CypherStatement();
 
+        if (!(isset($this->relationshipData->startNode) && isset($this->relationshipData->endNode))) {
+            return $cypherStatement;
+        }
+
         $startNodeLabelsStatement = (new LabelsCypherStatementBuilder($this->relationshipData->startNode->labels))->getCypherStatement();
         $endNodeLabelsStatement = (new LabelsCypherStatementBuilder($this->relationshipData->endNode->labels))->getCypherStatement();
 
