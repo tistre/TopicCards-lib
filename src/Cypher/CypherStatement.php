@@ -99,11 +99,8 @@ class CypherStatement
         );
 
         $template = $twig->createTemplate($this->statement);
-        $vars = $this->getTemplateVariables($useParameters);
 
-        $res = $template->render($vars);
-
-        return $res;
+        return $template->render($this->getTemplateVariables($useParameters));
     }
 
 
@@ -117,10 +114,44 @@ class CypherStatement
             }
         } else {
             foreach ($this->parameters as $name => $value) {
-                $templateVariables[$name] = '"' . $value . '"';
+                $templateVariables[$name] = self::literalValue($value);
             }
         }
 
         return $templateVariables;
+    }
+
+
+    public static function literalValue(mixed $value): string
+    {
+        if (is_int($value) || is_float($value)) {
+            return $value;
+        }
+
+        if (is_bool($value)) {
+            return ($value ? 'true' : 'false');
+        }
+
+        return self::escapeString((string)$value);
+    }
+
+
+    /**
+     * @see https://neo4j.com/docs/cypher-manual/current/syntax/expressions/#cypher-expressions-string-literals
+     * @param string $value
+     * @return string
+     */
+    public static function escapeString(string $value): string
+    {
+        $replacePairs = [
+            '\\' => '\\\\',
+            '"' => '\\"',
+            "\n" => "\\n",
+            "\r" => "\\r",
+            "\t" => "\\t",
+            "\b" => "\\b",
+        ];
+
+        return sprintf('"%s"', strtr($value, $replacePairs));
     }
 }
