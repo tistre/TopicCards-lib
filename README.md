@@ -19,6 +19,6 @@ $ docker run --rm --interactive --tty \
 
 Convert XML to Cypher:
 ```
-$script = new SimpleImportScript('bolt', 'bolt://neo4j:SECRET@host.docker.internal');
+$script = new StrehleDe\TopicCards\Import\SimpleImportScript('bolt', 'bolt://neo4j:SECRET@host.docker.internal');
 $script->convertFileToCypher($argv[1]);
 ```
