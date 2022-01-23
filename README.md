@@ -1,2 +1,24 @@
 # TopicCards-lib
-Topic Maps backend in PHP – see TopicCards for the UI
+
+[TopicCards](https://topiccards.net/) Neo4j backend (PHP)
+
+## Quick test with Docker
+
+Build the PHP image that meets this library's requirements:
+
+```
+$ docker build docker/php -t tistre/topiccards-php
+```
+
+Install dependencies:
+```
+$ docker run --rm --interactive --tty \
+  --volume $PWD:/app --volume ${COMPOSER_HOME:-$HOME/.composer}:/tmp \
+  --workdir /app tistre/topiccards-php composer install
+```
+
+Convert XML to Cypher:
+```
+$script = new SimpleImportScript('bolt', 'bolt://neo4j:SECRET@host.docker.internal');
+$script->convertFileToCypher($argv[1]);
+```
