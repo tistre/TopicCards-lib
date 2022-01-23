@@ -2,6 +2,14 @@
 
 [TopicCards](https://topiccards.net/) Neo4j backend (PHP)
 
+## Installation
+
+Use [Composer](https://getcomposer.org/) to add this library your project’s composer.json file:
+
+```
+$ composer require strehle-de/strehle-de/topiccards-lib
+```
+
 ## Quick test with Docker
 
 Build the PHP image that meets this library's requirements:
