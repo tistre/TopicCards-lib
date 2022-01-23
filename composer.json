@@ -1,8 +1,8 @@
 {
-  "name": "tistre/topiccards-lib",
+  "name": "strehle-de/topiccards-lib",
   "type": "library",
   "description": "TopicCards Neo4j backend",
-  "homepage": "https://topiccards.net/",
+  "homepage": "https://github.com/tistre/TopicCards-lib",
   "license": "MIT",
   "authors": [
     {
@@ -21,6 +21,12 @@
     "laudis/neo4j-php-client": "^2.3",
     "ramsey/uuid": "^4.2",
     "twig/twig": "^3.0"
+  },
+  "config": {
+    "preferred-install": {
+      "*": "dist"
+    },
+    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
