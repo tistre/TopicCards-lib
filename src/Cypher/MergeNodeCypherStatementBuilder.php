@@ -26,10 +26,10 @@ class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
 
         $cypherStatement->setStatement('MERGE (n {uuid: {{ uuid }}})');
 
-        if (count($this->nodeData->labels) > 0) {
+        if (count($this->nodeData->getLabels()) > 0) {
             $cypherStatement->append(sprintf(
                 ' SET n%s',
-                (new LabelsCypherStatementBuilder($this->nodeData->labels))->getCypherStatement()->getUnrenderedStatement()
+                (new LabelsCypherStatementBuilder($this->nodeData->getLabels()))->getCypherStatement()->getUnrenderedStatement()
             ));
         }
 
@@ -37,7 +37,7 @@ class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
 
         $setPropertiesStatement = (new SetPropertiesCypherStatementBuilder(
             'n',
-            $this->nodeData->properties,
+            $this->nodeData->getProperties(),
             $this->replaceAll
         ))->getCypherStatement();
 

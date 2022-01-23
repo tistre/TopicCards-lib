@@ -20,17 +20,35 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
     {
         $cypherStatement = new CypherStatement();
 
-        if (!(isset($this->relationshipData->startNode) && isset($this->relationshipData->endNode))) {
+        if (empty($this->relationshipData->getStartNode()) || empty($this->relationshipData->getEndNode())) {
             return $cypherStatement;
         }
 
-        $startNodeLabelsStatement = (new LabelsCypherStatementBuilder($this->relationshipData->startNode->labels))->getCypherStatement();
-        $endNodeLabelsStatement = (new LabelsCypherStatementBuilder($this->relationshipData->endNode->labels))->getCypherStatement();
+        $startNodeLabelsStatement =
+            (new LabelsCypherStatementBuilder(
+                $this->relationshipData->getStartNode()->getLabels()
+            ))
+                ->getCypherStatement();
 
-        $startNodePropertiesStatement = (new PropertiesCypherStatementBuilder($this->relationshipData->startNode->properties,
-            'start_'))->getCypherStatement();
-        $endNodePropertiesStatement = (new PropertiesCypherStatementBuilder($this->relationshipData->endNode->properties,
-            'end_'))->getCypherStatement();
+        $endNodeLabelsStatement =
+            (new LabelsCypherStatementBuilder(
+                $this->relationshipData->getEndNode()->getLabels()
+            ))
+                ->getCypherStatement();
+
+        $startNodePropertiesStatement =
+            (new PropertiesCypherStatementBuilder(
+                $this->relationshipData->getStartNode()->getProperties(),
+                'start_'
+            ))
+                ->getCypherStatement();
+
+        $endNodePropertiesStatement =
+            (new PropertiesCypherStatementBuilder(
+                $this->relationshipData->getEndNode()->getProperties(),
+                'end_'
+            ))
+                ->getCypherStatement();
 
         $cypherStatement
             ->setStatement(sprintf(
@@ -39,14 +57,19 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
                 $startNodePropertiesStatement->getUnrenderedStatement(),
                 $endNodeLabelsStatement->getUnrenderedStatement(),
                 $endNodePropertiesStatement->getUnrenderedStatement(),
-                (new LabelsCypherStatementBuilder([$this->relationshipData->type]))->getCypherStatement()->getUnrenderedStatement()
+                (new LabelsCypherStatementBuilder([$this->relationshipData->getType()]))->getCypherStatement()->getUnrenderedStatement()
             ))
             ->setParameter('uuid', $this->relationshipData->getProperty('uuid'))
             ->mergeParameters($startNodePropertiesStatement->getParameters())
             ->mergeParameters($endNodePropertiesStatement->getParameters());
 
-        $setPropertiesStatement = (new SetPropertiesCypherStatementBuilder('r', $this->relationshipData->properties,
-            true))->getCypherStatement();
+        $setPropertiesStatement =
+            (new SetPropertiesCypherStatementBuilder(
+                'r',
+                $this->relationshipData->getProperties(),
+                true
+            ))
+                ->getCypherStatement();
 
         $cypherStatement
             ->append($setPropertiesStatement->getUnrenderedStatement())

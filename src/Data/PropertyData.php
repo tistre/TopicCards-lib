@@ -5,7 +5,88 @@ namespace StrehleDe\TopicCards\Data;
 
 class PropertyData
 {
-    public string $name = '';
-    public string $type = '';
-    public array $values = [];
+    protected string $name = '';
+    protected string $type = '';
+    protected array $values = [];
+
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+
+    /**
+     * @param string $name
+     * @return self
+     */
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+
+    /**
+     * @param string $type
+     * @return self
+     */
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+        return $this;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getValues(): array
+    {
+        return $this->values;
+    }
+
+
+    /**
+     * @param array $values
+     * @return self
+     */
+    public function setValues(array $values): self
+    {
+        $this->values = $values;
+        return $this;
+    }
+
+
+    /**
+     * @param mixed $value
+     * @return self
+     */
+    public function setValue($value): self
+    {
+        return $this->setValues([$value]);
+    }
+
+
+    /**
+     * @param mixed $value
+     * @return self
+     */
+    public function addValue($value): self
+    {
+        $this->values[] = $value;
+        return $this;
+    }
 }
