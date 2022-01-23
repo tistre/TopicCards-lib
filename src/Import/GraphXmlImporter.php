@@ -2,13 +2,9 @@
 
 namespace StrehleDe\TopicCards\Import;
 
-
-use DateTimeImmutable;
 use DOMElement;
-use Laudis\Neo4j\Types\Date;
-use Laudis\Neo4j\Types\DateTime;
-use Laudis\Neo4j\Types\Time;
 use StrehleDe\TopicCards\Cypher\Converter;
+
 
 class GraphXmlImporter
 {
