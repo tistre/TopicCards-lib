@@ -2,19 +2,21 @@
 
 namespace StrehleDe\TopicCards\Cypher;
 
-use StrehleDe\TopicCards\Import\NodeImportData;
+use StrehleDe\TopicCards\Data\NodeData;
 
 
 class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     protected array $parameters;
-    protected NodeImportData $nodeData;
+    protected NodeData $nodeData;
     protected string $statement = '';
+    protected bool $replaceAll = false;
 
 
-    public function __construct(NodeImportData $nodeData)
+    public function __construct(NodeData $nodeData, bool $replaceAll = false)
     {
         $this->nodeData = $nodeData;
+        $this->replaceAll = $replaceAll;
     }
 
 
@@ -36,7 +38,7 @@ class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
         $setPropertiesStatement = (new SetPropertiesCypherStatementBuilder(
             'n',
             $this->nodeData->properties,
-            true
+            $this->replaceAll
         ))->getCypherStatement();
 
         $cypherStatement->append($setPropertiesStatement->getUnrenderedStatement());
