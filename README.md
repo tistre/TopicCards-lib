@@ -1,5 +1,6 @@
 # TopicCards-lib
-Topic Maps backend in PHP – see TopicCards for the UI
+
+[TopicCards](https://topiccards.net/) Neo4j backend (PHP)
 
 ## Quick test with Docker
 
