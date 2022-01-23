@@ -50,12 +50,12 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
 
     public function addProperty(CypherStatement $cypherStatement, PropertyData $propertyData): void
     {
-        if (count($propertyData->values) === 0) {
+        if (count($propertyData->getValues()) === 0) {
             return;
         }
 
-        $parameterName = $this->parameterPrefix . $propertyData->name;
-        $parameterValue = $propertyData->values;
+        $parameterName = $this->parameterPrefix . $propertyData->getName();
+        $parameterValue = $propertyData->getValues();
 
         // To Cypher, a single-element array is different from a scalar value
         if (count($parameterValue) === 1) {
@@ -72,16 +72,16 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
     protected function getFragment(PropertyData $propertyData, string $parameterName, &$parameterValue): string
     {
         if ($parameterValue instanceof DateTime) {
-            $fragment = sprintf('%s: datetime({{ %s }})', $propertyData->name, $parameterName);
+            $fragment = sprintf('%s: datetime({{ %s }})', $propertyData->getName(), $parameterName);
             $parameterValue = Converter::neo4jDateTimeToString($parameterValue);
         } elseif ($parameterValue instanceof Date) {
-            $fragment = sprintf('%s: date({{ %s }})', $propertyData->name, $parameterName);
+            $fragment = sprintf('%s: date({{ %s }})', $propertyData->getName(), $parameterName);
             $parameterValue = Converter::neo4jDateToString($parameterValue);
         } elseif ($parameterValue instanceof Time) {
-            $fragment = sprintf('%s: time({{ %s }})', $propertyData->name, $parameterName);
+            $fragment = sprintf('%s: time({{ %s }})', $propertyData->getName(), $parameterName);
             $parameterValue = Converter::neo4jTimeToString($parameterValue);
         } else {
-            $fragment = sprintf('%s: {{ %s }}', $propertyData->name, $parameterName);
+            $fragment = sprintf('%s: {{ %s }}', $propertyData->getName(), $parameterName);
         }
 
         return $fragment;

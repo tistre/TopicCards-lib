@@ -35,7 +35,7 @@ class GraphXmlImporter
         // ID
 
         foreach ($this->getChildrenByTagName($domNode, 'id') as $domSubNode) {
-            $nodeData->id = trim($domSubNode->nodeValue);
+            $nodeData->setId(trim($domSubNode->nodeValue));
         }
 
         // Labels
@@ -47,7 +47,7 @@ class GraphXmlImporter
                 continue;
             }
 
-            $nodeData->labels[] = $label;
+            $nodeData->addLabel($label);
         }
 
         // Properties
@@ -55,11 +55,11 @@ class GraphXmlImporter
         foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
-            if ((strlen($propertyData->name) === 0) || (count($propertyData->values) === 0)) {
+            if ((strlen($propertyData->getName()) === 0) || (count($propertyData->getValues()) === 0)) {
                 continue;
             }
 
-            $nodeData->properties[] = $propertyData;
+            $nodeData->addProperty($propertyData);
         }
 
         return $nodeData;
@@ -94,7 +94,7 @@ class GraphXmlImporter
         // Type
 
         foreach ($this->getChildrenByTagName($domNode, 'type') as $domSubNode) {
-            $relationshipData->type = trim($domSubNode->nodeValue);
+            $relationshipData->setType(trim($domSubNode->nodeValue));
         }
 
         // Properties
@@ -102,18 +102,18 @@ class GraphXmlImporter
         foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
-            if ((strlen($propertyData->name) === 0) || (count($propertyData->values) === 0)) {
+            if ((strlen($propertyData->getName()) === 0) || (count($propertyData->getValues()) === 0)) {
                 continue;
             }
 
-            $relationshipData->properties[] = $propertyData;
+            $relationshipData->addProperty($propertyData);
         }
 
         // Start node
 
         foreach ($this->getChildrenByTagName($domNode, 'start') as $domSubNode) {
             foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
-                $relationshipData->startNode = $this->getNodeData($nodeNode);
+                $relationshipData->setStartNode($this->getNodeData($nodeNode));
             }
         }
 
@@ -121,7 +121,7 @@ class GraphXmlImporter
 
         foreach ($this->getChildrenByTagName($domNode, 'end') as $domSubNode) {
             foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
-                $relationshipData->endNode = $this->getNodeData($nodeNode);
+                $relationshipData->setEndNode($this->getNodeData($nodeNode));
             }
         }
 
@@ -147,11 +147,11 @@ class GraphXmlImporter
         $propertyData = new PropertyData();
 
         if ($domNode->hasAttribute('name')) {
-            $propertyData->name = trim($domNode->getAttribute('name'));
+            $propertyData->setName(trim($domNode->getAttribute('name')));
         }
 
         if ($domNode->hasAttribute('type')) {
-            $propertyData->type = trim($domNode->getAttribute('type'));
+            $propertyData->setType(trim($domNode->getAttribute('type')));
         }
 
         foreach ($this->getChildrenByTagName($domNode, 'value') as $domSubNode) {
@@ -159,7 +159,7 @@ class GraphXmlImporter
 
             // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
 
-            switch (strtolower($propertyData->type)) {
+            switch (strtolower($propertyData->getType())) {
                 case 'integer':
                     $value = intval($value);
                     break;
@@ -180,7 +180,7 @@ class GraphXmlImporter
                     break;
             }
 
-            $propertyData->values[] = $value;
+            $propertyData->addValue($value);
         }
 
         return $propertyData;

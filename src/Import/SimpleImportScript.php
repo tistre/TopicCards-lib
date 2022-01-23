@@ -123,19 +123,19 @@ class SimpleImportScript
 
         $propertyData = $importData->getProperty('uuid');
 
-        if (!is_null($propertyData)) {
-            return $propertyData->values[0];
+        if ((!is_null($propertyData)) && (count($propertyData->getValues()) > 0)) {
+            return $propertyData->getValues()[0];
         }
 
         // Otherwise create and return a new uuid property
 
         $uuid = Uuid::uuid4();
 
-        $propertyData = new PropertyData();
-        $propertyData->name = 'uuid';
-        $propertyData->values[] = (string)$uuid;
+        $propertyData = (new PropertyData())
+            ->setName('uuid')
+            ->setValue((string)$uuid);
 
-        $importData->properties[] = $propertyData;
+        $importData->addProperty($propertyData);
 
         return $uuid;
     }
