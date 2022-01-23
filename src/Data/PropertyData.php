@@ -5,6 +5,13 @@ namespace StrehleDe\TopicCards\Data;
 
 class PropertyData
 {
+    const TYPE_INTEGER = 'integer';
+    const TYPE_FLOAT = 'float';
+    const TYPE_BOOLEAN = 'boolean';
+    const TYPE_DATE = 'date';
+    const TYPE_TIME = 'time';
+    const TYPE_DATETIME = 'datetime';
+
     protected string $name = '';
     protected string $type = '';
     protected array $values = [];
