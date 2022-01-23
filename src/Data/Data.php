@@ -1,15 +1,15 @@
 <?php
 
-namespace StrehleDe\TopicCards\Import;
+namespace StrehleDe\TopicCards\Data;
 
 
-class ImportData
+class Data
 {
-    /** @var PropertyImportData[] */
+    /** @var PropertyData[] */
     public array $properties = [];
 
 
-    public function getProperty(string $name): ?PropertyImportData
+    public function getProperty(string $name): ?PropertyData
     {
         foreach ($this->properties as $propertyData) {
             if ($propertyData->name !== $name) {

@@ -1,6 +1,6 @@
 FROM php:8.0-fpm
 
-# Install "sockets" extension for Neo4j Bolt
+# Install "bcmath" extension for Neo4j Bolt
 RUN docker-php-ext-install bcmath
 
 # Install "zip" extension for Composer installs

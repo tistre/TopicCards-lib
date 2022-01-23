@@ -1,9 +1,9 @@
 <?php
 
-namespace StrehleDe\TopicCards\Import;
+namespace StrehleDe\TopicCards\Data;
 
 
-class PropertyImportData
+class PropertyData
 {
     public string $name = '';
     public string $type = '';

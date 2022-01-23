@@ -5,7 +5,7 @@ namespace StrehleDe\TopicCards\Cypher;
 use Laudis\Neo4j\Types\Date;
 use Laudis\Neo4j\Types\DateTime;
 use Laudis\Neo4j\Types\Time;
-use StrehleDe\TopicCards\Import\PropertyImportData;
+use StrehleDe\TopicCards\Data\PropertyData;
 
 
 class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterface
@@ -48,7 +48,7 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
     }
 
 
-    public function addProperty(CypherStatement $cypherStatement, PropertyImportData $propertyData): void
+    public function addProperty(CypherStatement $cypherStatement, PropertyData $propertyData): void
     {
         if (count($propertyData->values) === 0) {
             return;
@@ -69,7 +69,7 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
     }
 
 
-    protected function getFragment(PropertyImportData $propertyData, string $parameterName, &$parameterValue): string
+    protected function getFragment(PropertyData $propertyData, string $parameterName, &$parameterValue): string
     {
         if ($parameterValue instanceof DateTime) {
             $fragment = sprintf('%s: datetime({{ %s }})', $propertyData->name, $parameterName);

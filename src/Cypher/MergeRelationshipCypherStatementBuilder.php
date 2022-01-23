@@ -2,15 +2,15 @@
 
 namespace StrehleDe\TopicCards\Cypher;
 
-use StrehleDe\TopicCards\Import\RelationshipImportData;
+use StrehleDe\TopicCards\Data\RelationshipData;
 
 
 class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderInterface
 {
-    protected RelationshipImportData $relationshipData;
+    protected RelationshipData $relationshipData;
 
 
-    public function __construct(RelationshipImportData $relationshipData)
+    public function __construct(RelationshipData $relationshipData)
     {
         $this->relationshipData = $relationshipData;
     }

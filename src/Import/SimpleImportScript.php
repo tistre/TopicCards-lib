@@ -8,6 +8,10 @@ use Laudis\Neo4j\Contracts\TransactionInterface;
 use Ramsey\Uuid\Uuid;
 use StrehleDe\TopicCards\Cypher\MergeNodeCypherStatementBuilder;
 use StrehleDe\TopicCards\Cypher\MergeRelationshipCypherStatementBuilder;
+use StrehleDe\TopicCards\Data\Data;
+use StrehleDe\TopicCards\Data\NodeData;
+use StrehleDe\TopicCards\Data\PropertyData;
+use StrehleDe\TopicCards\Data\RelationshipData;
 
 
 class SimpleImportScript
@@ -26,7 +30,7 @@ class SimpleImportScript
     protected function createClient(): ClientInterface
     {
         return ClientBuilder::create()
-            ->withDriver($this->driver, $this->url, null, 0)
+            ->withDriver($this->driver, $this->url)
             ->withDefaultDriver($this->driver)
             ->build();
     }
@@ -35,12 +39,12 @@ class SimpleImportScript
     public function importFile(string $filename): void
     {
         $client = $this->createClient();
-        $importDataObjects = new GraphXmlReader($filename);
+        $dataObjects = new GraphXmlReader($filename);
 
-        foreach ($importDataObjects as $importData) {
-            if ($importData instanceof NodeImportData) {
+        foreach ($dataObjects as $importData) {
+            if ($importData instanceof NodeData) {
                 $this->importNode($client, $importData);
-            } elseif ($importData instanceof RelationshipImportData) {
+            } elseif ($importData instanceof RelationshipData) {
                 $this->importRelationship($client, $importData);
             }
         }
@@ -49,24 +53,23 @@ class SimpleImportScript
 
     public function convertFileToCypher(string $filename): void
     {
-        $client = $this->createClient();
-        $importDataObjects = new GraphXmlReader($filename);
+        $dataObjects = new GraphXmlReader($filename);
 
-        foreach ($importDataObjects as $importData) {
-            if ($importData instanceof NodeImportData) {
-                echo $this->nodeToCypher($client, $importData);
-            } elseif ($importData instanceof RelationshipImportData) {
-                echo $this->relationshipToCypher($client, $importData);
+        foreach ($dataObjects as $importData) {
+            if ($importData instanceof NodeData) {
+                echo $this->nodeToCypher($importData);
+            } elseif ($importData instanceof RelationshipData) {
+                echo $this->relationshipToCypher($importData);
             }
         }
     }
 
 
-    protected function importNode(ClientInterface $client, NodeImportData $nodeData): void
+    protected function importNode(ClientInterface $client, NodeData $nodeData): void
     {
         $uuid = $this->getUuid($nodeData);
 
-        $statement = (new MergeNodeCypherStatementBuilder($nodeData))->getCypherStatement();
+        $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         print_r($statement->getStatement(false)); echo "\n";
 
         $client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
@@ -77,7 +80,7 @@ class SimpleImportScript
     }
 
 
-    protected function importRelationship(ClientInterface $client, RelationshipImportData $relationshipData): void
+    protected function importRelationship(ClientInterface $client, RelationshipData $relationshipData): void
     {
         $uuid = $this->getUuid($relationshipData);
 
@@ -92,20 +95,20 @@ class SimpleImportScript
     }
 
 
-    protected function nodeToCypher(ClientInterface $client, NodeImportData $nodeData): string
+    protected function nodeToCypher(NodeData $nodeData): string
     {
-        $uuid = $this->getUuid($nodeData);
+        $this->getUuid($nodeData);
 
-        $statement = (new MergeNodeCypherStatementBuilder($nodeData))->getCypherStatement();
+        $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         $cypher = $statement->getStatement(false);
 
         return $cypher ? $cypher . ";\n" : '';
     }
 
 
-    protected function relationshipToCypher(ClientInterface $client, RelationshipImportData $relationshipData): string
+    protected function relationshipToCypher(RelationshipData $relationshipData): string
     {
-        $uuid = $this->getUuid($relationshipData);
+        $this->getUuid($relationshipData);
 
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
         $cypher = $statement->getStatement(false);
@@ -114,7 +117,7 @@ class SimpleImportScript
     }
 
 
-    protected function getUuid(ImportData $importData): string
+    protected function getUuid(Data $importData): string
     {
         // If a uuid property already exists, return its value
 
@@ -128,7 +131,7 @@ class SimpleImportScript
 
         $uuid = Uuid::uuid4();
 
-        $propertyData = new PropertyImportData();
+        $propertyData = new PropertyData();
         $propertyData->name = 'uuid';
         $propertyData->values[] = (string)$uuid;
 

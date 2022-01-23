@@ -4,15 +4,18 @@ namespace StrehleDe\TopicCards\Import;
 
 use DOMElement;
 use StrehleDe\TopicCards\Cypher\Converter;
+use StrehleDe\TopicCards\Data\NodeData;
+use StrehleDe\TopicCards\Data\PropertyData;
+use StrehleDe\TopicCards\Data\RelationshipData;
 
 
 class GraphXmlImporter
 {
     /**
      * @param DOMElement $domNode
-     * @return NodeImportData
+     * @return NodeData
      */
-    public function getNodeData(DOMElement $domNode): NodeImportData
+    public function getNodeData(DOMElement $domNode): NodeData
     {
         /*
         Example:
@@ -27,7 +30,7 @@ class GraphXmlImporter
         </graph>
         */
 
-        $nodeData = new NodeImportData();
+        $nodeData = new NodeData();
 
         // ID
 
@@ -65,9 +68,9 @@ class GraphXmlImporter
 
     /**
      * @param DOMElement $domNode
-     * @return RelationshipImportData
+     * @return RelationshipData
      */
-    public function getRelationshipData(DOMElement $domNode): RelationshipImportData
+    public function getRelationshipData(DOMElement $domNode): RelationshipData
     {
         /*
         Example:
@@ -86,7 +89,7 @@ class GraphXmlImporter
         </graph>
         */
 
-        $relationshipData = new RelationshipImportData();
+        $relationshipData = new RelationshipData();
 
         // Type
 
@@ -128,9 +131,9 @@ class GraphXmlImporter
 
     /**
      * @param DOMElement $domNode
-     * @return PropertyImportData
+     * @return PropertyData
      */
-    protected function getPropertyData(DOMElement $domNode): PropertyImportData
+    protected function getPropertyData(DOMElement $domNode): PropertyData
     {
         /*
         Example:
@@ -141,7 +144,7 @@ class GraphXmlImporter
         </property>
         */
 
-        $propertyData = new PropertyImportData();
+        $propertyData = new PropertyData();
 
         if ($domNode->hasAttribute('name')) {
             $propertyData->name = trim($domNode->getAttribute('name'));
