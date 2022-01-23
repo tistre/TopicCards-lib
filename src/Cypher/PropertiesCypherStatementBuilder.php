@@ -1,11 +1,11 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
 use Laudis\Neo4j\Types\Date;
 use Laudis\Neo4j\Types\DateTime;
 use Laudis\Neo4j\Types\Time;
-use TopicCards\Import\PropertyImportData;
+use StrehleDe\TopicCards\Import\PropertyImportData;
 
 
 class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterface

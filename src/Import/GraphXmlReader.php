@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Import;
+namespace StrehleDe\TopicCards\Import;
 
 use DOMElement;
 use Iterator;

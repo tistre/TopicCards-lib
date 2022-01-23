@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
 use DateTimeImmutable;
 use Laudis\Neo4j\Types\Date;

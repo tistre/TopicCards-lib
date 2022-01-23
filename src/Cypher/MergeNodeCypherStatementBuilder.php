@@ -1,8 +1,8 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
-use TopicCards\Import\NodeImportData;
+use StrehleDe\TopicCards\Import\NodeImportData;
 
 
 class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface

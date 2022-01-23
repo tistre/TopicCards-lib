@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Import;
+namespace StrehleDe\TopicCards\Import;
 
 
 class ImportData

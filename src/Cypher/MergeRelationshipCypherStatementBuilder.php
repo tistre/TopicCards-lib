@@ -1,8 +1,8 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
-use TopicCards\Import\RelationshipImportData;
+use StrehleDe\TopicCards\Import\RelationshipImportData;
 
 
 class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderInterface

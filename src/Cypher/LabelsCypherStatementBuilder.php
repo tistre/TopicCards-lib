@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
 
 class LabelsCypherStatementBuilder implements CypherStatementBuilderInterface

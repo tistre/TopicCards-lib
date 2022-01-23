@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Import;
+namespace StrehleDe\TopicCards\Import;
 
 
 use DateTimeImmutable;
@@ -8,7 +8,7 @@ use DOMElement;
 use Laudis\Neo4j\Types\Date;
 use Laudis\Neo4j\Types\DateTime;
 use Laudis\Neo4j\Types\Time;
-use TopicCards\Cypher\Converter;
+use StrehleDe\TopicCards\Cypher\Converter;
 
 class GraphXmlImporter
 {

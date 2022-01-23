@@ -1,13 +1,13 @@
 <?php
 
-namespace TopicCards\Import;
+namespace StrehleDe\TopicCards\Import;
 
 use Laudis\Neo4j\ClientBuilder;
 use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Contracts\TransactionInterface;
 use Ramsey\Uuid\Uuid;
-use TopicCards\Cypher\MergeNodeCypherStatementBuilder;
-use TopicCards\Cypher\MergeRelationshipCypherStatementBuilder;
+use StrehleDe\TopicCards\Cypher\MergeNodeCypherStatementBuilder;
+use StrehleDe\TopicCards\Cypher\MergeRelationshipCypherStatementBuilder;
 
 
 class SimpleImportScript

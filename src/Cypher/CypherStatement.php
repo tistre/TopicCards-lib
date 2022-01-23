@@ -1,6 +1,6 @@
 <?php
 
-namespace TopicCards\Cypher;
+namespace StrehleDe\TopicCards\Cypher;
 
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
