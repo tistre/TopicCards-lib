@@ -73,7 +73,7 @@ class CypherStatement
      * @param mixed $value
      * @return self
      */
-    public function setParameter(string $name, mixed $value): self
+    public function setParameter(string $name, $value): self
     {
         $this->parameters[$name] = $value;
         return $this;
@@ -122,7 +122,7 @@ class CypherStatement
     }
 
 
-    public static function literalValue(mixed $value): string
+    public static function literalValue($value): string
     {
         if (is_int($value) || is_float($value)) {
             return $value;

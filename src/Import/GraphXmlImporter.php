@@ -160,22 +160,22 @@ class GraphXmlImporter
             // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
 
             switch (strtolower($propertyData->getType())) {
-                case 'integer':
+                case PropertyData::TYPE_INTEGER:
                     $value = intval($value);
                     break;
-                case 'float':
+                case PropertyData::TYPE_FLOAT:
                     $value = floatval($value);
                     break;
-                case 'boolean':
+                case PropertyData::TYPE_BOOLEAN:
                     $value = boolval($value);
                     break;
-                case 'date':
+                case PropertyData::TYPE_DATE:
                     $value = Converter::stringToNeo4jDate($value);
                     break;
-                case 'time':
+                case PropertyData::TYPE_TIME:
                     $value = Converter::stringToNeo4jTime($value);
                     break;
-                case 'datetime':
+                case PropertyData::TYPE_DATETIME:
                     $value = Converter::stringToNeo4jDateTime($value);
                     break;
             }
