@@ -67,6 +67,19 @@ class PropertyData
 
 
     /**
+     * @return mixed|null
+     */
+    public function getValue()
+    {
+        if (empty($this->values)) {
+            return null;
+        }
+
+        return $this->values[0];
+    }
+
+
+    /**
      * @param array $values
      * @return self
      */

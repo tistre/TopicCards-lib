@@ -67,7 +67,7 @@ class SimpleImportScript
 
     protected function importNode(ClientInterface $client, NodeData $nodeData): void
     {
-        $uuid = $this->getUuid($nodeData);
+        $uuid = $nodeData->generateUuid();
 
         $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         print_r($statement->getStatement(false)); echo "\n";
@@ -82,7 +82,7 @@ class SimpleImportScript
 
     protected function importRelationship(ClientInterface $client, RelationshipData $relationshipData): void
     {
-        $uuid = $this->getUuid($relationshipData);
+        $uuid = $relationshipData->generateUuid();
 
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
         print_r($statement->getStatement(false)); echo "\n";
@@ -97,7 +97,7 @@ class SimpleImportScript
 
     protected function nodeToCypher(NodeData $nodeData): string
     {
-        $this->getUuid($nodeData);
+        $nodeData->generateUuid();
 
         $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         $cypher = $statement->getStatement(false);
@@ -108,35 +108,11 @@ class SimpleImportScript
 
     protected function relationshipToCypher(RelationshipData $relationshipData): string
     {
-        $this->getUuid($relationshipData);
+        $relationshipData->generateUuid();
 
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
         $cypher = $statement->getStatement(false);
 
         return $cypher ? $cypher . ";\n" : '';
-    }
-
-
-    protected function getUuid(Data $importData): string
-    {
-        // If a uuid property already exists, return its value
-
-        $propertyData = $importData->getProperty('uuid');
-
-        if ((!is_null($propertyData)) && (count($propertyData->getValues()) > 0)) {
-            return $propertyData->getValues()[0];
-        }
-
-        // Otherwise create and return a new uuid property
-
-        $uuid = Uuid::uuid4();
-
-        $propertyData = (new PropertyData())
-            ->setName('uuid')
-            ->setValue((string)$uuid);
-
-        $importData->addProperty($propertyData);
-
-        return $uuid;
     }
 }
