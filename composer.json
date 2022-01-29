@@ -13,13 +13,17 @@
   ],
   "require": {
     "php": ">=7.4 <8.1",
-    "ext-json": "*",
     "ext-bcmath": "*",
+    "ext-curl": "*",
     "ext-dom": "*",
+    "ext-json": "*",
     "ext-xmlreader": "*",
-    "monolog/monolog": "^2.3",
+    "elasticsearch/elasticsearch": "~7.0",
     "laudis/neo4j-php-client": "^2.3",
+    "monolog/monolog": "^2.3",
     "ramsey/uuid": "^4.2",
+    "symfony/config": "^6.0",
+    "symfony/yaml": "^6.0",
     "twig/twig": "^3.0"
   },
   "config": {

@@ -2,50 +2,34 @@
 
 namespace StrehleDe\TopicCards\Import;
 
-use Laudis\Neo4j\ClientBuilder;
 use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Contracts\TransactionInterface;
-use Ramsey\Uuid\Uuid;
 use StrehleDe\TopicCards\Cypher\MergeNodeCypherStatementBuilder;
 use StrehleDe\TopicCards\Cypher\MergeRelationshipCypherStatementBuilder;
-use StrehleDe\TopicCards\Data\Data;
 use StrehleDe\TopicCards\Data\NodeData;
-use StrehleDe\TopicCards\Data\PropertyData;
 use StrehleDe\TopicCards\Data\RelationshipData;
 
 
 class SimpleImportScript
 {
-    protected string $driver;
-    protected string $url;
+    protected ClientInterface $neo4jClient;
 
 
-    public function __construct(string $driver, string $url)
+    public function __construct(ClientInterface $neo4jClient)
     {
-        $this->driver = $driver;
-        $this->url = $url;
-    }
-
-
-    protected function createClient(): ClientInterface
-    {
-        return ClientBuilder::create()
-            ->withDriver($this->driver, $this->url)
-            ->withDefaultDriver($this->driver)
-            ->build();
+        $this->neo4jClient = $neo4jClient;
     }
 
 
     public function importFile(string $filename): void
     {
-        $client = $this->createClient();
         $dataObjects = new GraphXmlReader($filename);
 
         foreach ($dataObjects as $importData) {
             if ($importData instanceof NodeData) {
-                $this->importNode($client, $importData);
+                $this->importNode($importData);
             } elseif ($importData instanceof RelationshipData) {
-                $this->importRelationship($client, $importData);
+                $this->importRelationship($importData);
             }
         }
     }
@@ -65,14 +49,14 @@ class SimpleImportScript
     }
 
 
-    protected function importNode(ClientInterface $client, NodeData $nodeData): void
+    protected function importNode(NodeData $nodeData): void
     {
         $uuid = $nodeData->generateUuid();
 
         $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         print_r($statement->getStatement(false)); echo "\n";
 
-        $client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
+        $this->neo4jClient->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
         });
 
@@ -80,14 +64,14 @@ class SimpleImportScript
     }
 
 
-    protected function importRelationship(ClientInterface $client, RelationshipData $relationshipData): void
+    protected function importRelationship(RelationshipData $relationshipData): void
     {
         $uuid = $relationshipData->generateUuid();
 
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
         print_r($statement->getStatement(false)); echo "\n";
 
-        $client->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
+        $this->neo4jClient->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
             $tsx->run($statement->getStatement(), $statement->getParameters());
         });
 
