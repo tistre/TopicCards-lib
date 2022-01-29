@@ -7,7 +7,7 @@
 Use [Composer](https://getcomposer.org/) to add this library your project’s composer.json file:
 
 ```
-$ composer require strehle-de/strehle-de/topiccards-lib
+$ composer require strehle-de/topiccards-lib
 ```
 
 ## Quick test with Docker
