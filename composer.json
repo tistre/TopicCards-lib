@@ -22,8 +22,8 @@
     "laudis/neo4j-php-client": "^2.3",
     "monolog/monolog": "^2.3",
     "ramsey/uuid": "^4.2",
-    "symfony/config": "^6.0",
-    "symfony/yaml": "^6.0",
+    "symfony/config": ">=5.4",
+    "symfony/yaml": ">=5.4",
     "twig/twig": "^3.0"
   },
   "config": {
