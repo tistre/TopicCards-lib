@@ -113,6 +113,7 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('hosts')
                             ->scalarPrototype()->end()
                         ->end()
+                        ->scalarNode('index')->end()
                     ->end()
                 ->end()
                 ->arrayNode('neo4j')

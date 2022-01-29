@@ -1,6 +1,7 @@
 elasticsearch:
   hosts:
   - "http://user:password@elasticsearch.example.com:9200"
+  index: my_index
 neo4j:
   driver:
     alias: bolt

@@ -18,4 +18,10 @@ class ElasticsearchConfig
     {
         return $this->configArray['hosts'] ?? [];
     }
+
+
+    public function getIndex(): string
+    {
+        return $this->configArray['index'] ?? '';
+    }
 }
