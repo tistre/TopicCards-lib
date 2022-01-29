@@ -14,9 +14,11 @@
   "require": {
     "php": ">=7.4 <8.1",
     "ext-bcmath": "*",
+    "ext-curl": "*",
     "ext-dom": "*",
     "ext-json": "*",
     "ext-xmlreader": "*",
+    "elasticsearch/elasticsearch": "~7.0",
     "laudis/neo4j-php-client": "^2.3",
     "monolog/monolog": "^2.3",
     "ramsey/uuid": "^4.2",
