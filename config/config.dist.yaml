@@ -1,3 +1,6 @@
+elasticsearch:
+  hosts:
+  - "http://user:password@elasticsearch.example.com:9200"
 neo4j:
   driver:
     alias: bolt
