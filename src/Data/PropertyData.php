@@ -18,6 +18,26 @@ class PropertyData
 
 
     /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function __construct(string $name = '', $value = null)
+    {
+        if ($name !== '') {
+            $this->setName($name);
+        }
+
+        if (!is_null($value)) {
+            if (is_array($value)) {
+                $this->setValues($value);
+            } else {
+                $this->setValue($value);
+            }
+        }
+    }
+
+
+    /**
      * @return string
      */
     public function getName(): string

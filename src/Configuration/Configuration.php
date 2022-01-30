@@ -2,8 +2,6 @@
 
 namespace StrehleDe\TopicCards\Configuration;
 
-use Elasticsearch\Client;
-use Laudis\Neo4j\Contracts\ClientInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
@@ -66,16 +64,6 @@ class Configuration implements ConfigurationInterface
     }
 
 
-    public function getElasticsearchClient(): Client
-    {
-        $elasticsearchConfig = $this->getElasticsearchConfig();
-
-        return \Elasticsearch\ClientBuilder::create()
-            ->setHosts($elasticsearchConfig->getHosts())
-            ->build();
-    }
-
-
     public function getNeo4jConfig(): Neo4jConfig
     {
         static $neo4jConfig = false;
@@ -85,17 +73,6 @@ class Configuration implements ConfigurationInterface
         }
 
         return $neo4jConfig;
-    }
-
-
-    public function getNeo4jClient(): ClientInterface
-    {
-        $neo4jConfig = $this->getNeo4jConfig();
-
-        return \Laudis\Neo4j\ClientBuilder::create()
-            ->withDriver($neo4jConfig->getDriverAlias(), $neo4jConfig->getDriverUrl())
-            ->withDefaultDriver($neo4jConfig->getDriverAlias())
-            ->build();
     }
 
 

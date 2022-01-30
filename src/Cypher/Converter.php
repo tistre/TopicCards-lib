@@ -72,4 +72,26 @@ class Converter
     {
         return self::neo4jDateTimeToDateTime($neo4jDateTime)->format('c');
     }
+
+
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
+    public static function neo4jToScalar($value)
+    {
+        if (!is_object($value)) {
+            return $value;
+        }
+
+        if ($value instanceof Date) {
+            return self::neo4jDateToString($value);
+        } elseif ($value instanceof Time) {
+            return self::neo4jTimeToString($value);
+        } elseif ($value instanceof DateTime) {
+            return self::neo4jDateTimeToString($value);
+        }
+
+        return (string)$value;
+    }
 }
