@@ -10,6 +10,21 @@ class NodeData extends Data
 
 
     /**
+     * @param mixed $label
+     */
+    public function __construct($label = null)
+    {
+        if (!is_null($label)) {
+            if (is_array($label)) {
+                $this->setLabels($label);
+            } else {
+                $this->setLabel($label);
+            }
+        }
+    }
+
+
+    /**
      * @return string
      */
     public function getId(): string
@@ -46,6 +61,16 @@ class NodeData extends Data
     {
         $this->labels = $labels;
         return $this;
+    }
+
+
+    /**
+     * @param string $label
+     * @return $this
+     */
+    public function setLabel(string $label): self
+    {
+        return $this->setLabels([$label]);
     }
 
 
