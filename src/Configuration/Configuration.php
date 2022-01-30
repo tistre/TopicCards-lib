@@ -103,6 +103,11 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('indexing')
+                    ->children()
+                        ->scalarNode('node_query')->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

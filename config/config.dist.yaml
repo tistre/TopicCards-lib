@@ -6,3 +6,7 @@ neo4j:
   driver:
     alias: bolt
     url: "bolt://user:password@neo4j.example.com"
+indexing:
+  node_query: >-
+    MATCH (n {uuid: $uuid})
+    RETURN n {_label: labels(n), .*}
