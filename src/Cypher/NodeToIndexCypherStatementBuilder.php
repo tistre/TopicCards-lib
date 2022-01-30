@@ -22,7 +22,7 @@ class NodeToIndexCypherStatementBuilder implements CypherStatementBuilderInterfa
     {
         $cypherStatement = new CypherStatement();
 
-        $cypherStatement->setStatement('MATCH (n {uuid: {{ uuid }}}) RETURN n {.*}');
+        $cypherStatement->setStatement('MATCH (n {uuid: {{ uuid }}}) RETURN n {_label: labels(n), .*}');
 
         $cypherStatement->setParameter('uuid', $this->nodeData->getProperty('uuid')->getValue());
 

@@ -3,6 +3,7 @@
 namespace StrehleDe\TopicCards\Cypher;
 
 use DateTimeImmutable;
+use Laudis\Neo4j\Types\CypherList;
 use Laudis\Neo4j\Types\Date;
 use Laudis\Neo4j\Types\DateTime;
 use Laudis\Neo4j\Types\Time;
@@ -90,6 +91,8 @@ class Converter
             return self::neo4jTimeToString($value);
         } elseif ($value instanceof DateTime) {
             return self::neo4jDateTimeToString($value);
+        } elseif ($value instanceof CypherList) {
+            return $value->toArray();
         }
 
         return (string)$value;
