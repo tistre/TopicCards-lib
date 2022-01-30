@@ -31,9 +31,15 @@ class Neo4jConfig
 
     public function getClient(): ClientInterface
     {
-        return ClientBuilder::create()
-            ->withDriver($this->getDriverAlias(), $this->getDriverUrl())
-            ->withDefaultDriver($this->getDriverAlias())
-            ->build();
+        static $client = false;
+
+        if (!is_object($client)) {
+            $client = ClientBuilder::create()
+                ->withDriver($this->getDriverAlias(), $this->getDriverUrl())
+                ->withDefaultDriver($this->getDriverAlias())
+                ->build();
+        }
+
+        return $client;
     }
 }

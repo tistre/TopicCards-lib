@@ -31,8 +31,14 @@ class ElasticsearchConfig
 
     public function getClient(): Client
     {
-        return ClientBuilder::create()
-            ->setHosts($this->getHosts())
-            ->build();
+        static $client = false;
+
+        if (!is_object($client)) {
+            $client = ClientBuilder::create()
+                ->setHosts($this->getHosts())
+                ->build();
+        }
+
+        return $client;
     }
 }
