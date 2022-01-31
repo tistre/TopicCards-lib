@@ -2,13 +2,9 @@
 
 namespace StrehleDe\TopicCards\Search;
 
-use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Types\CypherMap;
 use StrehleDe\TopicCards\Configuration\Configuration;
 use StrehleDe\TopicCards\Cypher\Converter;
-use StrehleDe\TopicCards\Cypher\NodeToIndexCypherStatementBuilder;
-use StrehleDe\TopicCards\Data\NodeData;
-use StrehleDe\TopicCards\Data\PropertyData;
 
 
 class IndexUpdate
