@@ -2,20 +2,16 @@
 
 namespace StrehleDe\TopicCards\Search;
 
-use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Types\CypherMap;
 use StrehleDe\TopicCards\Configuration\Configuration;
 use StrehleDe\TopicCards\Cypher\Converter;
-use StrehleDe\TopicCards\Cypher\NodeToIndexCypherStatementBuilder;
-use StrehleDe\TopicCards\Data\NodeData;
-use StrehleDe\TopicCards\Data\PropertyData;
 
 
 class IndexUpdate
 {
     public static function updateNode(string $uuid, Configuration $configuration): void
     {
-        $indexData = self::getNodeIndexData($uuid, $configuration->getNeo4jConfig()->getClient());
+        $indexData = self::getNodeIndexData($uuid, $configuration);
 
         $elasticsearchConfig = $configuration->getElasticsearchConfig();
 
@@ -27,19 +23,16 @@ class IndexUpdate
     }
 
 
-    public static function getNodeIndexData(string $uuid, ClientInterface $neo4jClient): array
+    public static function getNodeIndexData(string $uuid, Configuration $configuration): array
     {
-        $nodeData = (new NodeData())
-            ->addProperty(
-                new PropertyData('uuid', $uuid)
-            );
-
-        $statement = (new NodeToIndexCypherStatementBuilder($nodeData))->getCypherStatement();
-
-        $rows = $neo4jClient->run(
-            $statement->getStatement(),
-            $statement->getParameters()
+        $rows = $configuration->getNeo4jConfig()->getClient()->run(
+            $configuration->getAll()['indexing']['node_query'],
+            ['uuid' => $uuid]
         );
+
+        if (count($rows) < 1) {
+            return [];
+        }
 
         /** @var CypherMap $row */
         $row = $rows[0];
