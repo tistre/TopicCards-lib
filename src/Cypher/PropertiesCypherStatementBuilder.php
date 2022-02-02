@@ -50,38 +50,51 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
 
     public function addProperty(CypherStatement $cypherStatement, PropertyData $propertyData): void
     {
-        if (count($propertyData->getValues()) === 0) {
+        if (!$propertyData->hasAnyValue()) {
             return;
         }
 
+        $fragment = sprintf('%s: ', $propertyData->getName());
         $parameterName = $this->parameterPrefix . $propertyData->getName();
-        $parameterValue = $propertyData->getValues();
 
-        // To Cypher, a single-element array is different from a scalar value
-        if (count($parameterValue) === 1) {
-            $parameterValue = array_pop($parameterValue);
+        if ($propertyData->hasValueList()) {
+            $fragment .= '[';
+
+            foreach ($propertyData->getValueList() as $key => $parameterValue) {
+                if ($key > 0) {
+                    $fragment .= ', ';
+                }
+
+                $parameterNameWithKey = $parameterName . '_' . $key;
+                $fragment .= $this->getFragment($parameterNameWithKey, $parameterValue);
+                $cypherStatement->setParameter($parameterNameWithKey, $parameterValue);
+            }
+
+            $fragment .= ']';
+        } else {
+            $parameterValue = $propertyData->getValue();
+            $fragment .= $this->getFragment($parameterName, $parameterValue);
+            $cypherStatement->setParameter($parameterName, $parameterValue);
         }
 
-        $fragment = $this->getFragment($propertyData, $parameterName, $parameterValue);
-
         $cypherStatement->append($fragment);
-        $cypherStatement->setParameter($parameterName, $parameterValue);
     }
 
 
-    protected function getFragment(PropertyData $propertyData, string $parameterName, &$parameterValue): string
+    protected function getFragment(string $parameterName, &$parameterValue): string
     {
+
         if ($parameterValue instanceof DateTime) {
-            $fragment = sprintf('%s: datetime({{ %s }})', $propertyData->getName(), $parameterName);
+            $fragment = sprintf('datetime({{ %s }})', $parameterName);
             $parameterValue = Converter::neo4jDateTimeToString($parameterValue);
         } elseif ($parameterValue instanceof Date) {
-            $fragment = sprintf('%s: date({{ %s }})', $propertyData->getName(), $parameterName);
+            $fragment = sprintf('date({{ %s }})', $parameterName);
             $parameterValue = Converter::neo4jDateToString($parameterValue);
         } elseif ($parameterValue instanceof Time) {
-            $fragment = sprintf('%s: time({{ %s }})', $propertyData->getName(), $parameterName);
+            $fragment = sprintf('time({{ %s }})', $parameterName);
             $parameterValue = Converter::neo4jTimeToString($parameterValue);
         } else {
-            $fragment = sprintf('%s: {{ %s }}', $propertyData->getName(), $parameterName);
+            $fragment = sprintf('{{ %s }}', $parameterName);
         }
 
         return $fragment;

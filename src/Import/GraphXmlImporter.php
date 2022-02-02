@@ -55,7 +55,7 @@ class GraphXmlImporter
         foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
-            if ((strlen($propertyData->getName()) === 0) || (count($propertyData->getValues()) === 0)) {
+            if ((strlen($propertyData->getName()) === 0) || (!$propertyData->hasAnyValue())) {
                 continue;
             }
 
@@ -102,7 +102,7 @@ class GraphXmlImporter
         foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
             $propertyData = $this->getPropertyData($domSubNode);
 
-            if ((strlen($propertyData->getName()) === 0) || (count($propertyData->getValues()) === 0)) {
+            if ((strlen($propertyData->getName()) === 0) || (!$propertyData->hasAnyValue())) {
                 continue;
             }
 
@@ -138,6 +138,10 @@ class GraphXmlImporter
         /*
         Example:
 
+        <property name="NAME1" type="string">VALUE</property>
+
+        List of values:
+
         <property name="NAME1" type="string">
           <value>VALUE1</value>
           <value>VALUE2</value>
@@ -154,36 +158,56 @@ class GraphXmlImporter
             $propertyData->setType(trim($domNode->getAttribute('type')));
         }
 
-        foreach ($this->getChildrenByTagName($domNode, 'value') as $domSubNode) {
-            $value = trim($domSubNode->nodeValue);
+        $domSubNodes = $this->getChildrenByTagName($domNode, 'value');
 
-            // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
-
-            switch (strtolower($propertyData->getType())) {
-                case PropertyData::TYPE_INTEGER:
-                    $value = intval($value);
-                    break;
-                case PropertyData::TYPE_FLOAT:
-                    $value = floatval($value);
-                    break;
-                case PropertyData::TYPE_BOOLEAN:
-                    $value = boolval($value);
-                    break;
-                case PropertyData::TYPE_DATE:
-                    $value = Converter::stringToNeo4jDate($value);
-                    break;
-                case PropertyData::TYPE_TIME:
-                    $value = Converter::stringToNeo4jTime($value);
-                    break;
-                case PropertyData::TYPE_DATETIME:
-                    $value = Converter::stringToNeo4jDateTime($value);
-                    break;
+        if (count($domSubNodes) === 0) {
+            $propertyData->setValue($this->stringToTypedValue($domNode->nodeValue, $propertyData->getType()));
+        } else {
+            foreach ($domSubNodes as $domSubNode) {
+                $propertyData->setValueList(array_merge(
+                    $propertyData->getValueList(),
+                    [$this->stringToTypedValue($domSubNode->nodeValue, $propertyData->getType())]
+                ));
             }
-
-            $propertyData->addValue($value);
         }
 
         return $propertyData;
+    }
+
+
+    /**
+     * @param mixed $value
+     * @param string $type
+     * @return bool|float|int|\Laudis\Neo4j\Types\Date|\Laudis\Neo4j\Types\DateTime|\Laudis\Neo4j\Types\Time|string
+     */
+    protected function stringToTypedValue(string $value, string $type)
+    {
+        $value = trim($value);
+
+        // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
+
+        switch (strtolower($type)) {
+            case PropertyData::TYPE_INTEGER:
+                $value = intval($value);
+                break;
+            case PropertyData::TYPE_FLOAT:
+                $value = floatval($value);
+                break;
+            case PropertyData::TYPE_BOOLEAN:
+                $value = boolval($value);
+                break;
+            case PropertyData::TYPE_DATE:
+                $value = Converter::stringToNeo4jDate($value);
+                break;
+            case PropertyData::TYPE_TIME:
+                $value = Converter::stringToNeo4jTime($value);
+                break;
+            case PropertyData::TYPE_DATETIME:
+                $value = Converter::stringToNeo4jDateTime($value);
+                break;
+        }
+
+        return $value;
     }
 
 
