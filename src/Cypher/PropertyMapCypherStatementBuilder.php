@@ -8,7 +8,7 @@ use Laudis\Neo4j\Types\Time;
 use StrehleDe\TopicCards\Data\PropertyData;
 
 
-class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterface
+class PropertyMapCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     protected string $parameterPrefix;
     protected array $properties;
@@ -83,7 +83,6 @@ class PropertiesCypherStatementBuilder implements CypherStatementBuilderInterfac
 
     protected function getFragment(string $parameterName, &$parameterValue): string
     {
-
         if ($parameterValue instanceof DateTime) {
             $fragment = sprintf('datetime({{ %s }})', $parameterName);
             $parameterValue = Converter::neo4jDateTimeToString($parameterValue);

@@ -26,7 +26,7 @@ class SetPropertiesCypherStatementBuilder implements CypherStatementBuilderInter
             return $cypherStatement;
         }
 
-        $propertiesStatement = (new PropertiesCypherStatementBuilder($this->properties))->getCypherStatement();
+        $propertiesStatement = (new PropertyMapCypherStatementBuilder($this->properties))->getCypherStatement();
 
         $cypherStatement->setParameters($propertiesStatement->getParameters());
 

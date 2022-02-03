@@ -37,14 +37,14 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
                 ->getCypherStatement();
 
         $startNodePropertiesStatement =
-            (new PropertiesCypherStatementBuilder(
+            (new PropertyMapCypherStatementBuilder(
                 $this->relationshipData->getStartNode()->getProperties(),
                 'start_'
             ))
                 ->getCypherStatement();
 
         $endNodePropertiesStatement =
-            (new PropertiesCypherStatementBuilder(
+            (new PropertyMapCypherStatementBuilder(
                 $this->relationshipData->getEndNode()->getProperties(),
                 'end_'
             ))
