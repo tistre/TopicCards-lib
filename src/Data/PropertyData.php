@@ -14,7 +14,8 @@ class PropertyData
 
     protected string $name = '';
     protected string $type = '';
-    protected array $values = [];
+    protected $value = null;
+    protected array $valueList = [];
 
 
     /**
@@ -29,7 +30,7 @@ class PropertyData
 
         if (!is_null($value)) {
             if (is_array($value)) {
-                $this->setValues($value);
+                $this->setValueList($value);
             } else {
                 $this->setValue($value);
             }
@@ -78,35 +79,11 @@ class PropertyData
 
 
     /**
-     * @return array
-     */
-    public function getValues(): array
-    {
-        return $this->values;
-    }
-
-
-    /**
      * @return mixed|null
      */
     public function getValue()
     {
-        if (empty($this->values)) {
-            return null;
-        }
-
-        return $this->values[0];
-    }
-
-
-    /**
-     * @param array $values
-     * @return self
-     */
-    public function setValues(array $values): self
-    {
-        $this->values = $values;
-        return $this;
+        return $this->value;
     }
 
 
@@ -116,17 +93,53 @@ class PropertyData
      */
     public function setValue($value): self
     {
-        return $this->setValues([$value]);
+        $this->value = $value;
+        $this->valueList = [];
+        return $this;
     }
 
 
     /**
-     * @param mixed $value
+     * @return bool
+     */
+    public function hasValue(): bool
+    {
+        return (!is_null($this->value));
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getValueList(): array
+    {
+        return $this->valueList;
+    }
+
+
+    /**
+     * @param array $valueList
      * @return self
      */
-    public function addValue($value): self
+    public function setValueList(array $valueList): self
     {
-        $this->values[] = $value;
+        $this->valueList = $valueList;
+        $this->value = null;
         return $this;
+    }
+
+
+    public function hasValueList(): bool
+    {
+        return (count($this->valueList) > 0);
+    }
+
+
+    /**
+     * @return bool
+     */
+    public function hasAnyValue(): bool
+    {
+        return ($this->hasValue() || $this->hasValueList());
     }
 }

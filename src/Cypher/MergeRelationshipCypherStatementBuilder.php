@@ -36,15 +36,17 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
             ))
                 ->getCypherStatement();
 
-        $startNodePropertiesStatement =
-            (new PropertiesCypherStatementBuilder(
+        $startNodeWhereStatement =
+            (new WherePropertiesCypherStatementBuilder(
+                'startNode',
                 $this->relationshipData->getStartNode()->getProperties(),
                 'start_'
             ))
                 ->getCypherStatement();
 
-        $endNodePropertiesStatement =
-            (new PropertiesCypherStatementBuilder(
+        $endNodeWhereStatement =
+            (new WherePropertiesCypherStatementBuilder(
+                'endNode',
                 $this->relationshipData->getEndNode()->getProperties(),
                 'end_'
             ))
@@ -52,16 +54,16 @@ class MergeRelationshipCypherStatementBuilder implements CypherStatementBuilderI
 
         $cypherStatement
             ->setStatement(sprintf(
-                'MATCH (startNode%s %s) MATCH (endNode%s %s) MERGE (startNode)-[r%s {uuid: {{ uuid }}}]->(endNode)',
+                'MATCH (startNode%s) %s MATCH (endNode%s) %s MERGE (startNode)-[r%s {uuid: {{ uuid }}}]->(endNode)',
                 $startNodeLabelsStatement->getUnrenderedStatement(),
-                $startNodePropertiesStatement->getUnrenderedStatement(),
+                $startNodeWhereStatement->getUnrenderedStatement(),
                 $endNodeLabelsStatement->getUnrenderedStatement(),
-                $endNodePropertiesStatement->getUnrenderedStatement(),
+                $endNodeWhereStatement->getUnrenderedStatement(),
                 (new LabelsCypherStatementBuilder([$this->relationshipData->getType()]))->getCypherStatement()->getUnrenderedStatement()
             ))
             ->setParameter('uuid', $this->relationshipData->getProperty('uuid'))
-            ->mergeParameters($startNodePropertiesStatement->getParameters())
-            ->mergeParameters($endNodePropertiesStatement->getParameters());
+            ->mergeParameters($startNodeWhereStatement->getParameters())
+            ->mergeParameters($endNodeWhereStatement->getParameters());
 
         $setPropertiesStatement =
             (new SetPropertiesCypherStatementBuilder(

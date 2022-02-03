@@ -2,10 +2,13 @@
 
 namespace StrehleDe\TopicCards\Cypher;
 
+use StrehleDe\TopicCards\Data\PropertyData;
+
 
 class SetPropertiesCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     protected string $variable;
+    /** @var PropertyData[] */
     protected array $properties;
     protected bool $replaceAll = false;
 
@@ -26,7 +29,7 @@ class SetPropertiesCypherStatementBuilder implements CypherStatementBuilderInter
             return $cypherStatement;
         }
 
-        $propertiesStatement = (new PropertiesCypherStatementBuilder($this->properties))->getCypherStatement();
+        $propertiesStatement = (new PropertyMapCypherStatementBuilder($this->properties))->getCypherStatement();
 
         $cypherStatement->setParameters($propertiesStatement->getParameters());
 
