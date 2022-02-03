@@ -2,15 +2,13 @@
 
 namespace StrehleDe\TopicCards\Cypher;
 
-use Laudis\Neo4j\Types\Date;
-use Laudis\Neo4j\Types\DateTime;
-use Laudis\Neo4j\Types\Time;
 use StrehleDe\TopicCards\Data\PropertyData;
 
 
 class PropertyMapCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     protected string $parameterPrefix;
+    /** @var PropertyData[] */
     protected array $properties;
 
 
@@ -39,63 +37,18 @@ class PropertyMapCypherStatementBuilder implements CypherStatementBuilderInterfa
                 $cypherStatement->append(', ');
             }
 
-            $this->addProperty($cypherStatement, $propertyData);
+            $cypherStatement->append(sprintf('%s: ', $propertyData->getName()));
+
+            $valueStatement = (new PropertyValueCypherStatementBuilder($propertyData, $this->parameterPrefix))
+                ->getCypherStatement();
+
+            $cypherStatement
+                ->append($valueStatement->getUnrenderedStatement())
+                ->mergeParameters($valueStatement->getParameters());
         }
 
         $cypherStatement->append('}');
 
         return $cypherStatement;
-    }
-
-
-    public function addProperty(CypherStatement $cypherStatement, PropertyData $propertyData): void
-    {
-        if (!$propertyData->hasAnyValue()) {
-            return;
-        }
-
-        $fragment = sprintf('%s: ', $propertyData->getName());
-        $parameterName = $this->parameterPrefix . $propertyData->getName();
-
-        if ($propertyData->hasValueList()) {
-            $fragment .= '[';
-
-            foreach ($propertyData->getValueList() as $key => $parameterValue) {
-                if ($key > 0) {
-                    $fragment .= ', ';
-                }
-
-                $parameterNameWithKey = $parameterName . '_' . $key;
-                $fragment .= $this->getFragment($parameterNameWithKey, $parameterValue);
-                $cypherStatement->setParameter($parameterNameWithKey, $parameterValue);
-            }
-
-            $fragment .= ']';
-        } else {
-            $parameterValue = $propertyData->getValue();
-            $fragment .= $this->getFragment($parameterName, $parameterValue);
-            $cypherStatement->setParameter($parameterName, $parameterValue);
-        }
-
-        $cypherStatement->append($fragment);
-    }
-
-
-    protected function getFragment(string $parameterName, &$parameterValue): string
-    {
-        if ($parameterValue instanceof DateTime) {
-            $fragment = sprintf('datetime({{ %s }})', $parameterName);
-            $parameterValue = Converter::neo4jDateTimeToString($parameterValue);
-        } elseif ($parameterValue instanceof Date) {
-            $fragment = sprintf('date({{ %s }})', $parameterName);
-            $parameterValue = Converter::neo4jDateToString($parameterValue);
-        } elseif ($parameterValue instanceof Time) {
-            $fragment = sprintf('time({{ %s }})', $parameterName);
-            $parameterValue = Converter::neo4jTimeToString($parameterValue);
-        } else {
-            $fragment = sprintf('{{ %s }}', $parameterName);
-        }
-
-        return $fragment;
     }
 }

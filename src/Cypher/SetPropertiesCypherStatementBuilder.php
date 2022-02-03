@@ -2,10 +2,13 @@
 
 namespace StrehleDe\TopicCards\Cypher;
 
+use StrehleDe\TopicCards\Data\PropertyData;
+
 
 class SetPropertiesCypherStatementBuilder implements CypherStatementBuilderInterface
 {
     protected string $variable;
+    /** @var PropertyData[] */
     protected array $properties;
     protected bool $replaceAll = false;
 
