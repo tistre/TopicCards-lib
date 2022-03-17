@@ -4,6 +4,7 @@ namespace StrehleDe\TopicCards\Import;
 
 use Laudis\Neo4j\Contracts\ClientInterface;
 use Laudis\Neo4j\Contracts\TransactionInterface;
+use StrehleDe\TopicCards\Cypher\CreateNodeCypherStatementBuilder;
 use StrehleDe\TopicCards\Cypher\MergeNodeCypherStatementBuilder;
 use StrehleDe\TopicCards\Cypher\MergeRelationshipCypherStatementBuilder;
 use StrehleDe\TopicCards\Data\NodeData;
@@ -53,7 +54,12 @@ class SimpleImportScript
     {
         $uuid = $nodeData->generateUuid();
 
-        $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
+        if (is_null($nodeData->getMergeData())) {
+            $statement = (new CreateNodeCypherStatementBuilder($nodeData))->getCypherStatement();
+        } else {
+            $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
+        }
+
         print_r($statement->getStatement(false)); echo "\n";
 
         $this->neo4jClient->writeTransaction(static function (TransactionInterface $tsx) use ($statement) {
@@ -81,9 +87,12 @@ class SimpleImportScript
 
     protected function nodeToCypher(NodeData $nodeData): string
     {
-        $nodeData->generateUuid();
+        if (is_null($nodeData->getMergeData())) {
+            $statement = (new CreateNodeCypherStatementBuilder($nodeData))->getCypherStatement();
+        } else {
+            $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
+        }
 
-        $statement = (new MergeNodeCypherStatementBuilder($nodeData, true))->getCypherStatement();
         $cypher = $statement->getStatement(false);
 
         return $cypher ? $cypher . ";\n" : '';
@@ -92,8 +101,6 @@ class SimpleImportScript
 
     protected function relationshipToCypher(RelationshipData $relationshipData): string
     {
-        $relationshipData->generateUuid();
-
         $statement = (new MergeRelationshipCypherStatementBuilder($relationshipData))->getCypherStatement();
         $cypher = $statement->getStatement(false);
 
