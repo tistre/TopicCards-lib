@@ -7,6 +7,7 @@ class NodeData extends Data
 {
     protected string $id = '';
     protected array $labels = [];
+    protected NodeData $mergeData;
 
 
     /**
@@ -82,5 +83,25 @@ class NodeData extends Data
     {
         $this->labels[] = $label;
         return $this;
+    }
+
+
+    /**
+     * @param NodeData $mergeData
+     * @return $this
+     */
+    public function setMergeData(NodeData $mergeData): self
+    {
+        $this->mergeData = $mergeData;
+        return $this;
+    }
+
+
+    /**
+     * @return NodeData|null
+     */
+    public function getMergeData(): ?NodeData
+    {
+        return $this->mergeData ?? null;
     }
 }

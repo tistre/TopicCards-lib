@@ -23,8 +23,23 @@ class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
     public function getCypherStatement(): CypherStatement
     {
         $cypherStatement = new CypherStatement();
+        $cypherStatement->setStatement('MERGE (n');
 
-        $cypherStatement->setStatement('MERGE (n {uuid: {{ uuid }}})');
+        $mergeData = $this->nodeData->getMergeData();
+
+        if (!is_null($mergeData)) {
+            if (count($mergeData->getLabels()) > 0) {
+                $cypherStatement->append(
+                    (new LabelsCypherStatementBuilder($mergeData->getLabels()))->getCypherStatement()->getUnrenderedStatement()
+                );
+            }
+
+            $mergePropertiesStatement = (new PropertyMapCypherStatementBuilder($mergeData->getProperties()))->getCypherStatement();
+            $cypherStatement->setParameters($mergePropertiesStatement->getParameters());
+            $cypherStatement->append(' ' . $mergePropertiesStatement->getUnrenderedStatement());
+        }
+
+        $cypherStatement->append(')');
 
         if (count($this->nodeData->getLabels()) > 0) {
             $cypherStatement->append(sprintf(
@@ -44,7 +59,7 @@ class MergeNodeCypherStatementBuilder implements CypherStatementBuilderInterface
         $cypherStatement->append($setPropertiesStatement->getUnrenderedStatement());
         $cypherStatement->mergeParameters($setPropertiesStatement->getParameters());
 
-        $cypherStatement->append(' RETURN n.uuid');
+        $cypherStatement->append(' RETURN id(n)');
 
         return $cypherStatement;
     }

@@ -22,8 +22,11 @@ class GraphXmlImporter
 
         <graph xmlns="https://topiccards.net/GraphCards/xmlns">
           <node>
+            <merge>
+              <label>LABEL1</label>
+              <property>…</property>
+            </merge>
             <id>21</id>
-            <label>LABEL1</label>
             <label>LABEL2</label>
             <property>…</property>
           </node>
@@ -31,6 +34,21 @@ class GraphXmlImporter
         */
 
         $nodeData = new NodeData();
+
+        // Merge
+
+        foreach ($this->getChildrenByTagName($domNode, 'merge') as $domSubNode) {
+            $mergeData = $this->getNodeData($domSubNode);
+
+            if ((count($mergeData->getLabels()) === 0) && (count($mergeData->getProperties()) === 0)) {
+                continue;
+            }
+
+            $nodeData->setMergeData($mergeData);
+
+            // Only one <merge> node is supported
+            break;
+        }
 
         // ID
 
