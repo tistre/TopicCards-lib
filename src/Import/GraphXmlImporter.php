@@ -3,62 +3,66 @@
 namespace StrehleDe\TopicCards\Import;
 
 use DOMElement;
-use StrehleDe\TopicCards\Cypher\Converter;
-use StrehleDe\TopicCards\Data\NodeData;
-use StrehleDe\TopicCards\Data\PropertyData;
-use StrehleDe\TopicCards\Data\RelationshipData;
+use StrehleDe\TopicCards\Cypher\StatementTemplate;
 
 
 class GraphXmlImporter
 {
     /**
      * @param DOMElement $domNode
-     * @return NodeData
+     * @return StatementTemplate
      */
-    public function getNodeData(DOMElement $domNode): NodeData
+    public static function getStatementTemplate(DOMElement $domNode): StatementTemplate
     {
         /*
         Example:
 
         <graph xmlns="https://topiccards.net/GraphCards/xmlns">
-          <node>
-            <merge>
-              <label>LABEL1</label>
-              <property>…</property>
-            </merge>
-            <id>21</id>
-            <label>LABEL2</label>
-            <property>…</property>
-          </node>
+            <statement>
+                <text>
+                    MERGE (n{{ label1 }} { uuid: {{ uuid }} })
+                    SET n{{ label2 }}
+                    SET n = {
+                        name: {{ name }},
+                        sameAs: {{ sameAs }},
+                        born: date({{ born }}),
+                        age: {{ age }}
+                    }
+                    RETURN n.uuid
+                </text>
+                <labels>
+                    <label name="label1">Person</label>
+                    <label name="label2">Boy</label>
+                    <label name="label2">Man</label>
+                </labels>
+                <parameters>
+                    <parameter name="uuid">5e02f650-7429-4dab-b57b-844bddce068b</parameter>
+                    <parameter name="name" type="string">Tim</parameter>
+                    <parameter name="sameAs" type="string">
+                        <value>https://www.strehle.de/tim/</value>
+                        <value>https://twitter.com/tistre</value>
+                    </parameter>
+                    <parameter name="born">1972-10-01</parameter>
+                    <parameter name="age" type="integer">49</parameter>
+                </parameters>
+            </statement>
         </graph>
         */
 
-        $nodeData = new NodeData();
+        // <text>
 
-        // Merge
+        $text = '';
 
-        foreach ($this->getChildrenByTagName($domNode, 'merge') as $domSubNode) {
-            $mergeData = $this->getNodeData($domSubNode);
-
-            if ((count($mergeData->getLabels()) === 0) && (count($mergeData->getProperties()) === 0)) {
-                continue;
-            }
-
-            $nodeData->setMergeData($mergeData);
-
-            // Only one <merge> node is supported
+        foreach (self::getChildrenByTagName($domNode, 'text') as $domSubNode) {
+            $text = trim($domSubNode->nodeValue);
             break;
         }
 
-        // ID
+        $statementTemplate = new StatementTemplate($text, []);
 
-        foreach ($this->getChildrenByTagName($domNode, 'id') as $domSubNode) {
-            $nodeData->setId(trim($domSubNode->nodeValue));
-        }
-
-        // Labels
-
-        foreach ($this->getChildrenByTagName($domNode, 'label') as $domSubNode) {
+        // <labels>
+/*
+        foreach (self::getChildrenByTagName($domNode, 'labels') as $domSubNode) {
             $label = trim($domSubNode->nodeValue);
 
             if (strlen($label) === 0) {
@@ -67,165 +71,69 @@ class GraphXmlImporter
 
             $nodeData->addLabel($label);
         }
+*/
 
-        // Properties
+        // <parameters>
 
-        foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
-            $propertyData = $this->getPropertyData($domSubNode);
+        foreach (self::getChildrenByTagName($domNode, 'parameters') as $domIntermediateNode) {
+            foreach (self::getChildrenByTagName($domIntermediateNode, 'parameter') as $domSubNode) {
+                $parameter = self::getParameter($domSubNode);
 
-            if ((strlen($propertyData->getName()) === 0) || (!$propertyData->hasAnyValue())) {
-                continue;
+                if (strlen($parameter->getName()) === 0) {
+                    continue;
+                }
+
+                $statementTemplate->setParameter($parameter->getName(), $parameter->getValue());
             }
-
-            $nodeData->addProperty($propertyData);
         }
 
-        return $nodeData;
+        return $statementTemplate;
     }
 
 
     /**
      * @param DOMElement $domNode
-     * @return RelationshipData
+     * @return GraphXmlParameter
      */
-    public function getRelationshipData(DOMElement $domNode): RelationshipData
+    protected static function getParameter(DOMElement $domNode): GraphXmlParameter
     {
         /*
         Example:
 
-        <graph xmlns="https://topiccards.net/GraphCards/xmlns">
-          <relationship>
-            <type>TYPE</type>
-            <property>…</property>
-            <start>
-              <node>…</node>
-            </start>
-            <end>
-              <node>…</node>
-            </end>
-          </relationship>
-        </graph>
-        */
-
-        $relationshipData = new RelationshipData();
-
-        // Type
-
-        foreach ($this->getChildrenByTagName($domNode, 'type') as $domSubNode) {
-            $relationshipData->setType(trim($domSubNode->nodeValue));
-        }
-
-        // Properties
-
-        foreach ($this->getChildrenByTagName($domNode, 'property') as $domSubNode) {
-            $propertyData = $this->getPropertyData($domSubNode);
-
-            if ((strlen($propertyData->getName()) === 0) || (!$propertyData->hasAnyValue())) {
-                continue;
-            }
-
-            $relationshipData->addProperty($propertyData);
-        }
-
-        // Start node
-
-        foreach ($this->getChildrenByTagName($domNode, 'start') as $domSubNode) {
-            foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
-                $relationshipData->setStartNode($this->getNodeData($nodeNode));
-            }
-        }
-
-        // End node
-
-        foreach ($this->getChildrenByTagName($domNode, 'end') as $domSubNode) {
-            foreach ($this->getChildrenByTagName($domSubNode, 'node') as $nodeNode) {
-                $relationshipData->setEndNode($this->getNodeData($nodeNode));
-            }
-        }
-
-        return $relationshipData;
-    }
-
-
-    /**
-     * @param DOMElement $domNode
-     * @return PropertyData
-     */
-    protected function getPropertyData(DOMElement $domNode): PropertyData
-    {
-        /*
-        Example:
-
-        <property name="NAME1" type="string">VALUE</property>
+        <parameter name="name" type="string">Tim</parameter>
 
         List of values:
 
-        <property name="NAME1" type="string">
-          <value>VALUE1</value>
-          <value>VALUE2</value>
-        </property>
+        <parameter name="sameAs" type="string">
+            <value>https://www.strehle.de/tim/</value>
+            <value>https://twitter.com/tistre</value>
+        </parameter>
         */
 
-        $propertyData = new PropertyData();
+        $name = '';
+        $type = GraphXmlParameter::TYPE_STRING;
 
         if ($domNode->hasAttribute('name')) {
-            $propertyData->setName(trim($domNode->getAttribute('name')));
+            $name = trim($domNode->getAttribute('name'));
         }
 
         if ($domNode->hasAttribute('type')) {
-            $propertyData->setType(trim($domNode->getAttribute('type')));
+            $type = trim($domNode->getAttribute('type'));
         }
 
-        $domSubNodes = $this->getChildrenByTagName($domNode, 'value');
+        $domSubNodes = self::getChildrenByTagName($domNode, 'value');
 
         if (count($domSubNodes) === 0) {
-            $propertyData->setValue($this->stringToTypedValue($domNode->nodeValue, $propertyData->getType()));
+            $value = trim($domNode->nodeValue);
         } else {
+            $value = [];
+
             foreach ($domSubNodes as $domSubNode) {
-                $propertyData->setValueList(array_merge(
-                    $propertyData->getValueList(),
-                    [$this->stringToTypedValue($domSubNode->nodeValue, $propertyData->getType())]
-                ));
+                $value[] = trim($domSubNode->nodeValue);
             }
         }
 
-        return $propertyData;
-    }
-
-
-    /**
-     * @param mixed $value
-     * @param string $type
-     * @return bool|float|int|\Laudis\Neo4j\Types\Date|\Laudis\Neo4j\Types\DateTime|\Laudis\Neo4j\Types\Time|string
-     */
-    protected function stringToTypedValue(string $value, string $type)
-    {
-        $value = trim($value);
-
-        // Names of types taken from https://github.com/neo4j-php/neo4j-php-client#accessing-the-results
-
-        switch (strtolower($type)) {
-            case PropertyData::TYPE_INTEGER:
-                $value = intval($value);
-                break;
-            case PropertyData::TYPE_FLOAT:
-                $value = floatval($value);
-                break;
-            case PropertyData::TYPE_BOOLEAN:
-                $value = boolval($value);
-                break;
-            case PropertyData::TYPE_DATE:
-                $value = Converter::stringToNeo4jDate($value);
-                break;
-            case PropertyData::TYPE_TIME:
-                $value = Converter::stringToNeo4jTime($value);
-                break;
-            case PropertyData::TYPE_DATETIME:
-                $value = Converter::stringToNeo4jDateTime($value);
-                break;
-        }
-
-        return $value;
+        return new GraphXmlParameter($name, $value, $type);
     }
 
 
@@ -234,7 +142,7 @@ class GraphXmlImporter
      * @param string $tagName
      * @return DOMElement[]
      */
-    protected function getChildrenByTagName(DOMElement $domNode, string $tagName): array
+    protected static function getChildrenByTagName(DOMElement $domNode, string $tagName): array
     {
         $result = [];
 

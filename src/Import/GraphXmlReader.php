@@ -11,7 +11,8 @@ class GraphXmlReader implements Iterator
 {
     protected int $cnt = -1;
     protected string $fileName = '';
-    protected GraphXmlImporter $importer;
+    /** @var callable */
+    protected $statementHandler;
     protected XMLReader $xmlReader;
 
 
@@ -20,12 +21,12 @@ class GraphXmlReader implements Iterator
      *
      * @param string $fileName
      */
-    public function __construct(string $fileName)
+    public function __construct(string $fileName, callable $statementHandler)
     {
         $this->fileName = $fileName;
+        $this->statementHandler = $statementHandler;
 
         $this->xmlReader = new XMLReader();
-        $this->importer = new GraphXmlImporter();
     }
 
 
@@ -70,7 +71,7 @@ class GraphXmlReader implements Iterator
 
     public function current()
     {
-        /** @var DOMElement $domNode */
+        /** @var DOMElement|bool $domNode */
         $domNode = $this->xmlReader->expand();
 
         if ($domNode === false) {
@@ -81,10 +82,8 @@ class GraphXmlReader implements Iterator
             return false;
         }
 
-        if ($domNode->tagName === 'node') {
-            return $this->importer->getNodeData($domNode);
-        } elseif ($domNode->tagName === 'relationship') {
-            return $this->importer->getRelationshipData($domNode);
+        if ($domNode->tagName === 'statement') {
+            return call_user_func($this->statementHandler, $domNode);
         } else {
             return false;
         }
