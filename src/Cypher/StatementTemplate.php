@@ -9,14 +9,16 @@ use Twig\Loader\ArrayLoader;
 
 class StatementTemplate
 {
-    protected string $templateText;
+    protected array $labels;
     protected array $parameters;
+    protected string $templateText;
 
 
-    public function __construct(string $templateText, array $parameters)
+    public function __construct(string $templateText, array $parameters, array $labels)
     {
         $this->templateText = $templateText;
         $this->parameters = $parameters;
+        $this->labels = $labels;
     }
 
 
@@ -90,6 +92,43 @@ class StatementTemplate
     }
 
 
+    /**
+     * @return array
+     */
+    public function getLabels(): array
+    {
+        return $this->labels;
+    }
+
+
+    /**
+     * @param array $labels
+     * @return self
+     */
+    public function setLabels(array $labels): self
+    {
+        $this->labels = $labels;
+        return $this;
+    }
+
+
+    /**
+     * @param string $name
+     * @param string $value
+     * @return self
+     */
+    public function addLabel(string $name, string $value): self
+    {
+        if (!isset($this->labels[$name])) {
+            $this->labels[$name] = [];
+        }
+
+        $this->labels[$name][] = $value;
+
+        return $this;
+    }
+
+
     protected function renderText(bool $useParameters = true): string
     {
         $twig = new Environment(
@@ -114,6 +153,15 @@ class StatementTemplate
         } else {
             foreach ($this->parameters as $name => $value) {
                 $templateVariables[$name] = self::literalValue($value);
+            }
+        }
+
+        foreach ($this->labels as $name => $values) {
+            $templateVariables[$name] = '';
+
+            foreach ($values as $value) {
+                // TODO: Escape ` as well?
+                $templateVariables[$name] .= sprintf(':`%s`', self::escapeString($value));
             }
         }
 
@@ -154,7 +202,7 @@ class StatementTemplate
             return ($value ? 'true' : 'false');
         }
 
-        return self::escapeString((string)$value);
+        return sprintf('"%s"', self::escapeString((string)$value));
     }
 
 
@@ -174,6 +222,6 @@ class StatementTemplate
             "\b" => "\\b",
         ];
 
-        return sprintf('"%s"', strtr($value, $replacePairs));
+        return strtr($value, $replacePairs);
     }
 }

@@ -58,20 +58,27 @@ class GraphXmlImporter
             break;
         }
 
-        $statementTemplate = new StatementTemplate($text, []);
+        $statementTemplate = new StatementTemplate($text, [], []);
 
         // <labels>
-/*
-        foreach (self::getChildrenByTagName($domNode, 'labels') as $domSubNode) {
-            $label = trim($domSubNode->nodeValue);
 
-            if (strlen($label) === 0) {
-                continue;
+        foreach (self::getChildrenByTagName($domNode, 'labels') as $domIntermediateNode) {
+            foreach (self::getChildrenByTagName($domIntermediateNode, 'label') as $domSubNode) {
+                if (!$domSubNode->hasAttribute('name')) {
+                    continue;
+                }
+
+                $labelName = trim($domSubNode->getAttribute('name'));
+                $labelValue = trim($domSubNode->nodeValue);
+
+                if ((strlen($labelName) === 0) || (strlen($labelValue) === 0)) {
+                    continue;
+                }
+
+                $statementTemplate->addLabel($labelName, $labelValue);
+
             }
-
-            $nodeData->addLabel($label);
         }
-*/
 
         // <parameters>
 
