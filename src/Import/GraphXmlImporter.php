@@ -8,11 +8,51 @@ use StrehleDe\TopicCards\Cypher\StatementTemplate;
 
 class GraphXmlImporter
 {
+    protected $defaultText = '';
+
+
     /**
      * @param DOMElement $domNode
      * @return StatementTemplate
      */
-    public static function getStatementTemplate(DOMElement $domNode): StatementTemplate
+    public function setDefault(DOMElement $domNode): void
+    {
+        /*
+        Example:
+
+        <graph xmlns="https://topiccards.net/GraphCards/xmlns">
+            <default>
+                <text>
+                    MERGE (n{{ label1 }} { uuid: {{ uuid }} })
+                    SET n{{ label2 }}
+                    SET n = {
+                        name: {{ name }},
+                        sameAs: {{ sameAs }},
+                        born: date({{ born }}),
+                        age: {{ age }}
+                    }
+                    RETURN n.uuid
+                </text>
+            </default>
+        </graph>
+        */
+
+        // <text>
+
+        $this->defaultText = '';
+
+        foreach (self::getChildrenByTagName($domNode, 'text') as $domSubNode) {
+            $this->defaultText = trim($domSubNode->nodeValue);
+            break;
+        }
+    }
+
+
+    /**
+     * @param DOMElement $domNode
+     * @return StatementTemplate
+     */
+    public function getStatementTemplate(DOMElement $domNode): StatementTemplate
     {
         /*
         Example:
@@ -51,7 +91,7 @@ class GraphXmlImporter
 
         // <text>
 
-        $text = '';
+        $text = $this->defaultText;
 
         foreach (self::getChildrenByTagName($domNode, 'text') as $domSubNode) {
             $text = trim($domSubNode->nodeValue);

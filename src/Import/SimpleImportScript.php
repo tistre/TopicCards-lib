@@ -19,10 +19,14 @@ class SimpleImportScript
 
     public function importFile(string $filename): void
     {
-        $statementTemplates = new GraphXmlReader($filename, [GraphXmlImporter::class, 'getStatementTemplate']);
+        $statementTemplates = $this->getReader($filename);
 
-        /** @var StatementTemplate $statementTemplate */
+        /** @var StatementTemplate|bool $statementTemplate */
         foreach ($statementTemplates as $statementTemplate) {
+            if (!$statementTemplate) {
+                continue;
+            }
+
             $this->neo4jClient->runStatement($statementTemplate->getStatement());
         }
     }
@@ -30,11 +34,29 @@ class SimpleImportScript
 
     public function convertFileToCypher(string $filename): void
     {
-        $statementTemplates = new GraphXmlReader($filename, [GraphXmlImporter::class, 'getStatementTemplate']);
+        $statementTemplates = $this->getReader($filename);
 
-        /** @var StatementTemplate $statementTemplate */
+        /** @var StatementTemplate|bool $statementTemplate */
         foreach ($statementTemplates as $statementTemplate) {
+            if (!$statementTemplate) {
+                continue;
+            }
+
             echo $statementTemplate->getCypherText() . ";\n";
         }
+    }
+
+
+    protected function getReader(string $filename): GraphXmlReader
+    {
+        $graphXmlImporter = new GraphXmlImporter();
+
+        $reader = new GraphXmlReader(
+            $filename,
+            [$graphXmlImporter, 'setDefault'],
+            [$graphXmlImporter, 'getStatementTemplate']
+        );
+
+        return $reader;
     }
 }

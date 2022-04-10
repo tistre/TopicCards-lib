@@ -10,6 +10,8 @@ use XMLReader;
 class GraphXmlReader implements Iterator
 {
     protected int $cnt = -1;
+    /** @var callable */
+    protected $defaultHandler;
     protected string $fileName = '';
     /** @var callable */
     protected $statementHandler;
@@ -21,9 +23,10 @@ class GraphXmlReader implements Iterator
      *
      * @param string $fileName
      */
-    public function __construct(string $fileName, callable $statementHandler)
+    public function __construct(string $fileName, callable $defaultHandler, callable $statementHandler)
     {
         $this->fileName = $fileName;
+        $this->defaultHandler = $defaultHandler;
         $this->statementHandler = $statementHandler;
 
         $this->xmlReader = new XMLReader();
@@ -82,7 +85,9 @@ class GraphXmlReader implements Iterator
             return false;
         }
 
-        if ($domNode->tagName === 'statement') {
+        if ($domNode->tagName === 'default') {
+            return call_user_func($this->defaultHandler, $domNode);
+        } elseif ($domNode->tagName === 'statement') {
             return call_user_func($this->statementHandler, $domNode);
         } else {
             return false;
