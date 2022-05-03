@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graph xmlns="https://topiccards.net/GraphCards/xmlns">
+    <default>
+        <text>
+            MERGE (n{{ label1 }} { uuid: {{ uuid }} })
+            SET n{{ label2 }}
+            SET n = {
+            name: {{ name }},
+            sameAs: {{ sameAs }},
+            hobby: {{ hobby }},
+            born: date({{ born }}),
+            played: datetime({{ played }}),
+            wakeUp: time({{ wakeUp }}),
+            age: {{ age }},
+            heat: {{ heat }},
+            isTim: {{ isTim }},
+            isSomeoneElse: {{ isSomeoneElse }},
+            luckyNumbers: {{ luckyNumbers }},
+            description: {{ description }}
+            }
+            RETURN n.uuid
+        </text>
+    </default>
+    <statement>
+        <!-- TODO support set parameter, see https://neo4j.com/docs/cypher-manual/current/clauses/set/#set-set-all-properties-using-a-parameter -->
+        <labels>
+            <label name="label1">Person</label>
+            <label name="label2">Guy</label>
+            <label name="label2">Man</label>
+        </labels>
+        <parameters>
+            <parameter name="uuid">5e02f650-7429-4dab-b57b-844bddce068b</parameter>
+            <parameter name="name" type="string">Tim</parameter>
+            <parameter name="sameAs" type="string">
+                <value>https://www.strehle.de/tim/</value>
+                <value>https://twitter.com/tistre</value>
+            </parameter>
+            <parameter name="hobby">
+                <value>Music</value>
+            </parameter>
+            <parameter name="born">1970-10-01</parameter>
+            <parameter name="played">2021-12-24T12:24:03+01:00</parameter>
+            <parameter name="wakeUp">2021-12-24T12:24:03+01:00</parameter>
+            <parameter name="age" type="integer">49</parameter>
+            <parameter name="heat" type="float">36.7</parameter>
+            <parameter name="isTim" type="boolean">1</parameter>
+            <parameter name="isSomeoneElse" type="boolean">0</parameter>
+            <parameter name="luckyNumbers" type="integer">
+                <value>11</value>
+                <value>13</value>
+            </parameter>
+            <parameter name="description">Tim "tistre" Strehle doesn't run Windows 👽
+                See the file C:\WIN32\WIN.EXE
+            </parameter>
+        </parameters>
+    </statement>
+    <statement>
+        <text>
+            CREATE (n:`Person` {name: "John", uuid: "78fc734e-b526-4cd5-9db6-77e7f9b1defe"}) RETURN id(n)
+        </text>
+    </statement>
+    <statement>
+        <text>
+            MATCH (startNode) WHERE {{ sameAs }} IN startNode.sameAs
+            MATCH (endNode:`Person`) WHERE endNode.uuid = {{ uuid }}
+            MERGE (startNode)-[r:`isParentOf`]->(endNode)
+            SET r = {made: datetime({{ made }})}
+            RETURN id(r)
+        </text>
+        <parameters>
+            <parameter name="sameAs">https://twitter.com/tistre</parameter>
+            <parameter name="uuid">78fc734e-b526-4cd5-9db6-77e7f9b1defe</parameter>
+            <parameter name="made">2022-01-01T12:24:03+01:00</parameter>
+        </parameters>
+    </statement>
+</graph>
